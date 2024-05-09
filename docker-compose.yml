@@ -71,6 +71,37 @@ services:
     env_file:
       - .env
 
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - 11434:11434
+    volumes:
+      - .:/code
+      - ./ollama/ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    # networks:
+    #   - ollama-docker
+
+  ollama-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: ollama-webui
+    volumes:
+      - ./ollama/ollama-webui:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - 8080:8080
+    environment:
+      - '/ollama/api=http://ollama:11434/api'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    # networks:
+    #   - ollama-docker
+
 volumes:
   openmrs-data: ~
   db-data: ~
