@@ -5,3 +5,8 @@
 </p>
 
 ## Description
+
+
+## Resources
+
+* [langserve-launch-example](https://github.com/langchain-ai/langserve-launch-example)

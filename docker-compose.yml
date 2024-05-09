@@ -61,6 +61,16 @@ services:
     volumes:
       - db-data:/var/lib/mysql
 
+  langserve:
+    build:
+      context: genai/.
+    image: langserve_launch_example:latest
+    container_name: langserve_launch_example
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+
 volumes:
   openmrs-data: ~
   db-data: ~
