@@ -10,7 +10,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx:/etc/nginx
 
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
