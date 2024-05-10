@@ -9,6 +9,8 @@ services:
       - backend
     ports:
       - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
 
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
@@ -23,6 +25,8 @@ services:
       timeout: 5s
     depends_on:
       - backend
+    volumes:
+      - /openmrs/spaserver/spa:/openmrs/spa
 
   backend:
     image: openmrs/openmrs-reference-application-3-backend:${TAG:-qa}
@@ -64,8 +68,8 @@ services:
   langserve:
     build:
       context: genai/.
-    image: langserve_launch_example:latest
-    container_name: langserve_launch_example
+    image: beapen/genai:latest
+    container_name: genai_server
     ports:
       - "8001:8001"
     env_file:
