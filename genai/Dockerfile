@@ -8,4 +8,4 @@ RUN pip install poetry && \
   poetry config virtualenvs.create false && \
   poetry install --no-interaction --no-ansi --only main
 
-CMD exec uvicorn langserve_launch_example.server:app --host 0.0.0.0 --port 8001
+CMD exec uvicorn genai.server:app --host 0.0.0.0 --port 8001

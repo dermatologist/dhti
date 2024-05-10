@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "langserve_launch_example"
+name = "genai"
 version = "0.0.1"
 description = ""
 authors = ["Nuno Campos <nuno@langchain.dev>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "langserve_launch_example"}]
+packages = [{include = "genai"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"

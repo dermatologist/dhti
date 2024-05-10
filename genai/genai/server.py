@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from langserve import add_routes
 
-from langserve_launch_example.chain import get_chain
+from genai.chain import get_chain
 
 app = FastAPI(title="LangServe Launch Example")
 
