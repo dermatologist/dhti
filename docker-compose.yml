@@ -11,8 +11,7 @@ services:
       - backend
     ports:
       - "80:80"
-    volumes:
-      - ./nginx:/etc/nginx
+
 
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
