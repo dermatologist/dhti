@@ -2,7 +2,9 @@ version: "3.7"
 
 services:
   gateway:
-    image: openmrs/openmrs-reference-application-3-gateway:${TAG:-qa}
+    build:
+      context: nginx/.
+    image: beapen/nginx-gateway:latest
     restart: "unless-stopped"
     depends_on:
       - frontend
@@ -69,7 +71,7 @@ services:
     build:
       context: genai/.
     image: beapen/genai:latest
-    container_name: genai_server
+    # container_name: genai_server
     ports:
       - "8001:8001"
     env_file:
