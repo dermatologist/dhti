@@ -8,9 +8,9 @@ readme = "README.md"
 packages = [{include = "genai"}]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
-langchain = "^0.0.313"
-langserve = { version = ">=0.0.6", extras = ["server"] }
+python = "^3.11"
+langchain = "^0.1.4"
+langserve = { version = "^0.0.51", extras = ["server"] }
 tiktoken = "^0.4.0"
 openai = "^0.27.8"
 fastapi = "^0.96.0"

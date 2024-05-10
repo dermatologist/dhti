@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from langserve import add_routes
 
-from genai.chain import get_chain
+# from genai.chain import get_chain
 
 app = FastAPI(title="LangServe Launch Example")
 
-add_routes(app, get_chain())
+# add_routes(app, get_chain())
 
 if __name__ == "__main__":
     import uvicorn
