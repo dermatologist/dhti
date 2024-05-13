@@ -9,12 +9,15 @@ services:
     depends_on:
       - frontend
       - backend
+      - langserve
+      - ollama-webui
+      - fhir
     ports:
       - "80:80"
 
 
   frontend:
-    image: openmrs/openmrs-reference-application-3-frontend:${TAG:-dev3}
+    image: openmrs/openmrs-reference-application-3-frontend:${TAG:-3.0.0-beta.18} # dev3, qa, demo, 3.0.0-beta.18
     restart: "unless-stopped"
     environment:
       SPA_PATH: /openmrs/spa
@@ -30,7 +33,7 @@ services:
       - /openmrs/spaserver/spa:/openmrs/spa
 
   backend:
-    image: openmrs/openmrs-reference-application-3-backend:${TAG:-dev3}
+    image: openmrs/openmrs-reference-application-3-backend:${TAG:-3.0.0-beta.18} # dev3, qa, demo, 3.0.0-beta.18
     restart: "unless-stopped"
     depends_on:
       - db
@@ -73,6 +76,12 @@ services:
     # container_name: genai_server
     ports:
       - "8001:8001"
+    restart: "unless-stopped"
+    depends_on:
+      - ollama
+      - ollama-webui
+      - fhir
+      - backend
     env_file:
       - .env
 
