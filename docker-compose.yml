@@ -14,7 +14,7 @@ services:
 
 
   frontend:
-    image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
+    image: openmrs/openmrs-reference-application-3-frontend:${TAG:-dev3}
     restart: "unless-stopped"
     environment:
       SPA_PATH: /openmrs/spa
@@ -30,7 +30,7 @@ services:
       - /openmrs/spaserver/spa:/openmrs/spa
 
   backend:
-    image: openmrs/openmrs-reference-application-3-backend:${TAG:-qa}
+    image: openmrs/openmrs-reference-application-3-backend:${TAG:-dev3}
     restart: "unless-stopped"
     depends_on:
       - db
