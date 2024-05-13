@@ -6,6 +6,7 @@ services:
       context: nginx/.
     image: beapen/nginx-gateway:latest
     restart: "unless-stopped"
+    pull_policy: always
     depends_on:
       - frontend
       - backend
@@ -23,6 +24,7 @@ services:
     image: beapen/dhti-frontend:latest
     # image: openmrs/openmrs-reference-application-3-frontend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
     restart: "unless-stopped"
+    pull_policy: always
     environment:
       SPA_PATH: /openmrs/spa
       API_URL: /openmrs
