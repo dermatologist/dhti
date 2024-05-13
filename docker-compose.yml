@@ -12,6 +12,7 @@ services:
       - langserve
       - ollama-webui
       - fhir
+      - langfuse-server
     ports:
       - "80:80"
 
