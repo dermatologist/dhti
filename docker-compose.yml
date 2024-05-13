@@ -107,6 +107,16 @@ services:
     # networks:
     #   - ollama-docker
 
+  fhir:
+    image: smartonfhir/hapi-5:r4-synthea
+    ports:
+      - 8005:8080
+    volumes:
+      - fhir-db:/usr/local/tomcat/target/database
+    container_name: hapifhir
+    restart: always
+
 volumes:
   openmrs-data: ~
   db-data: ~
+  fhir-db: ~
