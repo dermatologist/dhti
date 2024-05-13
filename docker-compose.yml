@@ -31,7 +31,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - /openmrs/spaserver/spa:/openmrs/spa
+      - ./spa:/usr/share/nginx/html
 
   backend:
     image: openmrs/openmrs-reference-application-3-backend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
