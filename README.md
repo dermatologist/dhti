@@ -10,3 +10,4 @@
 ## Resources
 
 * [langserve-launch-example](https://github.com/langchain-ai/langserve-launch-example)
+* http://localhost:8005/hapi-fhir-jpaserver/fhir/
