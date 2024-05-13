@@ -93,7 +93,7 @@ services:
     volumes:
       - .:/code
       - ./ollama/ollama:/root/.ollama
-    container_name: ollama
+    # container_name: ollama
     pull_policy: always
     tty: true
     restart: always
@@ -102,7 +102,7 @@ services:
 
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
-    container_name: ollama-webui
+    # container_name: ollama-webui
     volumes:
       - ./ollama/ollama-webui:/app/backend/data
     depends_on:
@@ -123,10 +123,9 @@ services:
       - 8005:8080
     volumes:
       - fhir-db:/usr/local/tomcat/target/database
-    container_name: hapifhir
     restart: always
 
-  langfuse-server:
+  langfuse:
     image: ghcr.io/langfuse/langfuse:latest
     depends_on:
       - langfuse-db
@@ -136,7 +135,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/postgres
       - NEXTAUTH_SECRET=mysecret
       - SALT=mysalt
-      - NEXTAUTH_URL=http://langfuse-server:3000
+      - NEXTAUTH_URL=http://langfuse:3000
       - TELEMETRY_ENABLED=${TELEMETRY_ENABLED:-false}
       - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES:-false}
 
