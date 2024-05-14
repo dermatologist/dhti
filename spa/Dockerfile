@@ -1,5 +1,6 @@
 FROM openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17
 COPY . /usr/share/nginx/html
+RUN mkdir /usr/share/nginx/html/openmrs-esm-genai-1.0.0
 
 # FROM node:12.18.2 as build
 

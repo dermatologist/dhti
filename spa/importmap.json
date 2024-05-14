@@ -34,6 +34,7 @@
         "@openmrs/esm-appointments-app": "./openmrs-esm-appointments-app-6.0.0/openmrs-esm-appointments-app.js",
         "@openmrs/esm-dispensing-app": "./openmrs-esm-dispensing-app-1.3.0/openmrs-esm-dispensing-app.js",
         "@openmrs/esm-fast-data-entry-app": "./openmrs-esm-fast-data-entry-app-1.0.1-pre.128/openmrs-esm-fast-data-entry-app.js",
-        "@openmrs/esm-form-builder-app": "./openmrs-esm-form-builder-app-2.3.1-pre.677/openmrs-esm-form-builder-app.js"
+        "@openmrs/esm-form-builder-app": "./openmrs-esm-form-builder-app-2.3.1-pre.677/openmrs-esm-form-builder-app.js",
+        "@openmrs/esm-genai": "./openmrs-esm-genai-1.0.0/openmrs-esm-genai.js"
     }
 }
