@@ -88,8 +88,12 @@ services:
       - ollama-webui
       - fhir
       - backend
-    env_file:
-      - .env
+    environment:
+      - OLLAMA_SERVER_URL==http://ollama:11434
+      - OLLAMA_WEBUI=http://ollama-webui:8080
+
+    # env_file:
+    #   - .env
 
   ollama:
     image: ollama/ollama:latest
@@ -101,7 +105,8 @@ services:
     # container_name: ollama
     pull_policy: always
     tty: true
-    restart: always
+    restart: "unless-stopped"
+
     # networks:
     #   - ollama-docker
 
@@ -128,7 +133,7 @@ services:
       - 8005:8080
     volumes:
       - fhir-db:/usr/local/tomcat/target/database
-    restart: always
+    restart: "unless-stopped"
 
   langfuse:
     image: ghcr.io/langfuse/langfuse:latest
@@ -146,7 +151,7 @@ services:
 
   langfuse-db:
     image: postgres
-    restart: always
+    restart: "unless-stopped"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

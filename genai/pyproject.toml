@@ -15,6 +15,7 @@ langserve = { version = "^0.0.51", extras = ["server"] }
 tiktoken = "^0.4.0"
 openai = "^0.27.8"
 fastapi = "^0.96.0"
+numexpr = "^2.7.3"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 pirate-speak = {path = "packages/pirate-speak", develop = true}
 
