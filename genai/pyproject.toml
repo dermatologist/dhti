@@ -5,7 +5,7 @@ description = ""
 authors = ["Nuno Campos <nuno@langchain.dev>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "genai"}]
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
