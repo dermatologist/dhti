@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from langserve import add_routes
 
-# from genai.chain import get_chain
+from pirate_speak.chain import chain as pirate_speak_chain
 
 app = FastAPI(title="LangServe Launch Example")
 
-# add_routes(app, get_chain())
+add_routes(app, pirate_speak_chain, path="/pirate-speak")
 
 if __name__ == "__main__":
     import uvicorn

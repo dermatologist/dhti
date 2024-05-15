@@ -1,2 +1,4 @@
 .env
 ollama/*
+.venv
+genai/packages
