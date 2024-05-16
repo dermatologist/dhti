@@ -88,9 +88,13 @@ services:
       - ollama-webui
       - fhir
       - backend
+      - langfuse
     environment:
       - OLLAMA_SERVER_URL==http://ollama:11434
       - OLLAMA_WEBUI=http://ollama-webui:8080
+      - LANGFUSE_HOST=http://langfuse:3000
+      - LANGFUSE_PUBLIC_KEY=pk-lf-e07d0480-688d-4b94-b4cb-0970e2fb4923
+      - LANGFUSE_SECRET_KEY=sk-lf-b472d20a-3cb5-4b23-ae1c-aea76fac8c06
 
     # env_file:
     #   - .env
