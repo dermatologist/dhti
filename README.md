@@ -44,3 +44,6 @@ initializeSpa({
         configUrls: ["$SPA_CONFIG_URLS"],
 
 
+## Vector database
+
+- Milvus
