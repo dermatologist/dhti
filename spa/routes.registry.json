@@ -205,7 +205,7 @@
     "@openmrs/esm-patient-conditions-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "extensions": [
@@ -299,7 +299,7 @@
     "@openmrs/esm-generic-patient-widgets-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0"
+            "fhir2": "^2.0.0"
         },
         "extensions": [
             {
@@ -608,7 +608,7 @@
     "@openmrs/esm-patient-labs-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "extensions": [
@@ -779,7 +779,7 @@
     "@openmrs/esm-patient-allergies-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "extensions": [
@@ -846,7 +846,7 @@
     "@openmrs/esm-system-admin-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "extensions": [
@@ -1009,7 +1009,7 @@
     "@openmrs/esm-patient-notes-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "extensions": [
@@ -1183,7 +1183,7 @@
     "@openmrs/esm-cohort-builder-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0",
             "reportingrest": "^1.0.0",
             "reporting": "^1.0.0"
@@ -1355,7 +1355,7 @@
     "@openmrs/esm-patient-vitals-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "extensions": [
@@ -1508,7 +1508,7 @@
     },
     "@openmrs/esm-dispensing-app": {
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "pages": [
@@ -1549,7 +1549,7 @@
     "@openmrs/esm-fast-data-entry-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "pages": [
@@ -1574,7 +1574,7 @@
     "@openmrs/esm-form-builder-app": {
         "$schema": "https://json.openmrs.org/routes.schema.json",
         "backendDependencies": {
-            "fhir2": "^1.2.0",
+            "fhir2": "^2.0.0",
             "webservices.rest": "^2.2.0"
         },
         "pages": [
@@ -1599,6 +1599,7 @@
     "@openmrs/esm-genai": {
             "$schema": "https://json.openmrs.org/routes.schema.json",
             "backendDependencies": {
+                "fhir2": "^2.0.0",
                 "webservices.rest": "^2.2.0"
             },
             "extensions": [
