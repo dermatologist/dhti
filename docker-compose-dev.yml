@@ -11,7 +11,7 @@ services:
       - frontend
       - backend
       - langserve
-      - ollama-webui
+      # - ollama-webui
       # - fhir
       # - langfuse
     ports:
@@ -85,7 +85,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - ollama
-      - ollama-webui
+      # - ollama-webui
       # - fhir
       - backend
       # - langfuse
