@@ -13,7 +13,7 @@ services:
     restart: "unless-stopped"
 
   redis:
-    image: redis:latest
+    image: redislabs/redisearch:2.8.8
     ports:
       - 6379:6379
     restart: "unless-stopped"
