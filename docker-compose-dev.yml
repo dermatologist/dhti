@@ -111,6 +111,12 @@ services:
     tty: true
     restart: "unless-stopped"
 
+  redis:
+    image: redislabs/redisearch:2.8.8
+    ports:
+      - 6379:6379
+    restart: "unless-stopped"
+    
     # networks:
     #   - ollama-docker
 
