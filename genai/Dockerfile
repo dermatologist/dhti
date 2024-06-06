@@ -1,14 +1,15 @@
 FROM python:3.11-slim
 
-WORKDIR /app
 
 COPY . /app
+WORKDIR /app
 
-RUN ./install-wheel.sh
 
-RUN pip install --upgrade pip && \
-  pip install poetry && \
+RUN  pip install poetry && \
   poetry config virtualenvs.create false && \
   poetry install --no-interaction --no-ansi --only main
 
-CMD exec uvicorn app.server:app --host 0.0.0.0 --port 8001
+# RUN for file in $(ls whl); do pip install whl/$file; done
+
+
+CMD python app/server.py
