@@ -1,15 +1,27 @@
-FROM python:3.11-slim
+# The builder image, used to build the virtual environment
+FROM python:3.11-buster as builder
 
+RUN pip install poetry==1.4.2
 
-COPY . /app
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
+
 WORKDIR /app
 
+COPY . ./
 
-RUN  pip install poetry && \
-  poetry config virtualenvs.create false && \
-  poetry install --no-interaction --no-ansi --only main
+RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+RUN for file in $(ls whl); do pip install whl/$file; done
+# The runtime image, used to just run the code provided its virtual environment
+FROM python:3.11-slim-buster as runtime
 
-# RUN for file in $(ls whl); do pip install whl/$file; done
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
 
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
-CMD python app/server.py
+COPY app ./app
+
+CMD ["python", "app/server.py"]
