@@ -4,7 +4,7 @@ from langchain_core.runnables.config import RunnableConfig
 from dhti_elixir_fhire import chain as fhire_chain
 import uvicorn
 
-from .bootstrap import bootstrap
+from bootstrap import bootstrap
 bootstrap()
 
 app = FastAPI(title="LangServe Launch Example")
