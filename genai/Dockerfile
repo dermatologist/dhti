@@ -13,7 +13,7 @@ WORKDIR /app
 COPY . ./
 
 RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
-RUN for file in $(ls whl); do pip install whl/$file; done
+
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.11-slim-buster as runtime
 

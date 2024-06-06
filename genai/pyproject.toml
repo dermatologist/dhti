@@ -8,20 +8,24 @@ readme = "README.md"
 packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-langchain = "^0.1.4"
-langchain-community = ">=0.0.7,<0.2"
+python = ">=3.8.1,<4.0"
+langchain-core = ">=0.1.5"
+kink = "^0.8.0"
+python-dotenv = "^1.0.1"
+redis = "^5.0.4"
+langchain-community = "^0.2.1"
 langserve = { version = "^0.0.51", extras = ["server"] }
 langfuse = "^2.31.0"
 tiktoken = "^0.4.0"
-openai = "^0.27.8"
 fastapi = "^0.96.0"
-numexpr = "^2.7.3"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 overrides = "^7.7.0"
+fhiry = { file = "whl/fhiry-0.0.0-py2.py3-none-any.whl" }
+dhti_elixir_base = { file = "whl/dhti_elixir_base-0.0.1-py3-none-any.whl" }
+dhti_elixir_fhire = { file = "whl/dhti_elixir_fhire-0.0.1-py3-none-any.whl" }
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
+pytest = "^8.2.1"
 pytest-asyncio = "^0.21.1"
 mypy = "^1.4.1"
 ruff = "^0.0.278"
