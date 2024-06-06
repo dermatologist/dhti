@@ -4,7 +4,10 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install poetry && \
+RUN ./install-wheel.sh
+
+RUN pip install --upgrade pip && \
+  pip install poetry && \
   poetry config virtualenvs.create false && \
   poetry install --no-interaction --no-ansi --only main
 
