@@ -19,6 +19,7 @@ fastapi = "^0.96.0"
 numexpr = "^2.7.3"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 pirate-speak = {path = "packages/pirate-speak", develop = true}
+overrides = "^7.7.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

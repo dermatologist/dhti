@@ -12,7 +12,8 @@ from langchain_community.embeddings import OllamaEmbeddings
 # Create vectorstore
 # _embedder = HuggingFaceEmbeddings(model_name=getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"))
 _embedder = OllamaEmbeddings(
-    model="all-minilm"
+    model="all-minilm",
+    base_url="http://ollama:11434",
 )
 
 def create_vectorstore(chunks, patient_id):
@@ -23,7 +24,7 @@ def create_vectorstore(chunks, patient_id):
         embedding=_embedder,
         index_name=patient_id,
         index_schema=resource_filename(__name__, '') + '/redis_schema.yaml',
-        redis_url=getenv("REDIS_URL", "redis://localhost:6379")
+        redis_url=getenv("REDIS_URL", "redis://redis:6379")
     )
     assert db is not None
     return True
@@ -33,17 +34,17 @@ def read_vectorstore(patient_id):
                 embedding=_embedder,
                 index_name=patient_id,
                 schema=resource_filename(__name__, '') + '/redis_schema.yaml',
-                redis_url=getenv("REDIS_URL", "redis://localhost:6379")
+                redis_url=getenv("REDIS_URL", "redis://redis:6379")
             )
 
 def bootstrap():
     load_dotenv()
     di["main_prompt"] = PromptTemplate.from_template("{input}")
-    di["main_llm"] = Ollama(model="phi3", verbose=True, base_url="http://localhost:11434")
+    di["main_llm"] = Ollama(model="phi3", verbose=True, base_url="http://ollama:11434")
     di["clinical_llm"] = Ollama(
         model="phi3",
         verbose=True,
-        base_url="http://localhost:11434",
+        base_url="http://ollama:11434",
         temperature=0.1,
         )
     di["rag_k"] = getenv("RAG_K", 3)
