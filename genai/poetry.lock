@@ -542,12 +542,12 @@ test = ["anyio[trio] (>=3.2.1,<4.0.0)", "black (==23.1.0)", "coverage[toml] (>=6
 
 [[package]]
 name = "fhiry"
-version = "0.0.0"
+version = "1.0.0.post1.dev218+g2444951"
 description = "FHIR to pandas.dataframe for AI and ML"
 optional = false
 python-versions = "*"
 files = [
-    {file = "fhiry-0.0.0-py2.py3-none-any.whl", hash = "sha256:c4ccf28d1114f2321d6a46385a55e7bc62e28daa1011d4937e9672e59a9cadf8"},
+    {file = "fhiry-1.0.0.post1.dev218+g2444951-py2.py3-none-any.whl", hash = "sha256:f8b99101ec0ce16b10f826ee4d8a1b6be12f46739971cc639fad95bf298639a1"},
 ]
 
 [package.dependencies]
@@ -564,7 +564,7 @@ testing = ["pytest", "pytest-cov", "setuptools"]
 
 [package.source]
 type = "file"
-url = "whl/fhiry-0.0.0-py2.py3-none-any.whl"
+url = "whl/fhiry-1.0.0.post1.dev218+g2444951-py2.py3-none-any.whl"
 
 [[package]]
 name = "frozenlist"
@@ -3046,4 +3046,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.0,<4.0"
-content-hash = "8751e299452d4dbf1db9519ea3bc44b8ee757a14fa6bdb29a6ee52eb0734b7e0"
+content-hash = "6ee11110618f9cc7d5b161bbb5163a7984e9a8cc15593e91c4337fa21ff61c59"

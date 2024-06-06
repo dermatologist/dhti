@@ -20,7 +20,7 @@ tiktoken = "^0.4.0"
 fastapi = "^0.96.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 overrides = "^7.7.0"
-fhiry = { file = "whl/fhiry-0.0.0-py2.py3-none-any.whl" }
+fhiry = { file = "whl/fhiry-1.0.0.post1.dev218+g2444951-py2.py3-none-any.whl" }
 dhti_elixir_base = { file = "whl/dhti_elixir_base-0.0.1-py3-none-any.whl" }
 dhti_elixir_fhire = { file = "whl/dhti_elixir_fhire-0.0.1-py3-none-any.whl" }
 
