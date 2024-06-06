@@ -4,6 +4,9 @@ from langchain_core.runnables.config import RunnableConfig
 from pirate_speak.chain import chain as pirate_speak_chain
 from dhti_elixir_fhire import chain as fhire_chain
 
+from .bootstrap import bootstrap
+bootstrap()
+
 app = FastAPI(title="LangServe Launch Example")
 
 try:
