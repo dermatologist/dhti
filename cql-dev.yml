@@ -3,7 +3,7 @@ version: "3.7"
 services:
   hapi:
     #image: hapiproject/hapi:latest
-    image: alphora/cqf-ruler:slim
+    image: alphora/cqf-ruler:0.13.0
     ports:
       - 8090:8080
     restart: "unless-stopped"

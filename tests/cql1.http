@@ -3,16 +3,4 @@
 POST http://localhost:8090/fhir/$cql HTTP/1.1
 Content-Type: application/json
 
-{
-  "resourceType": "Parameters",
-  "parameter": [
-    {
-      "name": "Simple Multiply",
-      "valueInteger": 25
-    },
-    {
-      "name": "Simple Message",
-      "valueString": "Hello World!"
-    }
-  ]
-}
+{"resourceType":"Parameters","parameter":[{"name":"content","valueString":"library Welcome version '1.0.0'\n\ndefine \"Simple Multiply\": 5*5\n\ndefine \"Simple Message\": 'Hello World!'"},{"name":"subject","valueString":"P48"},null,{"name":"dataEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},{"name":"terminologyEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},{"name":"contentEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}}]}
