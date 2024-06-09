@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  hapi:
+    #image: hapiproject/hapi:latest
+    image: alphora/cqf-ruler:slim
+    ports:
+      - 8090:8080
+    restart: "unless-stopped"
+    environment:
+      - hapi.fhir.default_encoding=JSON
+      - hapi.fhir.allow_external_references=true
+      - hapi.fhir.allow_placeholder_references=true
+      - hapi.fhir.allow_multiple_delete=true
+      - hapi.fhir.allow_raw_resources=true
+      - hapi.fhir.cr_enabled=true
+
+  # https://hub.docker.com/r/cqframework/cql-translation-service
+  elm:
+    image: cqframework/cql-translation-service:latest
+    ports:
+      - 8091:8080
+    restart: "unless-stopped"
+
+  web:
+    image: beapen/cql_runner:latest
+    ports:
+      - 8092:80
+    restart: "unless-stopped"
+    depends_on:
+      - hapi
