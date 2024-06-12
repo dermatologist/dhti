@@ -21,6 +21,8 @@ services:
       - 8091:8080
     restart: "unless-stopped"
 
+  # https://github.com/DBCG/cql_runner
+  # Use Dockerfile-prod in the repo
   web:
     image: beapen/cql_runner:latest
     ports:
