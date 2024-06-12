@@ -132,7 +132,8 @@ services:
     #   - ollama-docker
 
   fhir:
-    image: smartonfhir/hapi-5:r4-synthea
+    # image: smartonfhir/hapi-5:r4-synthea
+    image: alphora/cqf-ruler:0.14.0 # includes cql
     ports:
       - 8005:8080
     volumes:
@@ -164,6 +165,12 @@ services:
       - 5432:5432
     volumes:
       - langfuse_data:/var/lib/postgresql/data
+
+  redis:
+    image: redislabs/redisearch:2.8.8
+    ports:
+      - 6379:6379
+    restart: "unless-stopped"
 
 volumes:
   openmrs-data: ~
