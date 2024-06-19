@@ -1,0 +1,18 @@
+###
+
+POST http://localhost:11434/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+    "model": "phi3",
+    "messages": [
+        {
+            "role": "system",
+            "content": "Hello, how can I help you today?"
+        },
+        {
+            "role": "user",
+            "content": "I would like to book a flight from Paris to Berlin."
+        }
+    ]
+}
