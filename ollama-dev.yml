@@ -11,6 +11,7 @@ services:
     # container_name: ollama
     environment:
       - OLLAMA_ORIGINS=*
+      - OLLAMA_HOST=0.0.0.0:11434
     pull_policy: always
     tty: true
     restart: "unless-stopped"
