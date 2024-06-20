@@ -9,6 +9,8 @@ services:
       - .:/code
       - ./ollama/ollama:/root/.ollama
     # container_name: ollama
+    environment:
+      - OLLAMA_ORIGINS=*
     pull_policy: always
     tty: true
     restart: "unless-stopped"
