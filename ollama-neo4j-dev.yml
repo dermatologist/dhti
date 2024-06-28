@@ -24,9 +24,9 @@ services:
     environment:
       - NEO4J_AUTH=neo4j/password
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
-      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
-      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*
-      - NEO4J_dbms_security_procedures_whitelist=apoc.*,gds.*
+      - NEO4J_PLUGINS=["apoc", "graph-data-science", "n10s"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*,n10s.*
+      - NEO4J_dbms_security_procedures_whitelist=apoc.*,gds.*,n10s.*
     restart: "unless-stopped"
 
   fhirg:
