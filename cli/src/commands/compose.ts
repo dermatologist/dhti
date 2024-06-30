@@ -1,6 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 
 import fs from 'fs'
+import yaml from 'js-yaml'
 
 export default class Compose extends Command {
   static override args = {
@@ -25,8 +26,11 @@ export default class Compose extends Command {
     // console.log('flags', flags) //flags { module: [ 'default', 'langserve', 'redis' ] }
 
     try {
-      const data = fs.readFileSync('docker-compose.yml', 'utf8');
+      const data: any = yaml.load(fs.readFileSync('docker-compose.yml', 'utf8'));
       console.log(data);
+
+      const devString : string = yaml.dump(data);
+      fs.writeFileSync('docker-compose-dev.yml', devString, 'utf8');
     } catch (err) {
       console.error(err);
     }
