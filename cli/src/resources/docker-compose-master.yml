@@ -65,7 +65,7 @@ services:
       MYSQL_PASSWORD: ${OMRS_DB_PASSWORD:-openmrs}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openmrs}
     volumes:
-      - db-data:/var/lib/mysql
+      - openmrs-db:/var/lib/mysql
 
   langserve:
     build:
@@ -182,7 +182,7 @@ services:
 
 volumes:
   openmrs-data: ~
-  db-data: ~
+  openmrs-db: ~
   fhir-db: ~
   langfuse-data: ~
   redis-data: ~
