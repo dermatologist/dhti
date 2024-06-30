@@ -5,7 +5,6 @@ from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
 from os import getenv
 from langchain_community.vectorstores import Redis
-from pkg_resources import resource_filename
 # from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
 
@@ -17,6 +16,19 @@ _embedder = OllamaEmbeddings(
     base_url="http://ollama:11434",
 )
 
+index_schema = {'tag': [{'name': 'url'}],
+ 'text': [{'name': 'content',
+           'no_index': False,
+           'no_stem': False,
+           'sortable': False,
+           'weight': 1,
+           'withsuffixtrie': False}],
+ 'vector': [{'algorithm': 'FLAT',
+             'datatype': 'FLOAT32',
+             'dims': 384,
+             'distance_metric': 'COSINE',
+             'name': 'content_vector'}]}
+
 def create_vectorstore(chunks, patient_id):
     # Store in Redis
     db = Redis.from_texts(
@@ -24,7 +36,7 @@ def create_vectorstore(chunks, patient_id):
         metadatas=[chunk["metadata"] for chunk in chunks],
         embedding=_embedder,
         index_name=patient_id,
-        index_schema=resource_filename(__name__, '') + '/redis_schema.yaml',
+        index_schema=index_schema, #index_schema=resource_filename(__name__, '') + '/redis_schema.yaml',
         redis_url=getenv("REDIS_URL", "redis://redis:6379")
     )
     assert db is not None
@@ -34,7 +46,7 @@ def read_vectorstore(patient_id):
     return Redis.from_existing_index(
                 embedding=_embedder,
                 index_name=patient_id,
-                schema=resource_filename(__name__, '') + '/redis_schema.yaml',
+                schema=index_schema,
                 redis_url=getenv("REDIS_URL", "redis://redis:6379")
             )
 

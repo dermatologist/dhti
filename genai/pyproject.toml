@@ -14,7 +14,7 @@ langfuse = "^2.31.0"
 tiktoken = "^0.4.0"
 fastapi = "^0.96.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
-dhti_elixir_base = { file = "whl/dhti_elixir_base-0.0.1-py3-none-any.whl" }
+dhti_elixir_base = { git = "https://github.com/dermatologist/dhti-elixir-base", branch = "feature/deps-1" }
 dhti_elixir_fhire = { file = "whl/dhti_elixir_fhire-0.0.1-py3-none-any.whl" }
 
 [tool.poetry.group.dev.dependencies]
