@@ -74,12 +74,6 @@ services:
     ports:
       - "8001:8001"
     restart: "unless-stopped"
-    depends_on:
-      - ollama
-      - ollama-webui
-      - fhir
-      - backend
-      - langfuse
     environment:
       - OLLAMA_SERVER_URL==http://ollama:11434
       - OLLAMA_WEBUI=http://ollama-webui:8080

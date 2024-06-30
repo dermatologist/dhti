@@ -1,18 +1,12 @@
 version: '3.7'
 services:
   gateway:
-    build:
-      context: nginx/.
-    image: beapen/nginx-gateway:latest
+    image: beapen/dhti-gateway:latest
     restart: unless-stopped
     pull_policy: always
     depends_on:
       - frontend
       - backend
-      - langserve
-      - ollama-webui
-      - fhir
-      - langfuse
     ports:
       - '80:80'
   frontend:
@@ -82,18 +76,12 @@ services:
     ports:
       - '8001:8001'
     restart: unless-stopped
-    depends_on:
-      - ollama
-      - ollama-webui
-      - fhir
-      - backend
-      - langfuse
     environment:
       - OLLAMA_SERVER_URL==http://ollama:11434
       - OLLAMA_WEBUI=http://ollama-webui:8080
       - LANGFUSE_HOST=http://langfuse:3000
-      - LANGFUSE_PUBLIC_KEY=pk-lf-e07d0480-688d-4b94-b4cb-0970e2fb4923
-      - LANGFUSE_SECRET_KEY=sk-lf-b472d20a-3cb5-4b23-ae1c-aea76fac8c06
+      - LANGFUSE_PUBLIC_KEY=pk-lf-abcd
+      - LANGFUSE_SECRET_KEY=sk-lf-abcd
   ollama:
     image: ollama/ollama:latest
     ports:
@@ -124,6 +112,20 @@ services:
     volumes:
       - fhir-db:/usr/local/tomcat/target/database
     restart: unless-stopped
+    environment:
+      - hapi.fhir.fhir_version=R4
+  cql-elm:
+    image: cqframework/cql-translation-service:latest
+    ports:
+      - '8091:8080'
+    restart: unless-stopped
+  cql-web:
+    image: beapen/cql_runner:latest
+    ports:
+      - '8092:80'
+    restart: unless-stopped
+    depends_on:
+      - fhir
   langfuse:
     image: ghcr.io/langfuse/langfuse:latest
     depends_on:
@@ -154,8 +156,26 @@ services:
     ports:
       - '6379:6379'
     restart: unless-stopped
+    volumes:
+      - redis-data:/data
+  neo4j:
+    image: neo4j:5.1-enterprise
+    ports:
+      - '7474:7474'
+      - '7687:7687'
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_PLUGINS=["apoc", "graph-data-science", "n10s"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*,n10s.*
+      - NEO4J_dbms_security_procedures_whitelist=apoc.*,gds.*,n10s.*
+    restart: unless-stopped
+    volumes:
+      - neo4j-data:/data
 volumes:
   openmrs-data: null
   db-data: null
   fhir-db: null
   langfuse_data: null
+  redis-data: null
+  neo4j-data: null
