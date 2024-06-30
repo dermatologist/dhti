@@ -35,12 +35,12 @@ services:
     image: openmrs/openmrs-reference-application-3-backend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
     restart: "unless-stopped"
     depends_on:
-      - db
+      - openmrs-db
     environment:
       OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
       OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
       OMRS_CONFIG_CREATE_TABLES: "true"
-      OMRS_CONFIG_CONNECTION_SERVER: db
+      OMRS_CONFIG_CONNECTION_SERVER: openmrs-db
       OMRS_CONFIG_CONNECTION_DATABASE: openmrs
       OMRS_CONFIG_CONNECTION_USERNAME: ${OPENMRS_DB_USER:-openmrs}
       OMRS_CONFIG_CONNECTION_PASSWORD: ${OPENMRS_DB_PASSWORD:-openmrs}
@@ -50,7 +50,7 @@ services:
     volumes:
       - openmrs-data:/openmrs/data
 
-  db:
+  openmrs-db:
     image: mariadb:10.11.7
     restart: "unless-stopped"
     command: "mysqld --character-set-server=utf8 --collation-server=utf8_general_ci"
@@ -86,8 +86,8 @@ services:
     ports:
       - 11434:11434
     volumes:
-      - .:/code
-      - ./ollama/ollama:/root/.ollama
+      - ollama-code:/code
+      - ollama-root:/root/.ollama
     pull_policy: always
     tty: true
     restart: "unless-stopped"
@@ -96,7 +96,7 @@ services:
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
     volumes:
-      - ./ollama/ollama-webui:/app/backend/data
+      - ollama-webui:/app/backend/data
     depends_on:
       - ollama
     ports:
@@ -187,3 +187,6 @@ volumes:
   langfuse-db: ~
   redis-db: ~
   neo4j-db: ~
+  ollama-code: ~
+  ollama-root: ~
+  ollama-webui: ~

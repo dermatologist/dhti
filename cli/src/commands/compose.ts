@@ -18,7 +18,6 @@ export default class Compose extends Command {
     // flag with a value (-n, --name=VALUE)
     module: Flags.string({char: 'm', multiple: true, description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cql_fhir, redis and neo4j)'}),
     file: Flags.string({char: 'f', description: 'Docker compose file to read from. Creates if it does not exist', default: 'docker-compose.yml'}),
-
   }
 
 
@@ -86,7 +85,7 @@ export default class Compose extends Command {
         existing_data.volumes[key] = master_data.volumes[key];
       }
 
-      console.log('existing_data', existing_data);
+      console.log('Writing file: ', existing_data);
 
       fs.writeFileSync(flags.file, yaml.dump(existing_data), 'utf8');
 
