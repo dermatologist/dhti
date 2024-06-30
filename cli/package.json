@@ -1,0 +1,41 @@
+{
+  "name": "dhti-cli",
+  "version": "1.0.0",
+  "description": "Dhanvantari CLI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dermatologist/dhti.git"
+  },
+  "keywords": [
+    "dhti",
+    "healthcare",
+    "llm",
+    "genai"
+  ],
+  "author": "Bell Eapen",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dermatologist/dhti/issues"
+  },
+  "homepage": "https://github.com/dermatologist/dhti#readme",
+  "bin": {
+    "dhti-cli": "./bin/run.js"
+  },
+  "oclif": {
+    "bin": "dhti-cli",
+    "commands": "./dist/commands",
+    "dirname": "dhti-cli",
+    "topicSeparator": " "
+  },
+  "dependencies": {
+    "@oclif/core": "^4.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.39",
+    "ts-node": "^10.9.2"
+  }
+}

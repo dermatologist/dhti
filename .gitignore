@@ -2,7 +2,8 @@
 ollama/*
 genai/packages
 genai/whl
-
+**/node_modules/*
+cli/package-lock.json
 
 # Temporary and binary files
 *~
