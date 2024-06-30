@@ -28,6 +28,9 @@ services:
       - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*,n10s.*
       - NEO4J_dbms_security_procedures_whitelist=apoc.*,gds.*,n10s.*
     restart: "unless-stopped"
+    # volumes:
+    #   - neo4j-data:/data
+
 
   fhirg:
     image: beapen/fhirg:latest
@@ -35,3 +38,6 @@ services:
       - 8080:8080
     environment:
       - spring.neo4j.uri=bolt://neo4j:7687
+
+# volumes:
+#   neo4j-data: ~
