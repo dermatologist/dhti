@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  hapi:
+    #image: hapiproject/hapi:latest
+    image: alphora/cqf-ruler:0.14.0
+    ports:
+      - 8090:8080
+    restart: "unless-stopped"
+    environment:
+      - fhir_version=R4
+      - hapi.fhir.tester.home.fhir_version=R4
+      - hapi.fhir.version=R4
+      - hapi.fhir.fhir_version=R4
+
+
+  # https://hub.docker.com/r/cqframework/cql-translation-service
+  elm:
+    image: cqframework/cql-translation-service:latest
+    ports:
+      - 8091:8080
+    restart: "unless-stopped"
+
+  # https://github.com/DBCG/cql_runner
+  # Use Dockerfile-prod in the repo
+  web:
+    image: beapen/cql_runner:latest
+    ports:
+      - 8092:80
+    restart: "unless-stopped"
+    depends_on:
+      - hapi

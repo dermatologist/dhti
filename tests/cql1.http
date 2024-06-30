@@ -1,0 +1,331 @@
+
+
+POST http://localhost:8090/fhir/$cql HTTP/1.1
+Content-Type: application/json
+
+{"resourceType":"Parameters","parameter":[{"name":"content","valueString":"library Welcome version '1.0.0'\n\ndefine \"Simple Multiply\": 5*5\n\ndefine \"Simple Message\": 'Hello World!'"},{"name":"subject","valueString":"P48"},null,{"name":"dataEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},{"name":"terminologyEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},{"name":"contentEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}}]}
+
+
+###
+POST http://localhost:8090/fhir/$cql HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "expression",
+      "valueString": "5 * 5"
+    }
+  ]
+}
+
+###
+POST http://localhost:8090/fhir HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "SimplePatient",
+        "birthDate": "1995-01-01",
+        "gender": "female"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/SimplePatient"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Library",
+        "id": "SimpleLibrary",
+        "name": "SimpleLibrary",
+        "version": "0.0.1",
+        "status": "active",
+        "experimental": false,
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/library-type",
+              "code": "logic-library"
+            }
+          ]
+        },
+        "date": "2021-04-23T15:32:03+00:00",
+        "publisher": "National Committee for Quality Assurance",
+        "description": "Simple Library for Testing Simple Expressions",
+        "content": [
+          {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBTaW1wbGVSNExpYnJhcnkKCnVzaW5nIEZISVIgdmVyc2lvbiAnNC4wLjEnCgppbmNsdWRlIEZISVJIZWxwZXJzIHZlcnNpb24gJzQuMC4xJyBjYWxsZWQgRkhJUkhlbHBlcnMKCmNvbnRleHQgUGF0aWVudAoKZGVmaW5lIHNpbXBsZUJvb2xlYW5FeHByZXNzaW9uOiB0cnVlCgpkZWZpbmUgb2JzZXJ2YXRpb25SZXRyaWV2ZTogW09ic2VydmF0aW9uXQoKZGVmaW5lIG9ic2VydmF0aW9uSGFzQ29kZTogbm90IElzTnVsbCgoW09ic2VydmF0aW9uXSkuY29kZSkKCmRlZmluZSAiSW5pdGlhbCBQb3B1bGF0aW9uIjogb2JzZXJ2YXRpb25IYXNDb2RlCgpkZWZpbmUgIkRlbm9taW5hdG9yIjogIkluaXRpYWwgUG9wdWxhdGlvbiIKCmRlZmluZSAiTnVtZXJhdG9yIjogIkRlbm9taW5hdG9yIgo="
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Library/SimpleLibrary"
+      }
+    }
+  ]
+}
+
+###
+POST http://localhost:8090/fhir/$cql HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "subject",
+      "valueString": "Patient/SimplePatient"
+    },
+    {
+      "name": "library",
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "url",
+            "valueCanonical": "http://localhost:8090/fhir/Library/SimpleLibrary"
+          },
+          {
+            "name": "name",
+            "valueString": "SimpleLibrary"
+          },
+          {
+            "name": "version",
+            "valueString": "0.0.1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "expression",
+      "valueString": "SimpleLibrary.\"simpleBooleanExpression\""
+    }
+  ]
+}
+
+###
+
+POST http://localhost:8090/fhir/$cql HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "parameters",
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "%inputDate",
+            "valueDate": "2019-11-01"
+          }
+        ]
+      }
+    },
+    {
+      "name": "expression",
+      "valueString": "year from %inputDate"
+    }
+  ]
+}
+
+###
+
+POST http://localhost:8090/fhir HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "SimplePatient",
+        "birthDate": "1995-01-01",
+        "gender": "female"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/SimplePatient"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "SimpleObservation",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "10524-7",
+              "display": "Microscopic observation [Identifier] in Cervix by Cyto stain"
+            }
+          ]
+        },
+        "value": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "10524-7",
+              "display": "Microscopic observation [Identifier] in Cervix by Cyto stain"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/SimplePatient",
+          "type": "Patient"
+        },
+        "effectiveDateTime": "2019-11-01T00:00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/SimpleObservation"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Library",
+        "id": "SimpleR4Library",
+        "name": "SimpleR4Library",
+        "status": "active",
+        "experimental": false,
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/library-type",
+              "code": "logic-library"
+            }
+          ]
+        },
+        "date": "2021-04-23T15:32:03+00:00",
+        "publisher": "National Committee for Quality Assurance",
+        "description": "Simple Library for Testing Simple Expressions",
+        "content": [
+          {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBTaW1wbGVSNExpYnJhcnkKCnVzaW5nIEZISVIgdmVyc2lvbiAnNC4wLjEnCgppbmNsdWRlIEZISVJIZWxwZXJzIHZlcnNpb24gJzQuMC4xJyBjYWxsZWQgRkhJUkhlbHBlcnMKCmNvbnRleHQgUGF0aWVudAoKZGVmaW5lIHNpbXBsZUJvb2xlYW5FeHByZXNzaW9uOiB0cnVlCgpkZWZpbmUgb2JzZXJ2YXRpb25SZXRyaWV2ZTogW09ic2VydmF0aW9uXQoKZGVmaW5lIG9ic2VydmF0aW9uSGFzQ29kZTogbm90IElzTnVsbCgoW09ic2VydmF0aW9uXSkuY29kZSkKCmRlZmluZSAiSW5pdGlhbCBQb3B1bGF0aW9uIjogb2JzZXJ2YXRpb25IYXNDb2RlCgpkZWZpbmUgIkRlbm9taW5hdG9yIjogIkluaXRpYWwgUG9wdWxhdGlvbiIKCmRlZmluZSAiTnVtZXJhdG9yIjogIkRlbm9taW5hdG9yIgo="
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Library/SimpleR4Library"
+      }
+    }
+  ]
+}
+
+###
+
+GET http://localhost:8090/fhir/Library/SimpleR4Library/$evaluate?subject=Patient/SimplePatient HTTP/1.1
+
+###
+
+POST http://localhost:8090/fhir HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "SimplePatient",
+        "birthDate": "1995-01-01",
+        "gender": "female"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/SimplePatient"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "SimpleCondition",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "195967001",
+              "display": "Asthma"
+            }
+          ],
+          "text": "Asthma"
+        },
+        "subject": {
+          "reference": "Patient/SimplePatient"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/SimpleCondition"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Library",
+        "id": "AsthmaTest",
+        "url": "http://example.com/AsthmaTest",
+        "version": "1.0.0",
+        "name": "AsthmaTest",
+        "status": "draft",
+        "type": "logic-library",
+        "content": [
+          {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBBc3RobWFUZXN0IHZlcnNpb24gJzEuMC4wJwoKdXNpbmcgRkhJUiB2ZXJzaW9uICc0LjAuMScKCmluY2x1ZGUgRkhJUkhlbHBlcnMgdmVyc2lvbiAnNC4wLjEnCgpjb2Rlc3lzdGVtICJTTk9NRUQiOiAnaHR0cDovL3Nub21lZC5pbmZvL3NjdCcKCmNvZGUgIkFzdGhtYSI6ICcxOTU5NjcwMDEnIGZyb20gIlNOT01FRCIKCmNvbnRleHQgUGF0aWVudAoKZGVmaW5lICJBc3RobWEgRGlhZ25vc2lzIjoKICAgIFtDb25kaXRpb246ICJBc3RobWEiXQoKZGVmaW5lICJIYXMgQXN0aG1hIERpYWdub3NpcyI6CiAgICBleGlzdHMoIkFzdGhtYSBEaWFnbm9zaXMiKQo="
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Library/AsthmaTest"
+      }
+    }
+  ]
+}
+
+###
+
+GET http://localhost:8090/fhir/Library/AsthmaTest/$evaluate?subject=Patient/SimplePatient HTTP/1.1
+
+###
+
+POST http://localhost:8090/fhir/$cql HTTP/1.1
+Content-Type: application/json
+
+{"resourceType":"Parameters",
+"parameter":[{"name":"content","valueString":"library AsthmaTest version '1.0.0'\n\nusing FHIR version '4.0.1'\n\ninclude FHIRHelpers version '4.0.1'\n\ncodesystem \"SNOMED\": 'http://snomed.info/sct'\n\ncode \"Asthma\": '195967001' from \"SNOMED\"\n\ncontext Patient\n\ndefine \"Asthma Diagnosis\":\n    [Condition: \"Asthma\"]\n\ndefine \"Has Asthma Diagnosis\":\n    exists(\"Asthma Diagnosis\")"},
+{"name":"subject","valueString":"P48"},
+null,
+{"name":"dataEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},
+{"name":"terminologyEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},
+{"name":"contentEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}}]}
+
+
+###
+
+POST http://localhost:8090/fhir/$cql HTTP/1.1
+Content-Type: application/json
+
+{"resourceType":"Parameters",
+"parameter":[{"name":"content","valueString":"library AsthmaTest version '1.0.0'\n\nusing FHIR version '4.0.1'\n\ninclude FHIRHelpers version '4.0.1'\n\ncodesystem \"SNOMED\": 'http://snomed.info/sct'\n\ncode \"Asthma\": '195967001' from \"SNOMED\"\n\ncontext Patient\n\ndefine \"Asthma Diagnosis\":\n    [Condition: \"Asthma\"]\n\ndefine \"Has Asthma Diagnosis\":\n    exists(\"Asthma Diagnosis\")"},
+{"name":"subject","valueString":"SimplePatient2"},
+null,
+{"name":"dataEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"http://localhost:8090/fhir","header":["Content-Type: application/json"]}},
+{"name":"terminologyEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}},
+{"name":"contentEndpoint","resource":{"resourceType":"Endpoint","status":"active","connectionType":{"system":"http://terminology.hl7.org/CodeSystem/endpoint-connection-type","code":"hl7-fhir-rest"},"address":"https://cloud.alphora.com/sandbox/r4/cqm/fhir","header":["Content-Type: application/json"]}}]}
