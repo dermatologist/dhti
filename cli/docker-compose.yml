@@ -2,9 +2,7 @@ version: "3.7"
 
 services:
   gateway:
-    build:
-      context: nginx/.
-    image: beapen/nginx-gateway:latest
+    image: beapen/dhti-gateway:latest
     restart: "unless-stopped"
     pull_policy: always
     depends_on:
