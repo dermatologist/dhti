@@ -80,6 +80,12 @@ export default class Compose extends Command {
         }
       }
 
+      // Add all volumes from master data to existing data by default
+      existing_data.volumes = {};
+      for (const key of Object.keys(master_data.volumes)) {
+        existing_data.volumes[key] = master_data.volumes[key];
+      }
+
       console.log('existing_data', existing_data);
 
       fs.writeFileSync(flags.file, yaml.dump(existing_data), 'utf8');
