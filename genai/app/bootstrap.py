@@ -1,5 +1,6 @@
 from kink import di
 from dotenv import load_dotenv
+import dhti_elixir_base # Make sure to import the base package
 from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
 from os import getenv
