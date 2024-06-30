@@ -48,7 +48,7 @@ export default class Compose extends Command {
     }
 
     try {
-      const data: any = yaml.load(fs.readFileSync(flags.file, 'utf8'));
+      const data: any = yaml.load(fs.readFileSync('src/resources/docker-compose-master.yml', 'utf8'));
       console.log(data);
       console.log('flags', flags.module);
       console.log('args', args.op);

@@ -150,7 +150,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - langfuse_data:/var/lib/postgresql/data
+      - langfuse-data:/var/lib/postgresql/data
   redis:
     image: redislabs/redisearch:2.8.8
     ports:
@@ -176,6 +176,6 @@ volumes:
   openmrs-data: null
   db-data: null
   fhir-db: null
-  langfuse_data: null
+  langfuse-data: null
   redis-data: null
   neo4j-data: null
