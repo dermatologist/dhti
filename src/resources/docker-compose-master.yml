@@ -12,7 +12,7 @@ services:
       - "80:80"
 
   frontend:
-    image: beapen/dhti-frontend:latest
+    image: openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17
     # image: openmrs/openmrs-reference-application-3-frontend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
     restart: "unless-stopped"
     pull_policy: always
