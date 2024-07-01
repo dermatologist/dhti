@@ -15,9 +15,10 @@ export default class Elixir extends Command {
   ]
 
   static override flags = {
-    git: Flags.string({char: 'g', description: 'Github repository to install'}),
+    git: Flags.string({char: 'g', description: 'Github repository to install', default: "none"}),
     branch: Flags.string({char: 'b', description: 'Branch to install from', default: "develop"}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
+    repo_version: Flags.string({char: 'v', description: 'Version of the elixir', default: "0.1.0"}),
     type: Flags.string({char: 't', description: 'Type of elixir (chain, tool or agent)', default: "chain"}),
     workdir: Flags.string({char: 'w', description: 'Working directory to install the elixir', default: "/tmp/elixir"}),
   }
@@ -47,7 +48,10 @@ export default class Elixir extends Command {
 
     const pyproject = fs.readFileSync(`${flags.workdir}/pyproject.toml`, 'utf8')
     const original_server = fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8')
-    const line_to_add = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+    let line_to_add = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+    if (flags.git === 'none') {
+      line_to_add = `${flags.name} = "${flags.repo_version}"`
+    }
     const new_pyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${line_to_add}`)
     const cli_import = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
     const new_cli_import =  fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${cli_import}`)
