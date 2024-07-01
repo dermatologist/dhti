@@ -1,6 +1,4 @@
 import {Args, Command, Flags} from '@oclif/core'
-import { directory } from '@oclif/core/args'
-import { dir } from 'console'
 import fs from 'fs'
 import request from 'request'
 export default class Elixir extends Command {
@@ -8,7 +6,7 @@ export default class Elixir extends Command {
     op: Args.string({description: 'Operation to perform (install or uninstall)'}),
   }
 
-  static override description = 'Install or uninstall elixirs and create a Docker image'
+  static override description = 'Install or uninstall elixirs to create a Docker image'
 
   static override examples = [
     '<%= config.bin %> <%= command.id %>',

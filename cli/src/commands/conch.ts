@@ -1,30 +1,35 @@
 import {Args, Command, Flags} from '@oclif/core'
-
+import fs from 'fs'
+import request from 'request'
 export default class Conch extends Command {
   static override args = {
-    file: Args.string({description: 'file to read'}),
+        op: Args.string({description: 'Operation to perform (install or uninstall)'}),
   }
 
-  static override description = 'describe the command here'
+  static override description = 'Install or uninstall conchs to create a Docker image'
 
   static override examples = [
     '<%= config.bin %> <%= command.id %>',
   ]
 
   static override flags = {
-    // flag with no value (-f, --force)
-    force: Flags.boolean({char: 'f'}),
-    // flag with a value (-n, --name=VALUE)
-    name: Flags.string({char: 'n', description: 'name to print'}),
+    git: Flags.string({char: 'g', description: 'Github repository to install', default: "none"}),
+    branch: Flags.string({char: 'b', description: 'Branch to install from', default: "develop"}),
+    name: Flags.string({char: 'n', description: 'Name of the elixir'}),
+    repo_version: Flags.string({char: 'v', description: 'Version of the conch', default: "0.1.0"}),
+    workdir: Flags.string({char: 'w', description: 'Working directory to install the conch', default: "/tmp/conch"}),
   }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Conch)
 
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from /home/M267492/repos/dhti/cli/src/commands/conch.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
+    // Create a directory to install the elixir
+    if (!fs.existsSync(flags.workdir)){
+      fs.mkdirSync(flags.workdir);
     }
+    fs.cpSync('src/resources/genai', flags.workdir, {recursive: true})
+
+
+    
   }
 }
