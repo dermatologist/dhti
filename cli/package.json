@@ -11,6 +11,7 @@
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
+    "child_process": "^1.0.2",
     "js-yaml": "^4.1.0",
     "request": "^2.88.2"
   },
