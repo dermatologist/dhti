@@ -17,11 +17,12 @@ try:
     langfuse_handler = CallbackHandler()
     config = RunnableConfig(callbacks=[langfuse_handler])
     # ! DO NOT REMOVE THE COMMENT BELOW
-    #DHTI_CLI_LANGFUSE
-    
+    #DHTI_LANGFUSE_ROUTE
+
 except:
     # ! DO NOT REMOVE THE COMMENT BELOW
-    #DHTI_CLI_ROUTE
+    #DHTI_NORMAL_ROUTE
+    x = True
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
