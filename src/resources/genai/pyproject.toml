@@ -12,7 +12,6 @@ python = ">=3.9.0,<4.0"
 langserve = { version = "^0.0.51", extras = ["server"] }
 langfuse = "^2.31.0"
 tiktoken = "^0.4.0"
-fastapi = "^0.96.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 dhti_elixir_base = { git = "https://github.com/dermatologist/dhti-elixir-base.git", branch = "feature/deps-1" }
 
