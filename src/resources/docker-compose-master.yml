@@ -8,12 +8,13 @@ services:
     depends_on:
       - frontend
       - backend
-    ports:
-      - "80:80"
+
 
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17
     # image: openmrs/openmrs-reference-application-3-frontend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
+    ports:
+      - "8003:80"
     restart: "unless-stopped"
     pull_policy: always
     environment:
@@ -31,6 +32,8 @@ services:
 
   backend:
     image: openmrs/openmrs-reference-application-3-backend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
+    ports:
+      - "8002:8080"
     restart: "unless-stopped"
     depends_on:
       - openmrs-db
@@ -45,8 +48,8 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs"]
       timeout: 5s
-    volumes:
-      - openmrs-data:/openmrs/data
+    # volumes:
+    #   - openmrs-data:/openmrs/data
 
   openmrs-db:
     image: mariadb:10.11.7
@@ -67,6 +70,7 @@ services:
 
   langserve:
     image: beapen/genai:latest
+    pull_policy: always
     ports:
       - "8001:8001"
     restart: "unless-stopped"
@@ -84,7 +88,6 @@ services:
     volumes:
       - ollama-code:/code
       - ollama-root:/root/.ollama
-    pull_policy: always
     tty: true
     restart: "unless-stopped"
 
@@ -177,7 +180,7 @@ services:
       - neo4j-db:/data
 
 volumes:
-  openmrs-data: ~
+  # openmrs-data: ~
   openmrs-db: ~
   fhir-db: ~
   langfuse-db: ~
