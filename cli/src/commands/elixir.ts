@@ -21,7 +21,7 @@ export default class Elixir extends Command {
     const {args, flags} = await this.parse(Elixir)
 
     const pyproject = fs.readFileSync('src/resources/genai/pyproject.toml', 'utf8')
-    const line_to_add = `    ${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+    const line_to_add = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
     const new_pyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${line_to_add}`)
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
