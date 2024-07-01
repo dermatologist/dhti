@@ -1,5 +1,6 @@
 import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
+import { exec } from 'child_process';
 export default class Conch extends Command {
   static override args = {
         op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -34,25 +35,30 @@ export default class Conch extends Command {
 
     fs.cpSync('src/resources/spa', flags.workdir, {recursive: true})
 
-    // // git clone the repository
-    // exec(`git clone ${flags.git} ${flags.workdir}/${flags.name}`, (error, stdout, stderr) => {
-    //   if (error) {
-    //     console.error(`exec error: ${error}`);
-    //     return;
-    //   }
-    //   console.log(`stdout: ${stdout}`);
-    //   console.error(`stderr: ${stderr}`);
-    // });
 
-    // // Checkout the branch
-    // exec(`cd ${flags.workdir}/${flags.name} && git checkout ${flags.branch}`, (error, stdout, stderr) => {
-    //   if (error) {
-    //     console.error(`exec error: ${error}`);
-    //     return;
-    //   }
-    //   console.log(`stdout: ${stdout}`);
-    //   console.error(`stderr: ${stderr}`);
-    // });
+    try{
+      // git clone the repository
+      exec(`git clone ${flags.git} ${flags.workdir}/${flags.name}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+      });
+
+      // Checkout the branch
+      exec(`cd ${flags.workdir}/${flags.name} && git checkout ${flags.branch}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+      });
+    }catch(e){
+      console.log("Error cloning the repository", e)
+    }
 
     // Read and process importmap.json
     const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/def/importmap.json`, 'utf8'));
