@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { exec } from 'child_process';
 export default class Conch extends Command {
   static override args = {
-        op: Args.string({description: 'Operation to perform (install or uninstall)'}),
+        op: Args.string({description: 'Operation to perform (dev/none)'}),
   }
 
   static override description = 'Install or uninstall conchs to create a Docker image'
@@ -18,6 +18,7 @@ export default class Conch extends Command {
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
     workdir: Flags.string({char: 'w', default: "/tmp/conch", description: 'Working directory to install the conch'}),
+    container: Flags.string({char: 'c', default: "dhti-frontend-1", description: 'Name of the container to copy the conch to while in dev mode'}),
   }
 
   public async run(): Promise<void> {
@@ -26,6 +27,32 @@ export default class Conch extends Command {
     if(!flags.name){
       console.log("Please provide a name for the conch")
       this.exit(1)
+    }
+
+    // if arg is dev then copy to docker as below
+    //docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
+    //docker restart dhti-frontend-1
+    if(args.op === 'dev'){
+      try{
+        exec(`docker cp ${flags.workdir}/${flags.name}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+        exec(`docker restart ${flags.name}-1`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+      }catch (e){
+        console.log("Error copying conch to container", e)
+      }
     }
 
     // Create a directory to install the elixir
