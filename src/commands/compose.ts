@@ -32,7 +32,7 @@ export default class Compose extends Command {
     const langfuse = ['langfuse', 'langfuse-db']
     const cqlFhir = ['fhir', 'cql-elm', 'cql-web']
     const redis = ['redis']
-    const neo4j = ['neo4j']
+    const neo4j = ['neo4j', 'fhirg']
 
 
     const _modules: {[key: string]: string[]} = {
