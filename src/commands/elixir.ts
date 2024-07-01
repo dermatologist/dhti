@@ -25,7 +25,7 @@ export default class Elixir extends Command {
     const {args, flags} = await this.parse(Elixir)
 
     if(!flags.name){
-      console.log("Please provide a name for the conch")
+      console.log("Please provide a name for the elixir")
       this.exit(1)
     }
 

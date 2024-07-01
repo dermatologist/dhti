@@ -8,6 +8,8 @@ from langchain_community.vectorstores import Redis
 # from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
 
+#! DO NOT REMOVE THE COMMENT BELOW
+#DHTI_ADD
 
 # Create vectorstore
 # _embedder = HuggingFaceEmbeddings(model_name=getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"))

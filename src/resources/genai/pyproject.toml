@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "genai"
 version = "0.0.1"
-description = ""
-authors = ["Nuno Campos <nuno@langchain.dev>"]
-license = "MIT"
+description = "Langserve server for GenAI."
+authors = ["Bell Eapen <github_public@nuchange.ca>"]
+license = "Apache-2.0"
 readme = "README.md"
 packages = [{include = "app"}]
 

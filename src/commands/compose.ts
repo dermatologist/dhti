@@ -26,7 +26,7 @@ export default class Compose extends Command {
     // console.log('args', args) //args { op: 'add' }
     // console.log('flags', flags) //flags { module: [ 'default', 'langserve', 'redis' ] }
 
-    const openmrs = ['gateway', 'frontend', 'backend', 'db']
+    const openmrs = ['gateway', 'frontend', 'backend', 'openmrs-db']
     const langserve = ['langserve']
     const ollama = ['ollama', 'ollama-webui']
     const langfuse = ['langfuse', 'langfuse-db']
