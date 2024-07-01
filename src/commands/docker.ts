@@ -42,7 +42,7 @@ export default class Docker extends Command {
     let dockerCompose: any = yaml.load(fs.readFileSync(flags.file, 'utf8'));
     // if type is elixir set image of backend to name, else set image of frontend to name
     if(flags.type === 'elixir'){
-      dockerCompose.services.backend.image = flags.name
+      dockerCompose.services.langserve.image = flags.name
     }else{
       dockerCompose.services.frontend.image = flags.name
     }
