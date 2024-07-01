@@ -8,6 +8,9 @@ services:
     depends_on:
       - frontend
       - backend
+    ports:
+      - "80:80"
+      - "9000:80"
 
 
   frontend:
@@ -48,8 +51,8 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs"]
       timeout: 5s
-    # volumes:
-    #   - openmrs-data:/openmrs/data
+    volumes:
+      - openmrs-data:/openmrs/data
 
   openmrs-db:
     image: mariadb:10.11.7
@@ -180,7 +183,7 @@ services:
       - neo4j-db:/data
 
 volumes:
-  # openmrs-data: ~
+  openmrs-data: ~
   openmrs-db: ~
   fhir-db: ~
   langfuse-db: ~
