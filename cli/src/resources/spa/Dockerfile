@@ -14,5 +14,5 @@ RUN yarn build
 
 FROM openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17 as server
 COPY ./def /usr/share/nginx/html
-RUN mkdir /usr/share/nginx/html/openmrs-esm-genai-1.0.0
-COPY --from=build /app/build /usr/share/nginx/html/openmrs-esm-genai-1.0.0
+RUN mkdir /usr/share/nginx/html/conch-version
+COPY --from=build /app/build /usr/share/nginx/html/conch-version
