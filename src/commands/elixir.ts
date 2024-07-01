@@ -24,6 +24,11 @@ export default class Elixir extends Command {
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Elixir)
 
+    if(!flags.name){
+      console.log("Please provide a name for the conch")
+      this.exit(1)
+    }
+
     // Create a directory to install the elixir
     if (!fs.existsSync(flags.workdir)){
       fs.mkdirSync(flags.workdir);
