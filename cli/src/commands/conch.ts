@@ -70,5 +70,11 @@ export default class Conch extends Command {
     dockerfile = dockerfile.replaceAll('conch', flags.name).replaceAll('version', flags.repo_version);
     fs.writeFileSync(`${flags.workdir}/Dockerfile`, dockerfile);
 
+    // Read routes.json
+    let routes = JSON.parse(fs.readFileSync(`${flags.workdir}/${flags.name}/src/routes.json`, 'utf8'));
+    // Add to routes.registry.json
+    let registry = JSON.parse(fs.readFileSync(`${flags.workdir}/def/routes.registry.json`, 'utf8'));
+    registry[flags.name.replace('openmrs-', '@openmrs/')] = routes;
+    fs.writeFileSync(`${flags.workdir}/def/routes.registry.json`, JSON.stringify(registry, null, 2));
   }
 }
