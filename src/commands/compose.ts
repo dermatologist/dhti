@@ -17,7 +17,7 @@ export default class Compose extends Command {
   static override flags = {
     // flag with a value (-n, --name=VALUE)
     module: Flags.string({char: 'm', multiple: true, description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cql_fhir, redis and neo4j)'}),
-    file: Flags.string({char: 'f', description: 'Docker compose file to read from. Creates if it does not exist', default: 'docker-compose.yml'}),
+    file: Flags.string({char: 'f', description: 'Full path to the docker compose file to read from. Creates if it does not exist', default: '/tmp/docker-compose.yml'}),
   }
 
 
