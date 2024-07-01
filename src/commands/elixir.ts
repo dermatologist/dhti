@@ -16,7 +16,7 @@ export default class Elixir extends Command {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
-    repo_version: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
+    repoVersion: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
     type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
     workdir: Flags.string({char: 'w', default: "/tmp/elixir", description: 'Working directory to install the elixir'}),
   }
@@ -39,10 +39,10 @@ export default class Elixir extends Command {
     // get bootstrap.py file content
     const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
     request.get(url, (error: any, response: { statusCode: number }, body: any) => {
-    if (!error && response.statusCode == 200) {
-        const to_add = body.split('#DHTI_ADD')[1];
+    if (!error && response.statusCode === 200) {
+        const toAdd = body.split('#DHTI_ADD')[1];
         // Continue with your processing here.
-        fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8').replace('#DHTI_ADD', `#DHTI_ADD\nAdded by (Edit if needed) ${flags.name}\n${to_add}`)
+        fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8').replace('#DHTI_ADD', `#DHTI_ADD\nAdded by (Edit if needed) ${flags.name}\n${toAdd}`)
     }else{
         console.log("Error:", error)
         console.log("Status code:", response.statusCode)
@@ -51,30 +51,30 @@ export default class Elixir extends Command {
     });
 
     const pyproject = fs.readFileSync(`${flags.workdir}/pyproject.toml`, 'utf8')
-    const original_server = fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8')
-    let line_to_add = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+    const originalServer = fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8')
+    let lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
     if (flags.git === 'none') {
-      line_to_add = `${flags.name} = "${flags.repo_version}"`
+      lineToAdd = `${flags.name} = "${flags.repoVersion}"`
     }
 
-    const new_pyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${line_to_add}`)
-    const cli_import = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
-    const new_cli_import =  fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${cli_import}`)
-    const langfuse_route = `add_routes(app, ${flags.name}_${flags.type}.with_config(config), path="/${flags.name}")`
-    const new_langfuse_route = new_cli_import.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuse_route}`)
-    const normal_route = `add_routes(app, ${flags.name}_${flags.type}, path="/${flags.name}")`
-    const final_route = new_langfuse_route.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normal_route}`)
+    const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
+    const CliImport = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
+    const newCliImport =  fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
+    const langfuseRoute = `add_routes(app, ${flags.name}_${flags.type}.with_config(config), path="/${flags.name}")`
+    const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
+    const normalRoute = `add_routes(app, ${flags.name}_${flags.type}, path="/${flags.name}")`
+    const finalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
-      fs.writeFileSync(`${flags.workdir}/pyproject.toml`, new_pyproject)
-      fs.writeFileSync(`${flags.workdir}/app/server.py`, final_route)
+      fs.writeFileSync(`${flags.workdir}/pyproject.toml`, newPyproject)
+      fs.writeFileSync(`${flags.workdir}/app/server.py`, finalRoute)
     } else {
       // if args.op === uninstall, remove the line from the pyproject.toml file
-      fs.writeFileSync(`${flags.workdir}/pyproject.toml`, pyproject.replace(line_to_add, ''))
-      let new_server =  original_server.replace(cli_import, '')
-      new_server = new_server.replace(langfuse_route, '')
-      new_server = new_server.replace(normal_route, '')
-      fs.writeFileSync(`${flags.workdir}/app/server.py`, new_server)
+      fs.writeFileSync(`${flags.workdir}/pyproject.toml`, pyproject.replace(lineToAdd, ''))
+      let newServer=  originalServer.replace(CliImport, '')
+      newServer= newServer.replace(langfuseRoute, '')
+      newServer= newServer.replace(normalRoute, '')
+      fs.writeFileSync(`${flags.workdir}/app/server.py`, newServer)
     }
 
   }

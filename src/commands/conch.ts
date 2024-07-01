@@ -1,7 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
-import { exec } from 'node:child_process';
 import fs from 'node:fs'
-import request from 'request'
 export default class Conch extends Command {
   static override args = {
         op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -17,7 +15,7 @@ export default class Conch extends Command {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
-    repo_version: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
+    repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
     workdir: Flags.string({char: 'w', default: "/tmp/conch", description: 'Working directory to install the conch'}),
   }
 
@@ -58,17 +56,17 @@ export default class Conch extends Command {
 
     // Read and process importmap.json
     const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/def/importmap.json`, 'utf8'));
-    importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repo_version}/${flags.name}.js`;
+    importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
     fs.writeFileSync(`${flags.workdir}/def/importmap.json`, JSON.stringify(importmap, null, 2));
 
     // Read and process spa-assemble-config.json
-    const spa_assemble_config = JSON.parse(fs.readFileSync(`${flags.workdir}/def/spa-assemble-config.json`, 'utf8'));
-    spa_assemble_config.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repo_version}`;
-    fs.writeFileSync(`${flags.workdir}/def/spa-assemble-config.json`, JSON.stringify(spa_assemble_config, null, 2));
+    const spaAssembleConfig = JSON.parse(fs.readFileSync(`${flags.workdir}/def/spa-assemble-config.json`, 'utf8'));
+    spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
+    fs.writeFileSync(`${flags.workdir}/def/spa-assemble-config.json`, JSON.stringify(spaAssembleConfig, null, 2));
 
      // Read and process Dockerfile
     let dockerfile = fs.readFileSync(`${flags.workdir}/Dockerfile`, 'utf8');
-    dockerfile = dockerfile.replaceAll('conch', flags.name).replaceAll('version', flags.repo_version);
+    dockerfile = dockerfile.replaceAll('conch', flags.name).replaceAll('version', flags.repoVersion);
     fs.writeFileSync(`${flags.workdir}/Dockerfile`, dockerfile);
 
     // Read routes.json
