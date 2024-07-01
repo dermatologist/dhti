@@ -25,14 +25,15 @@ export default class Elixir extends Command {
     const line_to_add = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
     const new_pyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${line_to_add}`)
     const cli_import = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
+    const new_cli_import =  fs.readFileSync('src/resources/genai/app/server.py', 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${cli_import}`)
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
       fs.writeFileSync('src/resources/genai/pyproject.toml', new_pyproject)
-      fs.readFileSync('src/resources/genai/app/server.py', 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${cli_import}`)
+      fs.writeFileSync('src/resources/genai/app/server.py', new_cli_import)
     } else {
       // if args.op === uninstall, remove the line from the pyproject.toml file
       fs.writeFileSync('src/resources/genai/pyproject.toml', pyproject.replace(line_to_add, ''))
-      fs.readFileSync('src/resources/genai/app/server.py', 'utf8').replace(cli_import, '')
+      fs.writeFileSync('src/resources/genai/app/server.py', new_cli_import.replace(cli_import, ''))
     }
 
   }
