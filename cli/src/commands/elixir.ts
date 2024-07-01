@@ -1,5 +1,6 @@
 import {Args, Command, Flags} from '@oclif/core'
 import fs from 'fs'
+import request from 'request'
 export default class Elixir extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -20,6 +21,20 @@ export default class Elixir extends Command {
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Elixir)
+
+    // get bootstrap.py file content
+    const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
+    request.get(url, function (error: any, response: { statusCode: number }, body: any) {
+    if (!error && response.statusCode == 200) {
+        var to_add = body.split('#DHTI_ADD')[1];
+        // Continue with your processing here.
+        fs.readFileSync('src/resources/genai/app/bootstrap.py', 'utf8').replace('#DHTI_ADD', `#DHTI_ADD\nAdded by (Edit if needed) ${flags.name}\n${to_add}`)
+    }else{
+        console.log("Error: ", error)
+        console.log("Status code: ", response.statusCode)
+        console.log("url: ", url)
+    }
+    });
 
     const pyproject = fs.readFileSync('src/resources/genai/pyproject.toml', 'utf8')
     const original_server = fs.readFileSync('src/resources/genai/app/server.py', 'utf8')

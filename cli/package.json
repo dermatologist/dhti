@@ -11,7 +11,8 @@
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",
@@ -20,6 +21,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10",
     "@types/node": "^18",
+    "@types/request": "^2.48.12",
     "chai": "^4",
     "eslint": "^8",
     "eslint-config-oclif": "^5",
