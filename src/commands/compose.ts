@@ -1,7 +1,6 @@
 import {Args, Command, Flags} from '@oclif/core'
-
-import fs from 'fs'
 import yaml from 'js-yaml'
+import fs from 'node:fs'
 
 export default class Compose extends Command {
   static override args = {
@@ -15,9 +14,9 @@ export default class Compose extends Command {
   ]
 
   static override flags = {
+    file: Flags.string({char: 'f', default: '/tmp/docker-compose.yml', description: 'Full path to the docker compose file to read from. Creates if it does not exist'}),
     // flag with a value (-n, --name=VALUE)
-    module: Flags.string({char: 'm', multiple: true, description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cql_fhir, redis and neo4j)'}),
-    file: Flags.string({char: 'f', description: 'Full path to the docker compose file to read from. Creates if it does not exist', default: '/tmp/docker-compose.yml'}),
+    module: Flags.string({char: 'm', description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cql_fhir, redis and neo4j)', multiple: true}),
   }
 
 
@@ -37,29 +36,30 @@ export default class Compose extends Command {
 
 
     const _modules: {[key: string]: string[]} = {
-      openmrs: openmrs,
-      langserve: langserve,
-      ollama: ollama,
-      langfuse: langfuse,
-      cql_fhir: cql_fhir,
-      redis: redis,
-      neo4j: neo4j
+      cql_fhir,
+      langfuse,
+      langserve,
+      neo4j,
+      ollama,
+      openmrs,
+      redis
     }
 
     try {
       const master_data: any = yaml.load(fs.readFileSync('src/resources/docker-compose-master.yml', 'utf8'));
-      let existing_data:any = {version: '3.8', services: {}};
+      let existing_data:any = {services: {}, version: '3.8'};
       if (fs.existsSync(flags.file)) {
         existing_data = yaml.load(fs.readFileSync(flags.file, 'utf8'));
       }
 
       // if existing data is not null and arg is delete, remove the modules from the existing data
-      if (Object.keys(existing_data.services).length && args.op === 'delete') {
+      if (Object.keys(existing_data.services).length > 0 && args.op === 'delete') {
         // Expand the modules to remove using _modules object
         let modules_to_delete: any[] = [];
         for (const module of flags.module ?? []) {
           modules_to_delete = modules_to_delete.concat(_modules[module]);
         }
+
         for (const module of modules_to_delete ?? []) {
           if (existing_data.services[module]) {
             delete existing_data.services[module];
@@ -74,6 +74,7 @@ export default class Compose extends Command {
         for (const module of flags.module ?? []) {
           modules_to_add = modules_to_add.concat(_modules[module]);
         }
+
         for (const module of modules_to_add ?? []) {
           existing_data.services[module] = master_data.services[module];
         }
@@ -85,12 +86,12 @@ export default class Compose extends Command {
         existing_data.volumes[key] = master_data.volumes[key];
       }
 
-      console.log('Writing file: ', existing_data);
+      console.log('Writing file:', existing_data);
 
       fs.writeFileSync(flags.file, yaml.dump(existing_data), 'utf8');
 
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   }
 }

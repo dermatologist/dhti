@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
-import fs from 'fs'
+import { exec } from 'node:child_process';
+import fs from 'node:fs'
 import request from 'request'
-import { exec } from 'child_process';
 export default class Conch extends Command {
   static override args = {
         op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -14,11 +14,11 @@ export default class Conch extends Command {
   ]
 
   static override flags = {
-    git: Flags.string({char: 'g', description: 'Github repository to install', default: "none"}),
-    branch: Flags.string({char: 'b', description: 'Branch to install from', default: "develop"}),
+    branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
+    git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
-    repo_version: Flags.string({char: 'v', description: 'Version of the conch', default: "1.0.0"}),
-    workdir: Flags.string({char: 'w', description: 'Working directory to install the conch', default: "/tmp/conch"}),
+    repo_version: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
+    workdir: Flags.string({char: 'w', default: "/tmp/conch", description: 'Working directory to install the conch'}),
   }
 
   public async run(): Promise<void> {
@@ -33,6 +33,7 @@ export default class Conch extends Command {
     if (!fs.existsSync(flags.workdir)){
       fs.mkdirSync(flags.workdir);
     }
+
     fs.cpSync('src/resources/spa', flags.workdir, {recursive: true})
 
     // // git clone the repository
@@ -56,12 +57,12 @@ export default class Conch extends Command {
     // });
 
     // Read and process importmap.json
-    let importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/def/importmap.json`, 'utf8'));
+    const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/def/importmap.json`, 'utf8'));
     importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repo_version}/${flags.name}.js`;
     fs.writeFileSync(`${flags.workdir}/def/importmap.json`, JSON.stringify(importmap, null, 2));
 
     // Read and process spa-assemble-config.json
-    let spa_assemble_config = JSON.parse(fs.readFileSync(`${flags.workdir}/def/spa-assemble-config.json`, 'utf8'));
+    const spa_assemble_config = JSON.parse(fs.readFileSync(`${flags.workdir}/def/spa-assemble-config.json`, 'utf8'));
     spa_assemble_config.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repo_version}`;
     fs.writeFileSync(`${flags.workdir}/def/spa-assemble-config.json`, JSON.stringify(spa_assemble_config, null, 2));
 
@@ -71,9 +72,9 @@ export default class Conch extends Command {
     fs.writeFileSync(`${flags.workdir}/Dockerfile`, dockerfile);
 
     // Read routes.json
-    let routes = JSON.parse(fs.readFileSync(`${flags.workdir}/${flags.name}/src/routes.json`, 'utf8'));
+    const routes = JSON.parse(fs.readFileSync(`${flags.workdir}/${flags.name}/src/routes.json`, 'utf8'));
     // Add to routes.registry.json
-    let registry = JSON.parse(fs.readFileSync(`${flags.workdir}/def/routes.registry.json`, 'utf8'));
+    const registry = JSON.parse(fs.readFileSync(`${flags.workdir}/def/routes.registry.json`, 'utf8'));
     registry[flags.name.replace('openmrs-', '@openmrs/')] = routes;
     fs.writeFileSync(`${flags.workdir}/def/routes.registry.json`, JSON.stringify(registry, null, 2));
   }

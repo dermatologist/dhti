@@ -1,5 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
-import fs from 'fs'
+import fs from 'node:fs'
 import request from 'request'
 export default class Elixir extends Command {
   static override args = {
@@ -13,12 +13,12 @@ export default class Elixir extends Command {
   ]
 
   static override flags = {
-    git: Flags.string({char: 'g', description: 'Github repository to install', default: "none"}),
-    branch: Flags.string({char: 'b', description: 'Branch to install from', default: "develop"}),
+    branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
+    git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
-    repo_version: Flags.string({char: 'v', description: 'Version of the elixir', default: "0.1.0"}),
-    type: Flags.string({char: 't', description: 'Type of elixir (chain, tool or agent)', default: "chain"}),
-    workdir: Flags.string({char: 'w', description: 'Working directory to install the elixir', default: "/tmp/elixir"}),
+    repo_version: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
+    type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
+    workdir: Flags.string({char: 'w', default: "/tmp/elixir", description: 'Working directory to install the elixir'}),
   }
 
   public async run(): Promise<void> {
@@ -33,19 +33,20 @@ export default class Elixir extends Command {
     if (!fs.existsSync(flags.workdir)){
       fs.mkdirSync(flags.workdir);
     }
+
     fs.cpSync('src/resources/genai', flags.workdir, {recursive: true})
 
     // get bootstrap.py file content
     const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
-    request.get(url, function (error: any, response: { statusCode: number }, body: any) {
+    request.get(url, (error: any, response: { statusCode: number }, body: any) => {
     if (!error && response.statusCode == 200) {
-        var to_add = body.split('#DHTI_ADD')[1];
+        const to_add = body.split('#DHTI_ADD')[1];
         // Continue with your processing here.
         fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8').replace('#DHTI_ADD', `#DHTI_ADD\nAdded by (Edit if needed) ${flags.name}\n${to_add}`)
     }else{
-        console.log("Error: ", error)
-        console.log("Status code: ", response.statusCode)
-        console.log("url: ", url)
+        console.log("Error:", error)
+        console.log("Status code:", response.statusCode)
+        console.log("url:", url)
     }
     });
 
@@ -55,6 +56,7 @@ export default class Elixir extends Command {
     if (flags.git === 'none') {
       line_to_add = `${flags.name} = "${flags.repo_version}"`
     }
+
     const new_pyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${line_to_add}`)
     const cli_import = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
     const new_cli_import =  fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${cli_import}`)
