@@ -2,9 +2,7 @@ from fastapi import FastAPI
 from langserve import add_routes
 from langchain_core.runnables.config import RunnableConfig
 # ! DO NOT REMOVE THE COMMENT BELOW
-#DHTI_CLI_IMPORT_BEGIN
-from dhti_elixir_fhire import chain as fhire_chain
-#DHTI_CLI_IMPORT_END
+#DHTI_CLI_IMPORT
 import uvicorn
 
 from bootstrap import bootstrap
@@ -19,14 +17,11 @@ try:
     langfuse_handler = CallbackHandler()
     config = RunnableConfig(callbacks=[langfuse_handler])
     # ! DO NOT REMOVE THE COMMENT BELOW
-    #DHTI_CLI_LANGFUSE_BEGIN
-    add_routes(app, fhire_chain.with_config(config), path="/fhire")
-    #DHTI_CLI_LANGFUSE_END
+    #DHTI_CLI_LANGFUSE
+    
 except:
     # ! DO NOT REMOVE THE COMMENT BELOW
-    #DHTI_CLI_ROUTE_BEGIN
-    add_routes(app, fhire_chain, path="/fhire")
-    #DHTI_CLI_ROUTE_END
+    #DHTI_CLI_ROUTE
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
