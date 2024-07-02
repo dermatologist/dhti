@@ -7,7 +7,7 @@
 node_modules
 oclif.manifest.json
 /work
-
+/dhti
 
 yarn.lock
 pnpm-lock.yaml

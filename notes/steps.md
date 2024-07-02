@@ -6,8 +6,11 @@
 1. Git clone this repository: `git clone https://github.com/dermatologist/dhti.git && cd dhti`
 2. Install the required packages: `npm install`
 
+## Create a work directory (Optional) It can be in any location
+3. Create a work directory: `mkdir dhti`
+
 ## Create a new docker-compose
-3. Create a new docker-compose file: `./bin/dev.js compose add -m ollama -m redis -m openmrs -m langserve -f docker-compose.yml`
+3. Create a new docker-compose file: `./bin/dev.js compose add -m ollama -m redis -m openmrs -m langserve -f dhti/docker-compose.yml`
 The docker-compose.yml is created with the following services:
     - Ollama (LLM model server)
     - Redis (Vectorstore)
@@ -15,7 +18,7 @@ The docker-compose.yml is created with the following services:
     - LangServe (API for LLM models)
 
 ## Start the services
-4. Start the services: `docker-compose up -d`
+4. Start the services: `docker compose -f dhti/docker-compose.yml up`
 It may take a while to download the images and start the services. (OpenMRS may take about 30 mins the first time to setup the database)
 
 ## Download an LLM/Embedding models to use.
@@ -38,3 +41,7 @@ It may take a while to download the images and start the services. (OpenMRS may 
 
 Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-fhire
 This elixir creates an embedding from patient's medical record for Q&A
+
+
+## Remove the services
+11. Remove the services: `docker compose -f dhti/docker-compose.yml down`
