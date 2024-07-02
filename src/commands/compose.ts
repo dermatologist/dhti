@@ -29,13 +29,13 @@ export default class Compose extends Command {
     const openmrs = ['gateway', 'frontend', 'backend', 'openmrs-db']
     const langserve = ['langserve']
     const ollama = ['ollama', 'ollama-webui']
-    const langfuse = ['langfuse', 'langfuse-db']
+    const langfuse = ['langfuse', 'postgres-db']
     const cqlFhir = ['fhir', 'cql-elm', 'cql-web']
     const redis = ['redis']
     const neo4j = ['neo4j', 'fhirg']
     const gateway = ['gateway']
     const webui = ['ollama-webui']
-    const fhir = ['fhir']
+    const fhir = ['fhir', 'postgres-db']
 
 
     const _modules: {[key: string]: string[]} = {

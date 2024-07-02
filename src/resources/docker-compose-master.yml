@@ -113,11 +113,18 @@ services:
     image: alphora/cqf-ruler:0.14.0 # includes cql
     ports:
       - 8005:8080
-    volumes:
-      - fhir-db:/usr/local/tomcat/target/database
     restart: "unless-stopped"
+    depends_on:
+      - postgres-db
     environment:
-      - hapi.fhir.fhir_version=R4
+        - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/postgres"
+        - "spring.datasource.username=postgres"
+        - "spring.datasource.password=postgres"
+        - "spring.datasource.driverClassName=org.postgresql.Driver"
+        - "spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect"
+        - "hapi.fhir.fhir_version=R4"
+        - "hapi.fhir.cors.allowed-origins=*"
+        - "hapi.fhir.cors.allowCredentials=true"
 
   cql-elm:
     image: cqframework/cql-translation-service:latest
@@ -136,18 +143,18 @@ services:
   langfuse:
     image: ghcr.io/langfuse/langfuse:latest
     depends_on:
-      - langfuse-db
+      - postgres-db
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/postgres
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/postgres
       - NEXTAUTH_SECRET=mysecret
       - SALT=mysalt
       - NEXTAUTH_URL=http://langfuse:3000
       - TELEMETRY_ENABLED=${TELEMETRY_ENABLED:-false}
       - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES:-false}
 
-  langfuse-db:
+  postgres-db:
     image: postgres
     restart: "unless-stopped"
     environment:
@@ -157,7 +164,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - langfuse-db:/var/lib/postgresql/data
+      - postgres-db:/var/lib/postgresql/data
 
   redis:
     image: redislabs/redisearch:2.8.8
@@ -197,7 +204,7 @@ volumes:
   openmrs-data: ~
   openmrs-db: ~
   fhir-db: ~
-  langfuse-db: ~
+  postgres-db: ~
   redis-db: ~
   neo4j-db: ~
   ollama-code: ~
