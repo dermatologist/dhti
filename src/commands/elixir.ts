@@ -42,7 +42,10 @@ export default class Elixir extends Command {
     if (!error && response.statusCode === 200) {
         const toAdd = body.split('#DHTI_ADD')[1];
         // Continue with your processing here.
-        fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8').replace('#DHTI_ADD', `#DHTI_ADD\nAdded by (Edit if needed) ${flags.name}\n${toAdd}`)
+        let current_bootstrap = fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8')
+        if (!current_bootstrap.includes(flags.name || 'ALWAYS_ADD')) {
+          fs.writeFileSync(`${flags.workdir}/app/bootstrap.py`, current_bootstrap.replace('#DHTI_ADD', `#DHTI_ADD \n${flags.name}\n#(Edit if needed)\n\n${toAdd}`))
+        }
     }else{
         console.log("Error:", error)
         console.log("Status code:", response.statusCode)
