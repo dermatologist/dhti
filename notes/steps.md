@@ -41,7 +41,12 @@ It may take a while to download the images and start the services. (OpenMRS may 
 
 Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-fhire
 This elixir creates an embedding from patient's medical record for Q&A
+`./bin/dev.js elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -b feature/schema-dict-1 -n dhti_elixir_fhire -w dhti/elixir`
 
+## Examine bootstrap.py/
+
+## Create docker container
+`./bin/dev.js docker dhti/elixir -f dhti/docker-compose.yml -n beapen/genai-text:1.0 -t elixir`
 
 ## Remove the services
 11. Remove the services: `docker compose -f dhti/docker-compose.yml down`
