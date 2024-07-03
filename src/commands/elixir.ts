@@ -15,6 +15,7 @@ export default class Elixir extends Command {
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
+    whl: Flags.string({char: 'e', default: "none", description: 'Whl file to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
     type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
@@ -36,22 +37,32 @@ export default class Elixir extends Command {
 
     fs.cpSync('src/resources/genai', flags.workdir, {recursive: true})
 
-    // get bootstrap.py file content
-    const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
-    request.get(url, (error: any, response: { statusCode: number }, body: any) => {
-    if (!error && response.statusCode === 200) {
-        const toAdd = body.split('#DHTI_ADD')[1];
-        // Continue with your processing here.
-        let current_bootstrap = fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8')
-        if (!current_bootstrap.includes(flags.name || 'ALWAYS_ADD')) {
-          fs.writeFileSync(`${flags.workdir}/app/bootstrap.py`, current_bootstrap.replace('#DHTI_ADD', `#DHTI_ADD \n${flags.name}\n#(Edit if needed)\n\n${toAdd}`))
-        }
-    }else{
-        console.log("Error:", error)
-        console.log("Status code:", response.statusCode)
-        console.log("url:", url)
+    // if whl is not none, copy the whl file to thee whl directory
+    if (flags.whl !== 'none') {
+      if (!fs.existsSync(`${flags.workdir}/whl/`)){
+        fs.mkdirSync(`${flags.workdir}/whl/`);
+      }
+      fs.cpSync(flags.whl, `${flags.workdir}/whl/${flags.name}.whl`)
+      console.log("Installing elixir from whl file. Please modify boostrap.py file if needed")
     }
-    });
+    else {
+      // get bootstrap.py file content
+      const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
+      request.get(url, (error: any, response: { statusCode: number }, body: any) => {
+        if (!error && response.statusCode === 200) {
+            const toAdd = body.split('#DHTI_ADD')[1];
+            // Continue with your processing here.
+            let current_bootstrap = fs.readFileSync(`${flags.workdir}/app/bootstrap.py`, 'utf8')
+            if (!current_bootstrap.includes(flags.name || 'ALWAYS_ADD')) {
+              fs.writeFileSync(`${flags.workdir}/app/bootstrap.py`, current_bootstrap.replace('#DHTI_ADD', `#DHTI_ADD \n${flags.name}\n#(Edit if needed)\n\n${toAdd}`))
+            }
+        }else{
+            console.log("Error:", error)
+            console.log("Status code:", response.statusCode)
+            console.log("url:", url)
+        }
+      });
+    }
 
     const pyproject = fs.readFileSync(`${flags.workdir}/pyproject.toml`, 'utf8')
     const originalServer = fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8')
