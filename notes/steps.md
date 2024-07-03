@@ -55,9 +55,9 @@ You may also install from a wheel file: `./bin/dev.js elixir install -e /path/to
 # Now let us Install a Conch (OpenMRS O3 Template)
 Let's install the conch here:https://github.com/dermatologist/openmrs-esm-genai
 This conch is a minimal Q&A interface for OpenMRS using the elixir above
-`./bin/dev.js conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -b refactor-2 -n openmrs-esm-genai -w dhti/openmrs-esm-genai`
+`./bin/dev.js conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -b refactor-2 -n openmrs-esm-genai -w dhti`
 We can also install from a dev folder
-`./bin/dev.js conch install -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1 -w dhti/openmrs-esm-genai`
+`./bin/dev.js conch install -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1 -w dhti`
 
 ## Create new docker container
 `./bin/dev.js docker dhti/openmrs-esm-genai -f dhti/docker-compose.yml -n beapen/conch-test:1.0 -t conch`
