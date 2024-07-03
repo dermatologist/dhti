@@ -15,6 +15,7 @@ export default class Conch extends Command {
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
+    dev: Flags.string({char: 'e', default: "none", description: 'Dev folder to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
     workdir: Flags.string({char: 'w', default: "/tmp/conch", description: 'Working directory to install the conch'}),
@@ -63,7 +64,7 @@ export default class Conch extends Command {
     fs.cpSync('src/resources/spa', flags.workdir, {recursive: true})
 
 
-    try{
+    if (flags.git !== 'none') {
       // git clone the repository
       exec(`git clone ${flags.git} ${flags.workdir}/${flags.name}`, (error, stdout, stderr) => {
         if (error) {
@@ -83,8 +84,11 @@ export default class Conch extends Command {
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });
-    }catch(e){
-      console.log("Error cloning the repository", e)
+    }
+
+    // If flags.dev is not none, copy the dev folder to the conch directory
+    if (flags.dev !== 'none') {
+      fs.cpSync(flags.dev, `${flags.workdir}/${flags.name}`, {recursive: true})
     }
 
     // Read and process importmap.json
