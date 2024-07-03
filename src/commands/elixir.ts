@@ -76,9 +76,9 @@ export default class Elixir extends Command {
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
     const CliImport = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
     const newCliImport =  fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
-    const langfuseRoute = `add_routes(app, ${flags.name}_${flags.type}.with_config(config), path="/${flags.name}")`
+    const langfuseRoute = `add_routes(app, ${flags.name}_${flags.type}.with_config(config), path="/langserve/${flags.name}")`
     const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-    const normalRoute = `add_routes(app, ${flags.name}_${flags.type}, path="/${flags.name}")`
+    const normalRoute = `add_routes(app, ${flags.name}_${flags.type}, path="/langserve/${flags.name}")`
     const finalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
