@@ -19,7 +19,7 @@ export default class Conch extends Command {
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
     workdir: Flags.string({char: 'w', default: "/tmp/conch", description: 'Working directory to install the conch'}),
-    container: Flags.string({char: 'c', default: "dhti-frontend-1", description: 'Name of the container to copy the conch to while in dev mode'}),
+    container: Flags.string({char: 'c', default: "dhti-frontend", description: 'Name of the container to copy the conch to while in dev mode'}),
   }
 
   public async run(): Promise<void> {
@@ -35,7 +35,7 @@ export default class Conch extends Command {
     //docker restart dhti-frontend-1
     if(args.op === 'dev'){
       try{
-        exec(`docker cp ${flags.workdir}/${flags.name}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`, (error, stdout, stderr) => {
+        exec(`docker cp ${flags.dev}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
             return;
@@ -43,7 +43,7 @@ export default class Conch extends Command {
           console.log(`stdout: ${stdout}`);
           console.error(`stderr: ${stderr}`);
         });
-        exec(`docker restart ${flags.name}-1`, (error, stdout, stderr) => {
+        exec(`docker restart ${flags.container}-1`, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
             return;

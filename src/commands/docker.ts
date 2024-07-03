@@ -17,7 +17,7 @@ export default class Docker extends Command {
   static override flags = {
     file: Flags.string({char: 'f', default: '/tmp/docker-compose.yml', description: 'Full path to the docker compose file to edit.'}),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
-    type : Flags.string({char: 't', description: 'Type of the service (elixir/conch', default: 'elixir'}),
+    type : Flags.string({char: 't', description: 'Type of the service (elixir/conch)', default: 'elixir'}),
   }
 
   public async run(): Promise<void> {
