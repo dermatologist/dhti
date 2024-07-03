@@ -43,8 +43,10 @@ export default class Docker extends Command {
     // if type is elixir set image of backend to name, else set image of frontend to name
     if(flags.type === 'elixir'){
       dockerCompose.services.langserve.image = flags.name
+      dockerCompose.services.langserve.pull_policy = "if_not_present"
     }else{
       dockerCompose.services.frontend.image = flags.name
+      dockerCompose.services.frontend.pull_policy = "if_not_present"
     }
     // write the docker-compose file
     fs.writeFileSync(flags.file, yaml.dump(dockerCompose));
