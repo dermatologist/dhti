@@ -1,6 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
 import request from 'request'
+import path from 'node:path'
 export default class Elixir extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -42,7 +43,7 @@ export default class Elixir extends Command {
       if (!fs.existsSync(`${flags.workdir}/whl/`)){
         fs.mkdirSync(`${flags.workdir}/whl/`);
       }
-      fs.cpSync(flags.whl, `${flags.workdir}/whl/${flags.name}.whl`)
+      fs.cpSync(flags.whl, `${flags.workdir}/whl/${path.basename(flags.whl)}`)
       console.log("Installing elixir from whl file. Please modify boostrap.py file if needed")
     }
     else {
@@ -67,8 +68,9 @@ export default class Elixir extends Command {
     const pyproject = fs.readFileSync(`${flags.workdir}/pyproject.toml`, 'utf8')
     const originalServer = fs.readFileSync(`${flags.workdir}/app/server.py`, 'utf8')
     let lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+    const repoName = flags.name.replace(/_/g, '-')
     if (flags.git === 'none') {
-      lineToAdd = `${flags.name} = "${flags.repoVersion}"`
+      lineToAdd = `${repoName} = { file = "whl/${path.basename(flags.whl)}" }`
     }
 
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)

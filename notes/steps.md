@@ -42,7 +42,7 @@ It may take a while to download the images and start the services. (OpenMRS may 
 Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-fhire
 This elixir creates an embedding from patient's medical record for Q&A
 `./bin/dev.js elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -b feature/schema-dict-1 -n dhti_elixir_fhire -w dhti/dhti_elixir_fhire`
-You may also install from a wheel file: `./bin/dev.js elixir install -w /path/to/wheel -n dhti_elixir_fhire -v 0.0.1 -w dhti/dhti_elixir_fhire`
+You may also install from a wheel file: `./bin/dev.js elixir install -e /path/to/wheel -n dhti_elixir_fhire -v 0.0.1 -w dhti/dhti_elixir_fhire`
 
 ## Examine bootstrap.py/
 
