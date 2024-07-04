@@ -65,6 +65,9 @@ We can also install from a dev folder
 ## Start the container with the new conch
 `docker compose -f dhti/docker-compose.yml up`
 
+## Copy dev folder to a running container
+`./bin/dev.js conch dev -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -w dhti -c dhti-frontend-1`
+
 ## Access the Conch in OpenMRS and test the integration
 
 ## Remove the services

@@ -34,6 +34,7 @@ export default class Conch extends Command {
     //docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
     //docker restart dhti-frontend-1
     if(args.op === 'dev'){
+      console.log(`docker cp ${flags.dev}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`)
       try{
         exec(`docker cp ${flags.dev}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`, (error, stdout, stderr) => {
           if (error) {
@@ -43,7 +44,7 @@ export default class Conch extends Command {
           console.log(`stdout: ${stdout}`);
           console.error(`stderr: ${stderr}`);
         });
-        exec(`docker restart ${flags.container}-1`, (error, stdout, stderr) => {
+        exec(`docker restart ${flags.container}`, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
             return;
@@ -87,7 +88,7 @@ export default class Conch extends Command {
     }
 
     // If flags.dev is not none, copy the dev folder to the conch directory
-    if (flags.dev !== 'none') {
+    if (flags.dev !== 'none' && args.op !== 'dev') {
       fs.cpSync(flags.dev, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
     }
 
