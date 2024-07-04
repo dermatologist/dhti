@@ -5,7 +5,7 @@ import yaml from 'js-yaml'
 
 export default class Docker extends Command {
   static override args = {
-    path: Args.string({description: 'Docker project to build'}),
+    path: Args.string({description: 'Docker project path to build. Ex: dhti'}),
   }
 
   static override description = 'Build a docker project and update docker-compose file'
@@ -29,7 +29,7 @@ export default class Docker extends Command {
     }
 
     // cd to path, docker build tag with name
-    exec(`cd ${args.path} && docker build -t ${flags.name} .`, (error, stdout, stderr) => {
+    exec(`cd ${args.path}/${flags.type} && docker build -t ${flags.name} .`, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
         return;

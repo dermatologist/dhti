@@ -17,7 +17,7 @@ The docker-compose.yml is created with the following services:
     - OpenMRS (EMR)
     - LangServe (API for LLM models)
 
-## Start the services 
+## Start the services
 4. Start the services: `docker compose -f dhti/docker-compose.yml up`
 It may take a while to download the images and start the services. (OpenMRS may take about 30 mins the first time to setup the database)
 
@@ -44,12 +44,12 @@ This elixir creates an embedding from patient's medical record for Q&A
 `./bin/dev.js elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -b feature/schema-dict-1 -n dhti_elixir_fhire -w dhti`
 You may also install from a wheel file: `./bin/dev.js elixir install -e ~/repos/dhti-elixir-fhire/dist/dhti_elixir_fhire-0.0.1-py3-none-any.whl -n dhti_elixir_fhire -v 0.0.1 -w dhti`
 
-## Examine bootstrap.py/
+## Examine bootstrap.py
 
 ## Create docker container
-`./bin/dev.js docker dhti/dhti_elixir_fhire -f dhti/docker-compose.yml -n beapen/genai-test:1.0 -t elixir`
+`./bin/dev.js docker dhti -f dhti/docker-compose.yml -n beapen/genai-test:1.0 -t elixir`
 
-## Start the container with the new elixir
+## Start the container with the new elixir (Optional, you can do it after the next two steps)
 `docker compose -f dhti/docker-compose.yml up`
 
 # Now let us Install a Conch (OpenMRS O3 Template)
@@ -60,7 +60,7 @@ We can also install from a dev folder
 `./bin/dev.js conch install -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1 -w dhti`
 
 ## Create new docker container
-`./bin/dev.js docker dhti/openmrs-esm-genai -f dhti/docker-compose.yml -n beapen/conch-test:1.0 -t conch`
+`./bin/dev.js docker dhti -f dhti/docker-compose.yml -n beapen/conch-test:1.0 -t conch`
 
 ## Start the container with the new conch
 `docker compose -f dhti/docker-compose.yml up`
