@@ -93,8 +93,9 @@ services:
       - ollama-root:/root/.ollama
     tty: true
     restart: "unless-stopped"
-
-
+    environment:
+      - OLLAMA_ORIGINS=*
+      
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
     volumes:
