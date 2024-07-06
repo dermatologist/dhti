@@ -31,7 +31,7 @@ export default class Compose extends Command {
     const ollama = ['ollama', 'ollama-webui']
     const langfuse = ['langfuse', 'postgres-db']
     const cqlFhir = ['fhir', 'cql-elm', 'cql-web']
-    const redis = ['redis']
+    const redis = ['redis', 'redis-commander']
     const neo4j = ['neo4j', 'fhirg']
     const gateway = ['gateway']
     const webui = ['ollama-webui']

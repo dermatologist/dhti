@@ -95,7 +95,7 @@ services:
     restart: "unless-stopped"
     environment:
       - OLLAMA_ORIGINS=*
-      
+
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
     volumes:
@@ -174,6 +174,14 @@ services:
     restart: "unless-stopped"
     volumes:
       - redis-db:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: "unless-stopped"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
 
   neo4j:
     image: neo4j:5.1-enterprise
