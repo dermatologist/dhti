@@ -1,5 +1,5 @@
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { RunnableSequence } from "@langchain/core/runnables";
+import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 
 export class ChainService {
 
@@ -12,7 +12,8 @@ export class ChainService {
     async Chain(input: any) {
 
         const output = RunnableSequence.from([
-        input,
+        new RunnablePassthrough(),
+        this.container.resolve("prompt"),
         this.container.resolve("main-llm"),
         new StringOutputParser(),
         ]);

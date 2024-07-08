@@ -1,0 +1,1 @@
+Give me 10 questions a doctor can find from a health record. The questions should be in an array as strings. Create them as if they were real thing, as if you are a doctor looking for information on a particular patient. Return only the array with the questions.

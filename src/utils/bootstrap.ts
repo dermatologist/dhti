@@ -41,9 +41,9 @@ const bootstrap = async () => {
     const gen_prompt = ChatPromptTemplate.fromMessages([
     [
         "system",
-        "You are a text completion agent.",
+        "You are a medical doctor.",
     ],
-    ["human", "Expand and complete {question}"],
+    ["human", "{question}"],
     ]);
 
 

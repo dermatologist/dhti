@@ -25,9 +25,13 @@ export default class Synthetic extends Command {
     const container = await bootstrap()
     const chain = new ChainService(container)
 
+    const input = {
+      question: prompt,
+    }
+
     let responses: any[] = []
     for (let i = 0; i < flags.maxCycles; i++) {
-      let response = await chain.Chain(prompt)
+      let response = await chain.Chain(input)
       let cycle = []
       const jsonArrayMatch = response.match(/\[[^\]]*\]/);
       if (jsonArrayMatch) {
