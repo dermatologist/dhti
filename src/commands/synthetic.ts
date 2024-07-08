@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
-import bootstrap from './utils/bootstrap.js'
-import { ChainService } from './utils/chain.js'
+import bootstrap from '../utils/bootstrap.js'
+import { ChainService } from '../utils/chain.js'
 export default class Synthetic extends Command {
   static override args = {
     prompt: Args.string({description: 'Prompt file to read'}),
@@ -23,7 +23,7 @@ export default class Synthetic extends Command {
     const {args, flags} = await this.parse(Synthetic)
     const prompt = fs.readFileSync(args.prompt ?? '', 'utf8')
     const container = await bootstrap()
-    const chain = new ChainService(container, "", "")
+    const chain = new ChainService(container)
 
     let responses: any[] = []
     for (let i = 0; i < flags.maxCycles; i++) {
