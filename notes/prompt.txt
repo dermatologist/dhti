@@ -1,1 +1,6 @@
-Give me 10 questions a doctor can find from a health record. The questions should be in an array as strings. Create them as if they were real thing, as if you are a doctor looking for information on a particular patient. Return only the array with the questions.
+Give me 5 questions a doctor can find from a electronic health record.
+Create them as if you are a doctor looking for information on a particular patient.
+Each question should be brief and answerable with a value or short phrase.
+Questions should be answerable from a written record and not by asking.
+The questions should be in an array as strings.
+Return only the array with the questions.
