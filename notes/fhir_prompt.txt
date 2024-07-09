@@ -1,0 +1,5 @@
+Convert the statement between 3 backticks to a single FHIR query.
+Create them as if you can execute them on a fhir server
+Each query should be single line
+The query should be in an array as strings.
+Return only the array with the query strings.
