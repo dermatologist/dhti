@@ -43,7 +43,7 @@ const bootstrap = async () => {
         "system",
         "You are a medical doctor.",
     ],
-    ["human", "{question}"],
+    ["human", "{input}"],
     ]);
 
 
