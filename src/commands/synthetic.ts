@@ -28,7 +28,7 @@ export default class Synthetic extends Command {
 		const container = await bootstrap()
 		const chain = new ChainService(container)
 
-		if (flags.maxCycles){
+		if (flags.maxCycles){ // No input file, can process in batches
 			const input = {
 				input: prompt,
 			}
@@ -58,6 +58,27 @@ export default class Synthetic extends Command {
 
 			fs.writeFileSync(args.output ?? '', JSON.stringify(jsonOutput, null, 4));
 			console.log(`${args.output} has been created with ${flags.maxRecords} records`);
+		}
+		else { // Input file, process one by one
+			// read input file
+			const input = JSON.parse(fs.readFileSync(args.input ?? '', 'utf8'))
+			let responses = []
+			// for each record in input file
+			for(let i = 0; i < input.length; i++){
+				let record = input[i]
+				let chainInput = {
+					prompt: prompt,
+					input: record[flags.inputField],
+				}
+				let response = await chain.Chain(chainInput)
+				record[flags.outputField] = response
+				responses.push(record)
+				if (responses.length >= flags.maxRecords) break;
+				console.log(`Processed ${i + 1} records so far, ${flags.maxRecords - responses.length} to go`)
+			}
+			// write to output file
+			fs.writeFileSync(args.output ?? '', JSON.stringify(responses, null, 4));
+			console.log(`${args.output} has been created with ${responses.length} records`);
 		}
 	}
 }

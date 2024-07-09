@@ -46,8 +46,16 @@ const bootstrap = async () => {
     ["human", "{input}"],
     ]);
 
+    const instruct_prompt = ChatPromptTemplate.fromMessages([
+    [
+        "system",
+        "You are a HL7 FHIR expert.",
+    ],
+    ["human", "{prompt} {input}"],
+    ]);
 
-    const prompt = gen_prompt;
+
+    const prompt = instruct_prompt;
 
 
     container.register("main-llm", {
