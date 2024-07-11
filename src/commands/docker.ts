@@ -16,13 +16,25 @@ export default class Docker extends Command {
   ]
 
   static override flags = {
-    file: Flags.string({char: 'f', default: `${os.homedir()}/dhti/docker-compose.yml`, description: 'Full path to the docker compose file to edit.'}),
+    file: Flags.string({char: 'f', default: `${os.homedir()}/dhti/docker-compose.yml`, description: 'Full path to the docker compose file to edit or run.'}),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
     type : Flags.string({char: 't', description: 'Type of the service (elixir/conch)', default: 'elixir'}),
+    up: Flags.boolean({char: 'u', description: 'Run docker-compose up after building', default: false}),
   }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Docker)
+
+    if(flags.up){
+      exec(`docker-compose -f ${flags.file} up -d`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+      });
+    }
 
     if(!flags.name){
       console.log("Please provide a name for the conch")
