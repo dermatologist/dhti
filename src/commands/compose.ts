@@ -5,7 +5,7 @@ import os from 'node:os'
 
 export default class Compose extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (add or delete)'}),
+    op: Args.string({description: 'Operation to perform (add, delete or read)'}),
   }
 
   static override description = 'Generates a docker-compose.yml file from a list of modules'
@@ -70,6 +70,12 @@ export default class Compose extends Command {
           existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'));
       } else {
         Compose.init(); // Create the file if it does not exist
+      }
+
+      // Echo the existing data to the console
+      if (args.op === 'read') {
+        console.log(existingData);
+        return;
       }
 
       // if existing data is not null and arg is delete, remove the modules from the existing data
