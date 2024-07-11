@@ -1,6 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import yaml from 'js-yaml'
 import fs from 'node:fs'
+import os from 'node:os'
 
 export default class Compose extends Command {
   static override args = {
@@ -14,11 +15,21 @@ export default class Compose extends Command {
   ]
 
   static override flags = {
-    file: Flags.string({char: 'f', default: '~/dhti/docker-compose.yml', description: 'Full path to the docker compose file to read from. Creates if it does not exist'}),
+    file: Flags.string({char: 'f', default: `${os.homedir()}/dhti/docker-compose.yml`, description: 'Full path to the docker compose file to read from. Creates if it does not exist'}),
     // flag with a value (-n, --name=VALUE)
     module: Flags.string({char: 'm', description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis and neo4j)', multiple: true}),
   }
 
+  public static init = () => {
+    // Create ${os.homedir()}/dhti if it does not exist
+    if (!fs.existsSync(`${os.homedir()}/dhti`)) {
+      fs.mkdirSync(`${os.homedir()}/dhti`);
+    }
+    // Create ${os.homedir()}/dhti/docker-compose.yml if it does not exist
+    if (!fs.existsSync(`${os.homedir()}/dhti/docker-compose.yml`)) {
+      fs.writeFileSync(`${os.homedir()}/dhti/docker-compose.yml`, '', 'utf8');
+    }
+  }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Compose)
@@ -52,10 +63,13 @@ export default class Compose extends Command {
     }
 
     try {
+
       const masterData: any = yaml.load(fs.readFileSync('src/resources/docker-compose-master.yml', 'utf8'));
       let existingData:any = {services: {}, version: '3.8'};
       if (fs.existsSync(flags.file)) {
-        existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'));
+          existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'));
+      } else {
+        Compose.init(); // Create the file if it does not exist
       }
 
       // if existing data is not null and arg is delete, remove the modules from the existing data

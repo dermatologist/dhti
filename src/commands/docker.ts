@@ -2,10 +2,11 @@ import {Args, Command, Flags} from '@oclif/core'
 import { exec } from 'child_process';
 import fs from 'node:fs'
 import yaml from 'js-yaml'
+import os from 'node:os'
 
 export default class Docker extends Command {
   static override args = {
-    path: Args.string({description: 'Docker project path to build. Ex: dhti'}),
+    path: Args.string({description: 'Docker project path to build. Ex: dhti', default: `${os.homedir()}/dhti`}),
   }
 
   static override description = 'Build a docker project and update docker-compose file'
@@ -15,7 +16,7 @@ export default class Docker extends Command {
   ]
 
   static override flags = {
-    file: Flags.string({char: 'f', default: '~/dhti/docker-compose.yml', description: 'Full path to the docker compose file to edit.'}),
+    file: Flags.string({char: 'f', default: `${os.homedir()}/dhti/docker-compose.yml`, description: 'Full path to the docker compose file to edit.'}),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
     type : Flags.string({char: 't', description: 'Type of the service (elixir/conch)', default: 'elixir'}),
   }
