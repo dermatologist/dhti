@@ -25,6 +25,7 @@ export default class Compose extends Command {
     if (!fs.existsSync(`${os.homedir()}/dhti`)) {
       fs.mkdirSync(`${os.homedir()}/dhti`);
     }
+
     // Create ${os.homedir()}/dhti/docker-compose.yml if it does not exist
     if (!fs.existsSync(`${os.homedir()}/dhti/docker-compose.yml`)) {
       fs.writeFileSync(`${os.homedir()}/dhti/docker-compose.yml`, '', 'utf8');
@@ -51,15 +52,15 @@ export default class Compose extends Command {
 
     const _modules: {[key: string]: string[]} = {
       cqlFhir,
+      fhir,
+      gateway,
       langfuse,
       langserve,
       neo4j,
       ollama,
       openmrs,
       redis,
-      gateway,
-      webui,
-      fhir
+      webui
     }
 
     try {

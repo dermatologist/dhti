@@ -1,6 +1,6 @@
 import {Args, Command, Flags} from '@oclif/core'
+import { exec } from 'node:child_process';
 import fs from 'node:fs'
-import { exec } from 'child_process';
 import os from 'node:os'
 export default class Conch extends Command {
   static override args = {
@@ -15,12 +15,12 @@ export default class Conch extends Command {
 
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
-    git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
+    container: Flags.string({char: 'c', default: `${os.homedir()}/dhti`, description: 'Name of the container to copy the conch to while in dev mode'}),
     dev: Flags.string({char: 'e', default: "none", description: 'Dev folder to install'}),
+    git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
     workdir: Flags.string({char: 'w', default: "/tmp", description: 'Working directory to install the conch'}),
-    container: Flags.string({char: 'c', default: `${os.homedir()}/dhti`, description: 'Name of the container to copy the conch to while in dev mode'}),
   }
 
   public async run(): Promise<void> {
@@ -32,8 +32,8 @@ export default class Conch extends Command {
     }
 
     // if arg is dev then copy to docker as below
-    //docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
-    //docker restart dhti-frontend-1
+    // docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
+    // docker restart dhti-frontend-1
     if(args.op === 'dev'){
       console.log(`docker cp ${flags.dev}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`)
       try{
@@ -42,6 +42,7 @@ export default class Conch extends Command {
             console.error(`exec error: ${error}`);
             return;
           }
+
           console.log(`stdout: ${stdout}`);
           console.error(`stderr: ${stderr}`);
         });
@@ -50,11 +51,12 @@ export default class Conch extends Command {
             console.error(`exec error: ${error}`);
             return;
           }
+
           console.log(`stdout: ${stdout}`);
           console.error(`stderr: ${stderr}`);
         });
-      }catch (e){
-        console.log("Error copying conch to container", e)
+      }catch (error){
+        console.log("Error copying conch to container", error)
       }
     }
 
@@ -73,6 +75,7 @@ export default class Conch extends Command {
           console.error(`exec error: ${error}`);
           return;
         }
+
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });
@@ -83,6 +86,7 @@ export default class Conch extends Command {
           console.error(`exec error: ${error}`);
           return;
         }
+
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });

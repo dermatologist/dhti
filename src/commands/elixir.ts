@@ -1,8 +1,8 @@
 import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
-import request from 'request'
-import path from 'node:path'
 import os from 'node:os'
+import path from 'node:path'
+import request from 'request'
 export default class Elixir extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -17,10 +17,10 @@ export default class Elixir extends Command {
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
-    whl: Flags.string({char: 'e', default: "none", description: 'Whl file to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
     type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
+    whl: Flags.string({char: 'e', default: "none", description: 'Whl file to install'}),
     workdir: Flags.string({char: 'w', default: `${os.homedir()}/dhti`, description: 'Working directory to install the elixir'}),
   }
 
@@ -40,21 +40,14 @@ export default class Elixir extends Command {
     fs.cpSync('src/resources/genai', `${flags.workdir}/elixir`, {recursive: true})
 
     // if whl is not none, copy the whl file to thee whl directory
-    if (flags.whl !== 'none') {
-      if (!fs.existsSync(`${flags.workdir}/elixir/whl/`)){
-        fs.mkdirSync(`${flags.workdir}/whl/`);
-      }
-      fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
-      console.log("Installing elixir from whl file. Please modify boostrap.py file if needed")
-    }
-    else {
+    if (flags.whl === 'none') {
       // get bootstrap.py file content
       const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
       request.get(url, (error: any, response: { statusCode: number }, body: any) => {
         if (!error && response.statusCode === 200) {
             const toAdd = body.split('#DHTI_ADD')[1];
             // Continue with your processing here.
-            let current_bootstrap = fs.readFileSync(`${flags.workdir}/elixir/app/bootstrap.py`, 'utf8')
+            const current_bootstrap = fs.readFileSync(`${flags.workdir}/elixir/app/bootstrap.py`, 'utf8')
             if (!current_bootstrap.includes(flags.name || 'ALWAYS_ADD')) {
               fs.writeFileSync(`${flags.workdir}/elixir/app/bootstrap.py`, current_bootstrap.replace('#DHTI_ADD', `#DHTI_ADD \n${flags.name}\n#(Edit if needed)\n\n${toAdd}`))
             }
@@ -65,11 +58,19 @@ export default class Elixir extends Command {
         }
       });
     }
+    else {
+      if (!fs.existsSync(`${flags.workdir}/elixir/whl/`)){
+        fs.mkdirSync(`${flags.workdir}/whl/`);
+      }
+
+      fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
+      console.log("Installing elixir from whl file. Please modify boostrap.py file if needed")
+    }
 
     const pyproject = fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
     const originalServer = fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
     let lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
-    const repoName = flags.name.replace(/_/g, '-')
+    const repoName = flags.name.replaceAll('_', '-')
     if (flags.git === 'none') {
       lineToAdd = `${repoName} = { file = "whl/${path.basename(flags.whl)}" }`
     }
