@@ -20,13 +20,14 @@ export default class Docker extends Command {
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
     type : Flags.string({char: 't', description: 'Type of the service (elixir/conch)', default: 'elixir'}),
     up: Flags.boolean({char: 'u', description: 'Run docker-compose up after building', default: false}),
+    down: Flags.boolean({char: 'd', description: 'Run docker-compose down after building', default: false}),
   }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Docker)
 
     if(flags.up){
-      exec(`docker-compose -f ${flags.file} up -d`, (error, stdout, stderr) => {
+      exec(`docker compose -f ${flags.file} up -d`, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`);
           return;
@@ -34,10 +35,23 @@ export default class Docker extends Command {
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });
+      return
+    }
+
+    if(flags.down){
+      exec(`docker compose -f ${flags.file} down`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+      });
+      return
     }
 
     if(!flags.name){
-      console.log("Please provide a name for the conch")
+      console.log("Please provide a name for the container to build")
       this.exit(1)
     }
 

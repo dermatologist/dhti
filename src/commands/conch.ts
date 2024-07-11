@@ -1,6 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
 import { exec } from 'child_process';
+import os from 'node:os'
 export default class Conch extends Command {
   static override args = {
         op: Args.string({description: 'Operation to perform (dev/none)'}),
@@ -19,7 +20,7 @@ export default class Conch extends Command {
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
     workdir: Flags.string({char: 'w', default: "/tmp", description: 'Working directory to install the conch'}),
-    container: Flags.string({char: 'c', default: "dhti-frontend", description: 'Name of the container to copy the conch to while in dev mode'}),
+    container: Flags.string({char: 'c', default: `${os.homedir()}/dhti`, description: 'Name of the container to copy the conch to while in dev mode'}),
   }
 
   public async run(): Promise<void> {

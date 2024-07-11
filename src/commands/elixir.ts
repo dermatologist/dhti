@@ -2,6 +2,7 @@ import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
 import request from 'request'
 import path from 'node:path'
+import os from 'node:os'
 export default class Elixir extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install or uninstall)'}),
@@ -20,7 +21,7 @@ export default class Elixir extends Command {
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
     type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
-    workdir: Flags.string({char: 'w', default: "/tmp", description: 'Working directory to install the elixir'}),
+    workdir: Flags.string({char: 'w', default: `${os.homedir()}/dhti`, description: 'Working directory to install the elixir'}),
   }
 
   public async run(): Promise<void> {
