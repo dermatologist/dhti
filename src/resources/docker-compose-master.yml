@@ -1,0 +1,221 @@
+version: "3.7"
+
+services:
+  gateway:
+    image: beapen/dhti-gateway:latest
+    restart: "unless-stopped"
+    pull_policy: always
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+      - "9000:80"
+
+
+  frontend:
+    image: openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17
+    # image: openmrs/openmrs-reference-application-3-frontend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
+    ports:
+      - "8003:80"
+    restart: "unless-stopped"
+    pull_policy: always
+    environment:
+      SPA_PATH: /openmrs/spa
+      API_URL: /openmrs
+      SPA_CONFIG_URLS: /openmrs/spa/config-core_demo.json
+      SPA_DEFAULT_LOCALE:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      timeout: 5s
+    depends_on:
+      - backend
+    # volumes:
+    #   - ./spa:/usr/share/nginx/html
+
+  backend:
+    image: openmrs/openmrs-reference-application-3-backend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
+    ports:
+      - "8002:8080"
+    restart: "unless-stopped"
+    depends_on:
+      - openmrs-db
+    environment:
+      OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
+      OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CONFIG_CREATE_TABLES: "true"
+      OMRS_CONFIG_CONNECTION_SERVER: openmrs-db
+      OMRS_CONFIG_CONNECTION_DATABASE: openmrs
+      OMRS_CONFIG_CONNECTION_USERNAME: ${OPENMRS_DB_USER:-openmrs}
+      OMRS_CONFIG_CONNECTION_PASSWORD: ${OPENMRS_DB_PASSWORD:-openmrs}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs"]
+      timeout: 5s
+    volumes:
+      - openmrs-data:/openmrs/data
+
+  openmrs-db:
+    image: mariadb:10.11.7
+    restart: "unless-stopped"
+    command: "mysqld --character-set-server=utf8 --collation-server=utf8_general_ci"
+    healthcheck:
+      test: "mysql --user=${OMRS_DB_USER:-openmrs} --password=${OMRS_DB_PASSWORD:-openmrs} --execute \"SHOW DATABASES;\""
+      interval: 3s
+      timeout: 1s
+      retries: 5
+    environment:
+      MYSQL_DATABASE: openmrs
+      MYSQL_USER: ${OMRS_DB_USER:-openmrs}
+      MYSQL_PASSWORD: ${OMRS_DB_PASSWORD:-openmrs}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openmrs}
+    volumes:
+      - openmrs-db:/var/lib/mysql
+
+  langserve:
+    image: beapen/genai:latest
+    pull_policy: always
+    ports:
+      - "8001:8001"
+    restart: "unless-stopped"
+    environment:
+      - OLLAMA_SERVER_URL==http://ollama:11434
+      - OLLAMA_WEBUI=http://ollama-webui:8080
+      - LANGFUSE_HOST=http://langfuse:3000
+      - LANGFUSE_PUBLIC_KEY=pk-lf-abcd
+      - LANGFUSE_SECRET_KEY=sk-lf-abcd
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama-code:/code
+      - ollama-root:/root/.ollama
+    tty: true
+    restart: "unless-stopped"
+    environment:
+      - OLLAMA_ORIGINS=*
+
+  ollama-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    volumes:
+      - ollama-webui:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - 8080:8080
+    environment:
+      - '/ollama/api=http://ollama:11434/api'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+  fhir:
+    image: alphora/cqf-ruler:0.14.0 # includes cql
+    ports:
+      - 8005:8080
+    restart: "unless-stopped"
+    depends_on:
+      - postgres-db
+    environment:
+        - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/postgres"
+        - "spring.datasource.username=postgres"
+        - "spring.datasource.password=postgres"
+        - "spring.datasource.driverClassName=org.postgresql.Driver"
+        - "spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect"
+        - "hapi.fhir.fhir_version=R4"
+        - "hapi.fhir.cors.allowed-origins=*"
+        - "hapi.fhir.cors.allowCredentials=true"
+
+  cql-elm:
+    image: cqframework/cql-translation-service:latest
+    ports:
+      - 8091:8080
+    restart: "unless-stopped"
+
+  cql-web:
+    image: beapen/cql_runner:latest
+    ports:
+      - 8092:80
+    restart: "unless-stopped"
+    depends_on:
+      - fhir
+
+  langfuse:
+    image: ghcr.io/langfuse/langfuse:latest
+    depends_on:
+      - postgres-db
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/postgres
+      - NEXTAUTH_SECRET=mysecret
+      - SALT=mysalt
+      - NEXTAUTH_URL=http://langfuse:3000
+      - TELEMETRY_ENABLED=${TELEMETRY_ENABLED:-false}
+      - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES:-false}
+
+  postgres-db:
+    image: postgres
+    restart: "unless-stopped"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+  redis:
+    image: redislabs/redisearch:2.8.8
+    ports:
+      - 6379:6379
+    restart: "unless-stopped"
+    volumes:
+      - redis-db:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: "unless-stopped"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+
+  neo4j:
+    image: neo4j:5.1-enterprise
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_PLUGINS=["apoc", "graph-data-science", "n10s"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*,n10s.*
+      - NEO4J_dbms_security_procedures_whitelist=apoc.*,gds.*,n10s.*
+    restart: "unless-stopped"
+    volumes:
+      - neo4j-db:/data
+
+  fhirg:
+    image: beapen/fhirg:latest
+    ports:
+      - 8004:8080
+    restart: "unless-stopped"
+    environment:
+      - spring.neo4j.uri=bolt://neo4j:7687
+      - spring.neo4j.authentication.username=neo4j
+      - spring.neo4j.authentication.password=password
+
+
+volumes:
+  openmrs-data: ~
+  openmrs-db: ~
+  fhir-db: ~
+  postgres-db: ~
+  redis-db: ~
+  neo4j-db: ~
+  ollama-code: ~
+  ollama-root: ~
+  ollama-webui: ~
