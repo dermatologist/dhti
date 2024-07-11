@@ -4,10 +4,11 @@ import bootstrap from '../utils/bootstrap.js'
 import { ChainService } from '../utils/chain.js'
 export default class Synthetic extends Command {
 	static override args = {
-		prompt: Args.string({description: 'Prompt file to read'}),
+		prompt: Args.string({description: 'Prompt file to read', default:""}),
+		input: Args.string({description: 'Input file to process', default:""}), // object with input, instruction (rationale in distillation), output
 		output: Args.string({description: 'Output file to write'}),
-		input: Args.string({description: 'Input file to process'}), // object with input, instruction (rationale in distillation), output
 	}
+
 
 	static override description = 'Generate synthetic data using LLM'
 
@@ -24,9 +25,18 @@ export default class Synthetic extends Command {
 
 	public async run(): Promise<void> {
 		const {args, flags} = await this.parse(Synthetic)
-		const prompt = fs.readFileSync(args.prompt ?? '', 'utf8')
+		let prompt = ""
+		// read prompt file if provided
+		if (args.prompt)
+			prompt = fs.readFileSync(args.prompt ?? '', 'utf8')
 		const container = await bootstrap()
 		const chain = new ChainService(container)
+
+		// if no output file, exit with error
+		if (!args.output) {
+			console.log("Please provide an output file")
+			this.exit(1)
+		}
 
 		if (flags.maxCycles){ // No input file, can process in batches
 			const input = {
