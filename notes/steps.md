@@ -81,8 +81,8 @@ We can also install from a dev folder after cloning the repository (-e <path>):
 ### Start the container with the new conch
 `dhti-cli docker -u`
 
-### Copy dev folder to a running container
-`dhti-cli conch dev -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -c dhti-frontend-1`
+### (Optional) While developing you can copy the dist folder to a running container for testing
+`dhti-cli conch dev -e ../openmrs-esm-genai/dist -n openmrs-esm-genai -c dhti-frontend-1`
 
 ### Access the Conch in OpenMRS and test the integration
 

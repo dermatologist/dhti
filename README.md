@@ -81,14 +81,14 @@ It may take a while to download the images and start the services. (OpenMRS may 
 
 * This elixir creates an embedding from patient's medical record for Q&A
 
-`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -b feature/schema-dict-1 -n dhti_elixir_fhire`
+`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -n dhti-elixir-fhire`
 
-You may also install from a wheel file (after building it locally):
+You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel`. -e path -v version):
 
-`dhti-cli elixir install -e ~/repos/dhti-elixir-fhire/dist/dhti_elixir_fhire-0.0.1-py3-none-any.whl -n dhti_elixir_fhire -v 0.0.1`
+`dhti-cli elixir install -e ../dhti-elixir-fhire/dist/dhti_elixir_fhire-0.0.1-py3-none-any.whl -n dhti-elixir-fhire -v 0.0.1`
 
 ### Examine bootstrap.py
-`cat ~/dhti/elixir/bootstrap.py`
+`cat ~/dhti/elixir/app/bootstrap.py`
 
 You need to refer to the elixir documentation for the parameters required for the bootstrap.py. This is where you define the *LLM, embedding model, hyperparameters etc that are injected at runtime.*
 
@@ -103,11 +103,11 @@ You need to refer to the elixir documentation for the parameters required for th
 * Let's install the conch here:https://github.com/dermatologist/openmrs-esm-genai
 * This conch is a minimal Q&A interface for OpenMRS using the elixir above for Q&A on patient records.
 
-`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -b refactor-2 -n openmrs-esm-genai`
+`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -n openmrs-esm-genai`
 
-We can also install from a dev folder
+We can also install from a dev folder after cloning the repository (-e <path>):
 
-`dhti-cli conch install -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1`
+`dhti-cli conch install -e ../openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1`
 
 ### Create new docker container
 `dhti-cli docker -n beapen/conch-test:1.0 -t conch`
@@ -115,8 +115,8 @@ We can also install from a dev folder
 ### Start the container with the new conch
 `dhti-cli docker -u`
 
-### Copy dev folder to a running container
-`dhti-cli conch dev -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -c dhti-frontend-1`
+### (Optional) While developing you can copy the dist folder to a running container for testing
+`dhti-cli conch dev -e ../openmrs-esm-genai/dist -n openmrs-esm-genai -c dhti-frontend-1`
 
 ### Access the Conch in OpenMRS and test the integration
 
