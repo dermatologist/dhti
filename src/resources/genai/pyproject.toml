@@ -13,7 +13,7 @@ langserve = { version = "^0.0.51", extras = ["server"] }
 langfuse = "^2.31.0"
 tiktoken = "^0.4.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
-dhti_elixir_base = { git = "https://github.com/dermatologist/dhti-elixir-base.git", branch = "develop" }
+dhti-elixir-base = { git = "https://github.com/dermatologist/dhti-elixir-base.git", branch = "develop" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.1"

@@ -70,17 +70,17 @@ export default class Elixir extends Command {
     const pyproject = fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
     const originalServer = fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
     let lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
-    const repoName = flags.name.replaceAll('_', '-')
     if (flags.git === 'none') {
-      lineToAdd = `${repoName} = { file = "whl/${path.basename(flags.whl)}" }`
+      lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
     }
 
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
-    const CliImport = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
+    const expoName = flags.name.replaceAll('-', '_')
+    const CliImport = `from ${expoName} import ${flags.type} as ${expoName}_${flags.type}\n`
     const newCliImport =  fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
-    const langfuseRoute = `add_routes(app, ${flags.name}_${flags.type}.with_config(config), path="/langserve/${flags.name}")`
+    const langfuseRoute = `add_routes(app, ${expoName}_${flags.type}.with_config(config), path="/langserve/${expoName}")`
     const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-    const normalRoute = `add_routes(app, ${flags.name}_${flags.type}, path="/langserve/${flags.name}")`
+    const normalRoute = `add_routes(app, ${expoName}_${flags.type}, path="/langserve/${expoName}")`
     const finalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
