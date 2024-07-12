@@ -61,7 +61,7 @@ export default class Elixir extends Command {
     const expoName = flags.name.replaceAll('-', '_')
     let CliImport = `from ${expoName} import ${flags.type} as ${expoName}_${flags.type}\n`
     CliImport += `from ${expoName} import bootstrap as ${expoName}_bootstrap\n`
-    CliImport += `${expoName}_bootstrap()\n`
+    CliImport += `${expoName}_bootstrap.bootstrap()\n`
     const newCliImport =  fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
     const langfuseRoute = `add_routes(app, ${expoName}_${flags.type}.with_config(config), path="/langserve/${expoName}")`
     const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
