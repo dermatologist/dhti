@@ -3,7 +3,7 @@ import yaml from 'js-yaml'
 import { exec } from 'node:child_process';
 import fs from 'node:fs'
 import os from 'node:os'
-
+import ora from 'ora'
 export default class Docker extends Command {
   static override args = {
     path: Args.string({default: `${os.homedir()}/dhti`, description: 'Docker project path to build. Ex: dhti'}),
@@ -58,6 +58,7 @@ export default class Docker extends Command {
     }
 
     // cd to path, docker build tag with name
+    const spinner = ora('Running docker build ..').start();
     exec(`cd ${args.path}/${flags.type} && docker build -t ${flags.name} .`, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -81,5 +82,6 @@ export default class Docker extends Command {
 
     // write the docker-compose file
     fs.writeFileSync(flags.file, yaml.dump(dockerCompose));
+    spinner.succeed('Docker build and docker-compose file updated');
   }
 }
