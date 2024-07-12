@@ -113,9 +113,11 @@ export default class Compose extends Command {
         existingData.volumes[key] = masterData.volumes[key];
       }
 
-      console.log('Writing file:', existingData);
+      const toWrite = yaml.dump(existingData).replaceAll('null', '');
 
-      fs.writeFileSync(flags.file, yaml.dump(existingData), 'utf8');
+      console.log('Writing file:', toWrite);
+
+      fs.writeFileSync(flags.file, toWrite, 'utf8');
 
     } catch (error) {
       console.error(error);
