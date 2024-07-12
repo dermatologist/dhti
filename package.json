@@ -15,6 +15,7 @@
     "child_process": "^1.0.2",
     "js-yaml": "^4.1.0",
     "medpromptjs": "^0.2.2",
+    "ora": "^8.0.1",
     "request": "^2.88.2"
   },
   "devDependencies": {

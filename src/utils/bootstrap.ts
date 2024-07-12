@@ -31,7 +31,7 @@ const bootstrap = async () => {
 
     // const main_llm = new OllamaFunctions({
     //     temperature: 0.6,
-    //     model: "phi3",
+    //     model: "phi3:mini",
     //     numPredict: 32,
     // });
 

@@ -3,7 +3,7 @@ import yaml from 'js-yaml'
 import { exec } from 'node:child_process';
 import fs from 'node:fs'
 import os from 'node:os'
-
+import ora from 'ora'
 export default class Docker extends Command {
   static override args = {
     path: Args.string({default: `${os.homedir()}/dhti`, description: 'Docker project path to build. Ex: dhti'}),
@@ -58,12 +58,14 @@ export default class Docker extends Command {
     }
 
     // cd to path, docker build tag with name
+    const spinner = ora('Running docker build ..').start();
     exec(`cd ${args.path}/${flags.type} && docker build -t ${flags.name} .`, (error, stdout, stderr) => {
       if (error) {
+        spinner.fail('Docker build failed');
         console.error(`exec error: ${error}`);
         return;
       }
-
+      spinner.succeed('Docker build successful');
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
     });

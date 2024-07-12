@@ -40,47 +40,32 @@ export default class Elixir extends Command {
     fs.cpSync('src/resources/genai', `${flags.workdir}/elixir`, {recursive: true})
 
     // if whl is not none, copy the whl file to thee whl directory
-    if (flags.whl === 'none') {
-      // get bootstrap.py file content
-      const url = `${flags.git}/blob/${flags.branch}/tests/bootstrap.py`.replace('.git', '')
-      request.get(url, (error: any, response: { statusCode: number }, body: any) => {
-        if (!error && response.statusCode === 200) {
-            const toAdd = body.split('#DHTI_ADD')[1];
-            // Continue with your processing here.
-            const current_bootstrap = fs.readFileSync(`${flags.workdir}/elixir/app/bootstrap.py`, 'utf8')
-            if (!current_bootstrap.includes(flags.name || 'ALWAYS_ADD')) {
-              fs.writeFileSync(`${flags.workdir}/elixir/app/bootstrap.py`, current_bootstrap.replace('#DHTI_ADD', `#DHTI_ADD \n${flags.name}\n#(Edit if needed)\n\n${toAdd}`))
-            }
-        }else{
-            console.log("Error:", error)
-            console.log("Status code:", response.statusCode)
-            console.log("url:", url)
-        }
-      });
-    }
-    else {
+    if (flags.whl !== 'none') {
       if (!fs.existsSync(`${flags.workdir}/elixir/whl/`)){
         fs.mkdirSync(`${flags.workdir}/whl/`);
       }
-
       fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
       console.log("Installing elixir from whl file. Please modify boostrap.py file if needed")
     }
 
+    // Install the elixir from git adding to the pyproject.toml file
     const pyproject = fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
     const originalServer = fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
     let lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
-    const repoName = flags.name.replaceAll('_', '-')
     if (flags.git === 'none') {
-      lineToAdd = `${repoName} = { file = "whl/${path.basename(flags.whl)}" }`
+      lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
     }
-
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
-    const CliImport = `from ${flags.name} import ${flags.type} as ${flags.name}_${flags.type}\n`
+
+    // Add the elixir import and bootstrap to the server.py file
+    const expoName = flags.name.replaceAll('-', '_')
+    let CliImport = `from ${expoName} import ${flags.type} as ${expoName}_${flags.type}\n`
+    CliImport += `from ${expoName} import bootstrap as ${expoName}_bootstrap\n`
+    CliImport += `${expoName}_bootstrap.bootstrap()\n`
     const newCliImport =  fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8').replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
-    const langfuseRoute = `add_routes(app, ${flags.name}_${flags.type}.with_config(config), path="/langserve/${flags.name}")`
+    const langfuseRoute = `add_routes(app, ${expoName}_${flags.type}.with_config(config), path="/langserve/${expoName}")`
     const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-    const normalRoute = `add_routes(app, ${flags.name}_${flags.type}, path="/langserve/${flags.name}")`
+    const normalRoute = `add_routes(app, ${expoName}_${flags.type}, path="/langserve/${expoName}")`
     const finalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
