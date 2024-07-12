@@ -5,6 +5,7 @@ from langchain_core.runnables.config import RunnableConfig
 #DHTI_CLI_IMPORT
 import uvicorn
 
+# Comes after elixir bootstraps, so can override elixir configurations
 from bootstrap import bootstrap
 bootstrap()
 
