@@ -1,7 +1,7 @@
 {
   "name": "dhti-cli",
   "description": "Dhanvantari CLI",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "Bell Eapen",
   "bin": {
     "dhti-cli": "./bin/run.js"
