@@ -76,20 +76,43 @@ export default class Conch extends Command {
           return;
         }
 
+              // Checkout the branch
+              exec(`cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`, (error, stdout, stderr) => {
+                if (error) {
+                  console.error(`exec error: ${error}`);
+                  return;
+                }
+
+                  flags.name = flags.name ?? 'openmrs-esm-genai'
+                  // Read and process importmap.json
+                  const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/importmap.json`, 'utf8'));
+                  importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
+                  fs.writeFileSync(`${flags.workdir}/conch/def/importmap.json`, JSON.stringify(importmap, null, 2));
+
+                  // Read and process spa-assemble-config.json
+                  const spaAssembleConfig = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, 'utf8'));
+                  spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
+                  fs.writeFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, JSON.stringify(spaAssembleConfig, null, 2));
+
+                  // Read and process Dockerfile
+                  let dockerfile = fs.readFileSync(`${flags.workdir}/conch/Dockerfile`, 'utf8');
+                  dockerfile = dockerfile.replaceAll('conch', flags.name).replaceAll('version', flags.repoVersion);
+                  fs.writeFileSync(`${flags.workdir}/conch/Dockerfile`, dockerfile);
+                // Read routes.json
+                  const routes = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/${flags.name}/src/routes.json`, 'utf8'));
+                  // Add to routes.registry.json
+                  const registry = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/routes.registry.json`, 'utf8'));
+                  registry[(flags.name).replace('openmrs-', '@openmrs/')] = routes;
+                  fs.writeFileSync(`${flags.workdir}/conch/def/routes.registry.json`, JSON.stringify(registry, null, 2));
+
+                console.log(`stdout: ${stdout}`);
+                console.error(`stderr: ${stderr}`);
+              });
+
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });
 
-      // Checkout the branch
-      exec(`cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return;
-        }
-
-        console.log(`stdout: ${stdout}`);
-        console.error(`stderr: ${stderr}`);
-      });
     }
 
     // If flags.dev is not none, copy the dev folder to the conch directory
@@ -97,26 +120,7 @@ export default class Conch extends Command {
       fs.cpSync(flags.dev, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
     }
 
-    // Read and process importmap.json
-    const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/importmap.json`, 'utf8'));
-    importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
-    fs.writeFileSync(`${flags.workdir}/conch/def/importmap.json`, JSON.stringify(importmap, null, 2));
 
-    // Read and process spa-assemble-config.json
-    const spaAssembleConfig = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, 'utf8'));
-    spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
-    fs.writeFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, JSON.stringify(spaAssembleConfig, null, 2));
 
-     // Read and process Dockerfile
-    let dockerfile = fs.readFileSync(`${flags.workdir}/conch/Dockerfile`, 'utf8');
-    dockerfile = dockerfile.replaceAll('conch', flags.name).replaceAll('version', flags.repoVersion);
-    fs.writeFileSync(`${flags.workdir}/conch/Dockerfile`, dockerfile);
-
-    // Read routes.json
-    const routes = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/${flags.name}/src/routes.json`, 'utf8'));
-    // Add to routes.registry.json
-    const registry = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/routes.registry.json`, 'utf8'));
-    registry[flags.name.replace('openmrs-', '@openmrs/')] = routes;
-    fs.writeFileSync(`${flags.workdir}/conch/def/routes.registry.json`, JSON.stringify(registry, null, 2));
   }
 }
