@@ -65,6 +65,7 @@ export default class Docker extends Command {
         console.error(`exec error: ${error}`);
         return;
       }
+
       spinner.succeed('Docker build successful');
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);

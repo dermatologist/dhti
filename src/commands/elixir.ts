@@ -44,6 +44,7 @@ export default class Elixir extends Command {
       if (!fs.existsSync(`${flags.workdir}/elixir/whl/`)){
         fs.mkdirSync(`${flags.workdir}/whl/`);
       }
+
       fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
       console.log("Installing elixir from whl file. Please modify boostrap.py file if needed")
     }
@@ -55,6 +56,7 @@ export default class Elixir extends Command {
     if (flags.git === 'none') {
       lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
     }
+
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
 
     // Add the elixir import and bootstrap to the server.py file
