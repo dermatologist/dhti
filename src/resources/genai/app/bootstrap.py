@@ -55,9 +55,9 @@ def read_vectorstore(patient_id):
 def bootstrap():
     load_dotenv()
     di["main_prompt"] = PromptTemplate.from_template("{input}")
-    di["main_llm"] = Ollama(model="phi3", verbose=True, base_url="http://ollama:11434")
+    di["main_llm"] = Ollama(model="phi3:mini", verbose=True, base_url="http://ollama:11434")
     di["clinical_llm"] = Ollama(
-        model="phi3",
+        model="phi3:mini",
         verbose=True,
         base_url="http://ollama:11434",
         temperature=0.1,
