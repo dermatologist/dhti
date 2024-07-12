@@ -61,6 +61,7 @@ export default class Docker extends Command {
     const spinner = ora('Running docker build ..').start();
     exec(`cd ${args.path}/${flags.type} && docker build -t ${flags.name} .`, (error, stdout, stderr) => {
       if (error) {
+        spinner.fail('Docker build failed');
         console.error(`exec error: ${error}`);
         return;
       }
