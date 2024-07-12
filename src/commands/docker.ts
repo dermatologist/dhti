@@ -82,6 +82,5 @@ export default class Docker extends Command {
 
     // write the docker-compose file
     fs.writeFileSync(flags.file, yaml.dump(dockerCompose));
-    spinner.succeed('Docker build and docker-compose file updated');
   }
 }
