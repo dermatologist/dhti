@@ -49,7 +49,7 @@ It may take a while to download the images and start the services. (OpenMRS may 
 
 `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -n dhti-elixir-fhire`
 
-You may also install from a wheel file (after building it locally):
+You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel`. -e path -v version):
 
 `dhti-cli elixir install -e ../dhti-elixir-fhire/dist/dhti_elixir_fhire-0.0.1-py3-none-any.whl -n dhti-elixir-fhire -v 0.0.1`
 
@@ -69,11 +69,11 @@ You need to refer to the elixir documentation for the parameters required for th
 * Let's install the conch here:https://github.com/dermatologist/openmrs-esm-genai
 * This conch is a minimal Q&A interface for OpenMRS using the elixir above for Q&A on patient records.
 
-`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -b refactor-2 -n openmrs-esm-genai`
+`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -n openmrs-esm-genai`
 
-We can also install from a dev folder
+We can also install from a dev folder after cloning the repository (-e <path>):
 
-`dhti-cli conch install -e ~/repos/openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1`
+`dhti-cli conch install -e ../openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1`
 
 ### Create new docker container
 `dhti-cli docker -n beapen/conch-test:1.0 -t conch`

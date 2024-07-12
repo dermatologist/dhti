@@ -15,12 +15,12 @@ export default class Conch extends Command {
 
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
-    container: Flags.string({char: 'c', default: `${os.homedir()}/dhti`, description: 'Name of the container to copy the conch to while in dev mode'}),
+    container: Flags.string({char: 'c', default: "dhti-conch-1", description: 'Name of the container to copy the conch to while in dev mode'}),
     dev: Flags.string({char: 'e', default: "none", description: 'Dev folder to install'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "1.0.0", description: 'Version of the conch'}),
-    workdir: Flags.string({char: 'w', default: "/tmp", description: 'Working directory to install the conch'}),
+    workdir: Flags.string({char: 'w', default: `${os.homedir()}/dhti`, description: 'Working directory to install the conch'}),
   }
 
   public async run(): Promise<void> {
