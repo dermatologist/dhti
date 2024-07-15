@@ -34,12 +34,14 @@ export default class Elixir extends Command {
       this.exit(1)
     }
 
+    const expoName = flags.name.replaceAll('-', '_')
+
       // if arg is dev then copy to docker as below
     // docker restart dhti-langserve-1
     if(args.op === 'dev'){
-      console.log(`cd ${flags.dev} && cp ${flags.name}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${flags.name}`)
+      console.log(`cd ${flags.dev} && docker cp ${expoName}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${expoName}`)
       try{
-        exec(`cd ${flags.dev} && cp ${flags.name}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${flags.name}`, (error, stdout, stderr) => {
+        exec(`cd ${flags.dev} && docker cp ${expoName}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${expoName}`, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
             return;
@@ -90,7 +92,6 @@ export default class Elixir extends Command {
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
 
     // Add the elixir import and bootstrap to the server.py file
-    const expoName = flags.name.replaceAll('-', '_')
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
     CliImport += `${expoName}_bootstrap()\n`
     CliImport += `from ${expoName}.chain import ${flags.type} as ${expoName}_${flags.type}\n`

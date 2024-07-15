@@ -98,6 +98,9 @@ You need to refer to the elixir documentation for the parameters required for th
 ### Start the container with the new elixir (Optional, you can do it after the next two steps)
 `dhti-cli docker -u`
 
+### (Optional) While developing you can copy the dist folder to a running container for testing (provided there are no changes in dependencies)
+`dhti-cli elixir dev -d ../dhti-elixir-fhire -n dhti-elixir-fhire -c dhti-langserve-1`
+
 ### *Now let us Install a Conch (OpenMRS O3 Template)*
 
 * Let's install the conch here:https://github.com/dermatologist/openmrs-esm-genai
