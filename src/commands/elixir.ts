@@ -2,10 +2,10 @@ import {Args, Command, Flags} from '@oclif/core'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import request from 'request'
+import { exec } from 'node:child_process';
 export default class Elixir extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install or uninstall)'}),
+    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
   }
 
   static override description = 'Install or uninstall elixirs to create a Docker image'
@@ -22,6 +22,8 @@ export default class Elixir extends Command {
     type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
     whl: Flags.string({char: 'e', default: "none", description: 'Whl file to install'}),
     workdir: Flags.string({char: 'w', default: `${os.homedir()}/dhti`, description: 'Working directory to install the elixir'}),
+    dev: Flags.string({char: 'd', default: "none", description: 'Dev folder to install'}),
+    container: Flags.string({char: 'c', default: "dhti-langserve-1", description: 'Name of the container to copy the conch to while in dev mode'}),
   }
 
   public async run(): Promise<void> {
@@ -30,6 +32,34 @@ export default class Elixir extends Command {
     if(!flags.name){
       console.log("Please provide a name for the elixir")
       this.exit(1)
+    }
+
+      // if arg is dev then copy to docker as below
+    // docker restart dhti-langserve-1
+    if(args.op === 'dev'){
+      console.log(`cd ${flags.dev} && cp ${flags.name}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${flags.name}`)
+      try{
+        exec(`cd ${flags.dev} && cp ${flags.name}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${flags.name}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+        exec(`docker restart ${flags.container}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+      }catch (error){
+        console.log("Error copying conch to container", error)
+      }
     }
 
     // Create a directory to install the elixir
