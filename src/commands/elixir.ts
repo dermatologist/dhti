@@ -104,7 +104,8 @@ export default class Elixir extends Command {
     if (args.op === 'install') {
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
       fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, finalRoute)
-    } else {
+    }
+    if (args.op === 'uninstall') {
       // if args.op === uninstall, remove the line from the pyproject.toml file
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, pyproject.replace(lineToAdd, ''))
       let newServer=  originalServer.replace(CliImport, '')

@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 export default class Conch extends Command {
   static override args = {
-        op: Args.string({description: 'Operation to perform (dev/none)'}),
+    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
   }
 
   static override description = 'Install or uninstall conchs to create a Docker image'
@@ -75,12 +75,18 @@ export default class Conch extends Command {
                   flags.name = flags.name ?? 'openmrs-esm-genai'
                   // Read and process importmap.json
                   const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/importmap.json`, 'utf8'));
-                  importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
+                  if (args.op === 'install')
+                    importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
+                  if (args.op === 'uninstall')
+                    delete importmap.imports[flags.name.replace('openmrs-', '@openmrs/')];
                   fs.writeFileSync(`${flags.workdir}/conch/def/importmap.json`, JSON.stringify(importmap, null, 2));
 
                   // Read and process spa-assemble-config.json
                   const spaAssembleConfig = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, 'utf8'));
-                  spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
+                  if (args.op === 'install')
+                    spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
+                  if (args.op === 'uninstall')
+                    delete spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')];
                   fs.writeFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, JSON.stringify(spaAssembleConfig, null, 2));
 
                   // Read and process Dockerfile
@@ -91,7 +97,10 @@ export default class Conch extends Command {
                   const routes = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/${flags.name}/src/routes.json`, 'utf8'));
                   // Add to routes.registry.json
                   const registry = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/routes.registry.json`, 'utf8'));
-                  registry[(flags.name).replace('openmrs-', '@openmrs/')] = routes;
+                  if (args.op === 'install')
+                    registry[(flags.name).replace('openmrs-', '@openmrs/')] = routes;
+                  if (args.op === 'uninstall')
+                    delete registry[(flags.name).replace('openmrs-', '@openmrs/')];
                   fs.writeFileSync(`${flags.workdir}/conch/def/routes.registry.json`, JSON.stringify(registry, null, 2));
     }
 
