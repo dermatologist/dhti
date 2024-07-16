@@ -1,8 +1,8 @@
 import {Args, Command, Flags} from '@oclif/core'
+import { exec } from 'node:child_process';
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { exec } from 'node:child_process';
 export default class Elixir extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
@@ -16,14 +16,14 @@ export default class Elixir extends Command {
 
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
+    container: Flags.string({char: 'c', default: "dhti-langserve-1", description: 'Name of the container to copy the conch to while in dev mode'}),
+    dev: Flags.string({char: 'd', default: "none", description: 'Dev folder to install'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
     type: Flags.string({char: 't', default: "chain", description: 'Type of elixir (chain, tool or agent)'}),
     whl: Flags.string({char: 'e', default: "none", description: 'Whl file to install'}),
     workdir: Flags.string({char: 'w', default: `${os.homedir()}/dhti`, description: 'Working directory to install the elixir'}),
-    dev: Flags.string({char: 'd', default: "none", description: 'Dev folder to install'}),
-    container: Flags.string({char: 'c', default: "dhti-langserve-1", description: 'Name of the container to copy the conch to while in dev mode'}),
   }
 
   public async run(): Promise<void> {
@@ -105,6 +105,7 @@ export default class Elixir extends Command {
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
       fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, finalRoute)
     }
+
     if (args.op === 'uninstall') {
       // if args.op === uninstall, remove the line from the pyproject.toml file
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, pyproject.replace(lineToAdd, ''))

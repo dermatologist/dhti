@@ -52,7 +52,7 @@ export default class Docker extends Command {
       return
     }
 
-    if(!flags.name){
+    if(!flags.name && (!flags.up || !flags.down)){
       console.log("Please provide a name for the container to build")
       this.exit(1)
     }
