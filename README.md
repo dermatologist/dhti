@@ -66,6 +66,10 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 ### 🏗️ *Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!*
 
+You need:
+* docker
+* nodejs
+
 ## :walking: Steps
 
 * Git clone this repository: `git clone https://github.com/dermatologist/dhti.git && cd dhti`
