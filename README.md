@@ -52,7 +52,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * Install the required packages: `npm install`
 * Build the CLI: `npm run build`
 * Install CLI locally: `npm link`
-* Test the CLI: `dhti-cli help`
+* Test the CLI: `dhti-cli help`  **This will show the available commands.**
 
 ### Create a work directory (**Optional**). Default is *~/dhti*
 * Create a work directory: `mkdir dhti`
@@ -106,7 +106,7 @@ It may take a while to download the images and start the services. (OpenMRS may 
 
 `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`
 
-You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel`. -e path -v version):
+You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel . -e path -v version`):
 
 `dhti-cli elixir install -e ../dhti-elixir-template/dist/dhti_elixir_template-0.0.1-py3-none-any.whl -n dhti-elixir-template -v 0.0.1`
 
@@ -114,8 +114,7 @@ You may also install from a wheel file (after building it locally with `python s
 ### Examine bootstrap.py
 `cat ~/dhti/elixir/app/bootstrap.py`
 
-This is where the defaults are defined for *LLM, embedding model, hyperparameters etc that are injected at runtime.*
-You can override these defaults by bootstrap in LangServe.
+This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options.
 
 :running:
 ### Create docker container
