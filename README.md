@@ -36,7 +36,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 --- *Join us to make the Gen AI equitable and help doctors save lives!* ---
 
-### Coming soon
+### :sunglasses: Coming soon
 
 * dhti-elixir-fhire: An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
 * dhti-elixir-fhirs: An elixir for text to FHIR search query conversion.
@@ -114,7 +114,8 @@ You may also install from a wheel file (after building it locally with `python s
 ### Examine bootstrap.py
 `cat ~/dhti/elixir/app/bootstrap.py`
 
-You need to refer to the elixir documentation for the parameters required for the bootstrap.py. This is where you define the *LLM, embedding model, hyperparameters etc that are injected at runtime.*
+This is where the defaults are defined for *LLM, embedding model, hyperparameters etc that are injected at runtime.*
+You can override these defaults by bootstrap in LangServe.
 
 :running:
 ### Create docker container
