@@ -1,48 +1,63 @@
 # Dhanvantari (**dhti**)
 
 <p align="center">
-  <img src="https://github.com/dermatologist/dhti/blob/main/notes/dhti-logo.jpg" />
+  <img src="https://github.com/dermatologist/dhti/blob/develop/notes/dhti-logo.jpg" />
 </p>
 
 ## About
 *---- Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs! ----*
 
-Gen AI can transform medicine but needs a framework for collaborative research and practice. Dhanvantari is a reference architecture for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), FHIR repository with CQL support ([HAPI + Alphora](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! Dhanvantari is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.**
+TL; DR: *dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.*
 
-The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. Dhanvantari supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call **conch**).
+Gen AI can transform medicine but needs a framework for collaborative research and practice. Dhanvantari is a reference architecture for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), :fire: FHIR repository with CQL support ([HAPI + Alphora](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! Dhanvantari is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.**
+
+The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. Dhanvantari supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**).
 
 Dhanvantari is a reference architecture for Gen AI in healthcare. [Paper coming soon!](https://nuchange.ca)
 
 ## Developers
 
-Developers can build elixirs and conchs for Dhanvantari. Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) to build new elixirs. Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS.  **This repository provides a command-line-interface (CLI) to make development easy.**
+*Developers can build elixirs and conchs for Dhanvantari.*
+
+:curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) to build new elixirs.
+
+:shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS.  **This repository provides a command-line-interface (CLI) to make development easy.**
 
 ## Researchers
 
-Dhanvantari provides a platform to deploy language models and Gen AI applications in the context of an electronic health record. This serves as a platform for testing prompts, chains and agents in healthcare applications.  Since the stack uses the FHIR data model, it is easy to load synthetic data. Tools to fine-tune language models for the stack are on our roadmap. We encourage all language models built for this platform to be open sourced on [HuggingFace](https://huggingface.co/) with the names starting with *dhti-*. **This repository provides a command-line-interface (CLI) to make prototyping easy.**
+*Dhanvantari provides a platform to deploy language models and Gen AI applications in the context of an electronic health record.*
+
+This serves as a platform for testing prompts, chains and agents in healthcare applications.  Since the stack uses the :fire: FHIR data model, it is easy to load synthetic data.
+
+Tools to fine-tune language models for the stack are on our roadmap. We encourage all language models built for this platform to be open sourced on [HuggingFace](https://huggingface.co/) with the names starting with *dhti-*.
+
+:white_check_mark: **This repository provides a command-line-interface (CLI) to make prototyping easy.**
 
 
 --- *Join us to make the Gen AI equitable and help doctors save lives!* ---
 
-### Coming soon
-* dhti-elixir-fhire: An elixir for extracting embeddings from FHIR resources.
+### :sunglasses: Coming soon
+
+* dhti-elixir-fhire: An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
 * dhti-elixir-fhirs: An elixir for text to FHIR search query conversion.
 * dhti-elixir-upload: Upload documents to the vector store for patient recommendation and clinical trial matching.
-* openmrs-esm-genai: A sample conch for Q&A on patient records.
+* openmrs-esm-qa: A sample conch for Q&A on patient records using the dhti-elixir-fhire elixir.
 
 ## *Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!*
 
 ## Steps:
 
+:walking:
 * Git clone this repository: `git clone https://github.com/dermatologist/dhti.git && cd dhti`
 * Install the required packages: `npm install`
 * Build the CLI: `npm run build`
 * Install CLI locally: `npm link`
-* Test the CLI: `dhti-cli help`
+* Test the CLI: `dhti-cli help`  **This will show the available commands.**
 
 ### Create a work directory (**Optional**). Default is *~/dhti*
 * Create a work directory: `mkdir dhti`
 
+:walking:
 ### Create a new docker-compose
 * Create a new docker-compose file: `dhti-cli compose add -m ollama -m redis -m openmrs -m langserve`
 
@@ -54,11 +69,13 @@ Dhanvantari provides a platform to deploy language models and Gen AI application
 
 You can read the file by: `dhti-cli compose read`
 
+:walking:
 ### Start the services
 * Start the services: `dhti-cli docker -u`
 
 It may take a while to download the images and start the services. (OpenMRS may take about 30 mins the first time to setup the database)
 
+:walking:
 ### Download an LLM/Embedding models to use.
 * Go to `localhost:8080`
 * Create an account and login
@@ -66,60 +83,81 @@ It may take a while to download the images and start the services. (OpenMRS may 
     - phi3:mini
     - all-minilm
 
+:walking:
 ### Access OpenMRS and login:
 * Go to `localhost/openmrs/spa/home`
 * Login with the following credentials:
     - Username: admin
     - Password: Admin123
 
+:walking:
 ### Access the LangServe API
 * Go to `localhost:8001/docs` (Empty Swagger UI)
 
+:running:
 ### *Now let us Install an Elixir (LangServe Template)*
 
-* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-fhire
+* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template
 
-* This elixir creates an embedding from patient's medical record for Q&A
+* This elixir template summarizes text based on a simple prompt
+* You can use the template to build your own elixirs.
 
-`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-fhire.git -n dhti-elixir-fhire`
+:running:
 
-You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel`. -e path -v version):
+`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`
 
-`dhti-cli elixir install -e ../dhti-elixir-fhire/dist/dhti_elixir_fhire-0.0.1-py3-none-any.whl -n dhti-elixir-fhire -v 0.0.1`
+You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel . -e path -v version`):
 
+`dhti-cli elixir install -e ../dhti-elixir-template/dist/dhti_elixir_template-0.0.1-py3-none-any.whl -n dhti-elixir-template -v 0.0.1`
+
+:running:
 ### Examine bootstrap.py
 `cat ~/dhti/elixir/app/bootstrap.py`
 
-You need to refer to the elixir documentation for the parameters required for the bootstrap.py. This is where you define the *LLM, embedding model, hyperparameters etc that are injected at runtime.*
+This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options.
 
+:running:
 ### Create docker container
 `dhti-cli docker -n beapen/genai-test:1.0 -t elixir`
 
+:running:
 ### Start the container with the new elixir (Optional, you can do it after the next two steps)
 `dhti-cli docker -u`
 
+### (Optional) While developing you can copy the dist folder to a running container for testing (provided there are no changes in dependencies)
+`dhti-cli elixir dev -d ../dhti-elixir-template -n dhti-elixir-template -c dhti-langserve-1`
+
+:shell:
 ### *Now let us Install a Conch (OpenMRS O3 Template)*
 
-* Let's install the conch here:https://github.com/dermatologist/openmrs-esm-genai
-* This conch is a minimal Q&A interface for OpenMRS using the elixir above for Q&A on patient records.
+* Let's install the conch here:https://github.com/dermatologist/openmrs-esm-dhti-template.
 
-`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-genai.git -n openmrs-esm-genai`
+* This uses the elixir template to generate a summary.
+* You can use the template to build your own conchs.
+
+:shell:
+
+`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template`
 
 We can also install from a dev folder after cloning the repository (-e <path>):
 
-`dhti-cli conch install -e ../openmrs-esm-genai -n openmrs-esm-genai -v 0.0.1`
+`dhti-cli conch install -e ../openmrs-esm-dhti-template -n openmrs-esm-dhti-template -v 0.0.1`
 
+:shell:
 ### Create new docker container
 `dhti-cli docker -n beapen/conch-test:1.0 -t conch`
 
+:sparkler:
 ### Start the container with the new conch
 `dhti-cli docker -u`
 
 ### (Optional) While developing you can copy the dist folder to a running container for testing
-`dhti-cli conch dev -e ../openmrs-esm-genai/dist -n openmrs-esm-genai -c dhti-frontend-1`
+`dhti-cli conch dev -d ../openmrs-esm-dhti-template -n openmrs-esm-dhti-template -c dhti-frontend-1`
 
+:sparkler:
 ### Access the Conch in OpenMRS and test the integration
 
+:clap:
 ### Remove the services
 * Remove the services: `dhti-cli docker -d`
 

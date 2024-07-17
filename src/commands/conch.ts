@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 export default class Conch extends Command {
   static override args = {
-        op: Args.string({description: 'Operation to perform (dev/none)'}),
+    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
   }
 
   static override description = 'Install or uninstall conchs to create a Docker image'
@@ -16,7 +16,7 @@ export default class Conch extends Command {
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
     container: Flags.string({char: 'c', default: "dhti-frontend-1", description: 'Name of the container to copy the conch to while in dev mode'}),
-    dev: Flags.string({char: 'e', default: "none", description: 'Dev folder to install'}),
+    dev: Flags.string({char: 'd', default: "none", description: 'Dev folder to install'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     image: Flags.string({char: 'i', default: "openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17", description: 'Base image to use for the conch'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
@@ -36,9 +36,9 @@ export default class Conch extends Command {
     // docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
     // docker restart dhti-frontend-1
     if(args.op === 'dev'){
-      console.log(`docker cp ${flags.dev}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`)
+      console.log(`cd ${flags.dev} && yarn build && docker cp dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`)
       try{
-        exec(`docker cp ${flags.dev}/dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`, (error, stdout, stderr) => {
+        exec(`cd ${flags.dev} && yarn build && docker cp dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
             return;
@@ -75,12 +75,18 @@ export default class Conch extends Command {
                   flags.name = flags.name ?? 'openmrs-esm-genai'
                   // Read and process importmap.json
                   const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/importmap.json`, 'utf8'));
-                  importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
+                  if (args.op === 'install')
+                    importmap.imports[flags.name.replace('openmrs-', '@openmrs/')] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`;
+                  if (args.op === 'uninstall')
+                    delete importmap.imports[flags.name.replace('openmrs-', '@openmrs/')];
                   fs.writeFileSync(`${flags.workdir}/conch/def/importmap.json`, JSON.stringify(importmap, null, 2));
 
                   // Read and process spa-assemble-config.json
                   const spaAssembleConfig = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, 'utf8'));
-                  spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
+                  if (args.op === 'install')
+                    spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`;
+                  if (args.op === 'uninstall')
+                    delete spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')];
                   fs.writeFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, JSON.stringify(spaAssembleConfig, null, 2));
 
                   // Read and process Dockerfile
@@ -91,7 +97,10 @@ export default class Conch extends Command {
                   const routes = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/${flags.name}/src/routes.json`, 'utf8'));
                   // Add to routes.registry.json
                   const registry = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/routes.registry.json`, 'utf8'));
-                  registry[(flags.name).replace('openmrs-', '@openmrs/')] = routes;
+                  if (args.op === 'install')
+                    registry[(flags.name).replace('openmrs-', '@openmrs/')] = routes;
+                  if (args.op === 'uninstall')
+                    delete registry[(flags.name).replace('openmrs-', '@openmrs/')];
                   fs.writeFileSync(`${flags.workdir}/conch/def/routes.registry.json`, JSON.stringify(registry, null, 2));
     }
 

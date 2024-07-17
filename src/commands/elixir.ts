@@ -1,11 +1,11 @@
 import {Args, Command, Flags} from '@oclif/core'
+import { exec } from 'node:child_process';
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import request from 'request'
 export default class Elixir extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install or uninstall)'}),
+    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
   }
 
   static override description = 'Install or uninstall elixirs to create a Docker image'
@@ -16,6 +16,8 @@ export default class Elixir extends Command {
 
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
+    container: Flags.string({char: 'c', default: "dhti-langserve-1", description: 'Name of the container to copy the conch to while in dev mode'}),
+    dev: Flags.string({char: 'd', default: "none", description: 'Dev folder to install'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: "0.1.0", description: 'Version of the elixir'}),
@@ -30,6 +32,36 @@ export default class Elixir extends Command {
     if(!flags.name){
       console.log("Please provide a name for the elixir")
       this.exit(1)
+    }
+
+    const expoName = flags.name.replaceAll('-', '_')
+
+      // if arg is dev then copy to docker as below
+    // docker restart dhti-langserve-1
+    if(args.op === 'dev'){
+      console.log(`cd ${flags.dev} && docker cp ${expoName}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${expoName}`)
+      try{
+        exec(`cd ${flags.dev} && docker cp ${expoName}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${expoName}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+        exec(`docker restart ${flags.container}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+          }
+
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+      }catch (error){
+        console.log("Error copying conch to container", error)
+      }
     }
 
     // Create a directory to install the elixir
@@ -60,7 +92,6 @@ export default class Elixir extends Command {
     const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
 
     // Add the elixir import and bootstrap to the server.py file
-    const expoName = flags.name.replaceAll('-', '_')
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
     CliImport += `${expoName}_bootstrap()\n`
     CliImport += `from ${expoName}.chain import ${flags.type} as ${expoName}_${flags.type}\n`
@@ -73,7 +104,9 @@ export default class Elixir extends Command {
     if (args.op === 'install') {
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
       fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, finalRoute)
-    } else {
+    }
+
+    if (args.op === 'uninstall') {
       // if args.op === uninstall, remove the line from the pyproject.toml file
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, pyproject.replace(lineToAdd, ''))
       let newServer=  originalServer.replace(CliImport, '')
