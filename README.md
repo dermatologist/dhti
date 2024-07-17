@@ -35,7 +35,11 @@ Dhanvantari is a reference architecture for Gen AI in healthcare. [Paper coming 
 
 :curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) to build new elixirs.
 
-:shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS.  **This repository provides a command-line-interface (CLI) to make development easy.**
+:shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS. You can use [this template](https://github.com/dermatologist/openmrs-esm-dhti-template) to build new conches.
+
+:white_check_mark:
+* **Developer friendly**: Copy working files to running containers for testing.
+* **Dependency Injection**: Dependency injection for models and hyperparameters for configuring elixirs.
 
 ## 🧠 Researchers
 
@@ -45,19 +49,22 @@ This serves as a platform for testing prompts, chains and agents in healthcare a
 
 Tools to fine-tune language models for the stack are on our roadmap. We encourage all language models built for this platform to be open sourced on [HuggingFace](https://huggingface.co/) with the names starting with *dhti-*.
 
-:white_check_mark: **This repository provides a command-line-interface (CLI) to make prototyping easy and also to generate synthetic data.**
-
+:white_check_mark:
+* **Generate synthetic data**: Dhanvantari supports generating synthetic data for testing.
+* **CQL support**: CQL for clinical decision support.
+* **FHIR**: Data exchange with FHIR schema.
+* **EMR**: Built in EMR, OpenMRS, for patient records.
 
  🌈 *Join us to make the Gen AI equitable and help doctors save lives!*
 
-### :sunglasses: Coming soon
+## :sunglasses: Coming soon
 
 * dhti-elixir-fhire: An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
 * dhti-elixir-fhirs: An elixir for text to FHIR search query conversion.
 * dhti-elixir-upload: Upload documents to the vector store for patient recommendation and clinical trial matching.
 * openmrs-esm-qa: A sample conch for Q&A on patient records using the dhti-elixir-fhire elixir.
 
-## 🏗️ *Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!*
+### 🏗️ *Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!*
 
 ## :walking: Steps
 
@@ -65,7 +72,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * Install the required packages: `npm install`
 * Build the CLI: `npm run build`
 * Install CLI locally: `npm link`
-* Test the CLI: `dhti-cli help`  **This will show the available commands.**
+* Test the CLI: `dhti-cli help`  *This will show the available commands.*
 
 ### 📁 Create a work directory (**Optional**). Default is *~/dhti*
 * Create a work directory: `mkdir dhti`
@@ -103,7 +110,7 @@ It may take a while to download the images and start the services. (OpenMRS may 
 ### 🚀 Access the LangServe API
 * Go to `localhost:8001/docs` (Empty Swagger UI)
 
-### 🛠️ *Now let us Install an Elixir (LangServe Template)*
+## 🛠️ *Now let us Install an Elixir (LangServe Template)*
 
 * Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template
 
@@ -134,7 +141,7 @@ This is where you can override defaults in the elixir for *LLM, embedding model,
 `dhti-cli elixir dev -d ../dhti-elixir-template -n dhti-elixir-template -c dhti-langserve-1`
 
 
-### :shell: *Now let us Install a Conch (OpenMRS O3 Template)*
+## :shell: *Now let us Install a Conch (OpenMRS O3 Template)*
 
 * Let's install the conch here:https://github.com/dermatologist/openmrs-esm-dhti-template.
 
