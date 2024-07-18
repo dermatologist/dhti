@@ -119,7 +119,7 @@ It may take a while to download the images and start the services. (OpenMRS may 
 * Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template
 
 * This elixir template summarizes text based on a simple prompt
-* You can use the template to build your own elixirs.
+* You can use this template to build your own elixirs.
 
 :running:
 
@@ -141,7 +141,7 @@ This is where you can override defaults in the elixir for *LLM, embedding model,
 ### 🚀 Start the container with the new elixir (Optional, you can do it after the next two steps)
 `dhti-cli docker -u`
 
-### 🔄  (Optional) While developing you can copy the dist folder to a running container for testing (provided there are no changes in dependencies)
+### 🔄  (Optional) While developing you can copy the app folder to a running container for testing (provided there are no changes in dependencies)
 `dhti-cli elixir dev -d ../dhti-elixir-template -n dhti-elixir-template -c dhti-langserve-1`
 
 
