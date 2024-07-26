@@ -6,11 +6,9 @@ WORKDIR /app
 
 COPY ./conch .
 
-RUN corepack disable && \
-    npm install -g yarn@4.2.2 && \
-    corepack enable && \
-    yarn install && \
-    yarn build
+RUN corepack enable
+RUN yarn install
+RUN yarn build
 
 FROM server-image as server
 COPY ./def /usr/share/nginx/html
