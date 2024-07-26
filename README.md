@@ -188,7 +188,7 @@ Dhanvantari CLI
 
 
 <!-- toc -->
-* [Dhanvantari (**dhti**)](#dhanvantari-dhti)
+* [Auto generated README](#auto-generated-readme)
 * [Usage](#usage)
 * [Commands](#commands)
 <!-- tocstop -->
@@ -199,7 +199,7 @@ $ npm install -g dhti-cli
 $ dhti-cli COMMAND
 running command...
 $ dhti-cli (--version)
-dhti-cli/0.0.0 linux-x64 node-v19.2.0
+dhti-cli/0.1.0 linux-x64 node-v20.15.0
 $ dhti-cli --help [COMMAND]
 USAGE
   $ dhti-cli COMMAND
@@ -208,6 +208,10 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`dhti-cli compose [OP]`](#dhti-cli-compose-op)
+* [`dhti-cli conch [OP]`](#dhti-cli-conch-op)
+* [`dhti-cli docker [PATH]`](#dhti-cli-docker-path)
+* [`dhti-cli elixir [OP]`](#dhti-cli-elixir-op)
 * [`dhti-cli help [COMMAND]`](#dhti-cli-help-command)
 * [`dhti-cli plugins`](#dhti-cli-plugins)
 * [`dhti-cli plugins add PLUGIN`](#dhti-cli-plugins-add-plugin)
@@ -219,6 +223,124 @@ USAGE
 * [`dhti-cli plugins uninstall [PLUGIN]`](#dhti-cli-plugins-uninstall-plugin)
 * [`dhti-cli plugins unlink [PLUGIN]`](#dhti-cli-plugins-unlink-plugin)
 * [`dhti-cli plugins update`](#dhti-cli-plugins-update)
+* [`dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT]`](#dhti-cli-synthetic-input-output-prompt)
+
+## `dhti-cli compose [OP]`
+
+Generates a docker-compose.yml file from a list of modules
+
+```
+USAGE
+  $ dhti-cli compose [OP] [-f <value>] [-m <value>...]
+
+ARGUMENTS
+  OP  Operation to perform (add, delete or read)
+
+FLAGS
+  -f, --file=<value>       [default: /home/M267492/dhti/docker-compose.yml] Full path to the docker compose file to read
+                           from. Creates if it does not exist
+  -m, --module=<value>...  Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis and neo4j)
+
+DESCRIPTION
+  Generates a docker-compose.yml file from a list of modules
+
+EXAMPLES
+  $ dhti-cli compose
+```
+
+_See code: [src/commands/compose.ts](https://github.com/dermatologist/dhti/blob/v0.1.0/src/commands/compose.ts)_
+
+## `dhti-cli conch [OP]`
+
+Install or uninstall conchs to create a Docker image
+
+```
+USAGE
+  $ dhti-cli conch [OP] [-b <value>] [-c <value>] [-d <value>] [-g <value>] [-i <value>] [-n <value>] [-v
+    <value>] [-w <value>]
+
+ARGUMENTS
+  OP  Operation to perform (install, uninstall or dev)
+
+FLAGS
+  -b, --branch=<value>       [default: develop] Branch to install from
+  -c, --container=<value>    [default: dhti-frontend-1] Name of the container to copy the conch to while in dev mode
+  -d, --dev=<value>          [default: none] Dev folder to install
+  -g, --git=<value>          [default: none] Github repository to install
+  -i, --image=<value>        [default: openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17] Base image to use
+                             for the conch
+  -n, --name=<value>         Name of the elixir
+  -v, --repoVersion=<value>  [default: 1.0.0] Version of the conch
+  -w, --workdir=<value>      [default: /home/M267492/dhti] Working directory to install the conch
+
+DESCRIPTION
+  Install or uninstall conchs to create a Docker image
+
+EXAMPLES
+  $ dhti-cli conch
+```
+
+_See code: [src/commands/conch.ts](https://github.com/dermatologist/dhti/blob/v0.1.0/src/commands/conch.ts)_
+
+## `dhti-cli docker [PATH]`
+
+Build a docker project and update docker-compose file
+
+```
+USAGE
+  $ dhti-cli docker [PATH] [-d] [-f <value>] [-n <value>] [-t <value>] [-u]
+
+ARGUMENTS
+  PATH  [default: /home/M267492/dhti] Docker project path to build. Ex: dhti
+
+FLAGS
+  -d, --down          Run docker-compose down after building
+  -f, --file=<value>  [default: /home/M267492/dhti/docker-compose.yml] Full path to the docker compose file to edit or
+                      run.
+  -n, --name=<value>  Name of the container to build
+  -t, --type=<value>  [default: elixir] Type of the service (elixir/conch)
+  -u, --up            Run docker-compose up after building
+
+DESCRIPTION
+  Build a docker project and update docker-compose file
+
+EXAMPLES
+  $ dhti-cli docker
+```
+
+_See code: [src/commands/docker.ts](https://github.com/dermatologist/dhti/blob/v0.1.0/src/commands/docker.ts)_
+
+## `dhti-cli elixir [OP]`
+
+Install or uninstall elixirs to create a Docker image
+
+```
+USAGE
+  $ dhti-cli elixir [OP] [-b <value>] [-c <value>] [-d <value>] [-g <value>] [-n <value>] [-v <value>] [-t
+    <value>] [-e <value>] [-w <value>]
+
+ARGUMENTS
+  OP  Operation to perform (install, uninstall or dev)
+
+FLAGS
+  -b, --branch=<value>       [default: develop] Branch to install from
+  -c, --container=<value>    [default: dhti-langserve-1] Name of the container to copy the conch to while in dev mode
+  -d, --dev=<value>          [default: none] Dev folder to install
+  -e, --whl=<value>          [default: none] Whl file to install
+  -g, --git=<value>          [default: none] Github repository to install
+  -n, --name=<value>         Name of the elixir
+  -t, --type=<value>         [default: chain] Type of elixir (chain, tool or agent)
+  -v, --repoVersion=<value>  [default: 0.1.0] Version of the elixir
+  -w, --workdir=<value>      [default: /home/M267492/dhti] Working directory to install the elixir
+
+DESCRIPTION
+  Install or uninstall elixirs to create a Docker image
+
+EXAMPLES
+  $ dhti-cli elixir
+```
+
+_See code: [src/commands/elixir.ts](https://github.com/dermatologist/dhti/blob/v0.1.0/src/commands/elixir.ts)_
 
 ## `dhti-cli help [COMMAND]`
 
@@ -528,4 +650,35 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.3.2/src/commands/plugins/update.ts)_
+
+## `dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT]`
+
+Generate synthetic data using LLM
+
+```
+USAGE
+  $ dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT] [-i input|instruction|output] [-m <value>] [-r <value>] [-o
+    input|instruction|output]
+
+ARGUMENTS
+  INPUT   Input file to process
+  OUTPUT  Output file to write
+  PROMPT  Prompt file to read
+
+FLAGS
+  -i, --inputField=<option>   [default: input] Input field to use
+                              <options: input|instruction|output>
+  -m, --maxCycles=<value>     Maximum number of cycles to run
+  -o, --outputField=<option>  [default: output] Output field to use
+                              <options: input|instruction|output>
+  -r, --maxRecords=<value>    [default: 10] Maximum number of records to generate
+
+DESCRIPTION
+  Generate synthetic data using LLM
+
+EXAMPLES
+  $ dhti-cli synthetic
+```
+
+_See code: [src/commands/synthetic.ts](https://github.com/dermatologist/dhti/blob/v0.1.0/src/commands/synthetic.ts)_
 <!-- commandsstop -->
