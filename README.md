@@ -69,17 +69,14 @@ You only need:
 * docker
 * nodejs
 
-## :walking: Steps
+## :walking: Step 1 (Detailed instructions [here](/notes/instructions.md))
 
 * Git clone this repository: `git clone https://github.com/dermatologist/dhti.git && cd dhti`
 * Install the required packages: `npm install`
 * Build the CLI: `npm run build`
 * Install CLI locally: `npm link`
 * Test the CLI: `dhti-cli help`  *This will show the available commands.*
-
-### 📁 Create a work directory (**Optional**). Default is *~/dhti*
-* Create a work directory: `mkdir dhti`
-
+* The working directory is `~/dhti` (You can [change it](/notes/instructions.md) if you want)
 
 ### 🔧 Create a new docker-compose
 * Create a new docker-compose file: `dhti-cli compose add -m ollama -m redis -m openmrs -m langserve`
@@ -90,59 +87,54 @@ You only need:
     - OpenMRS (EMR)
     - LangServe (API for LLM models)
 
-You can read the file by: `dhti-cli compose read`
+You can read the newly created docker-compose by: `dhti-cli compose read`
 
-### 🚀 Start the services
+There are other services available. See [here](/notes/instructions.md) for more details.
+
+### 🚀 Start the services for initial setup
 * Start the services: `dhti-cli docker -u`
 
-It may take a while to download the images and start the services. (OpenMRS may take about 30 mins the first time to setup the database)
+It may take a while to download the images and start the services. ([OpenMRS](https://openmrs.org/) may take upto 45 mins the first time to setup the database)
 
 ### 💾 Download an LLM/Embedding models to use.
 * Go to `localhost:8080`
-* Create an account and login
-* Click on settings, and download the following models
+* Create an account and login in webui. (The account is created in your local machine.)
+  - Click on your name on left bottom corner
+  - Click on settings -> Admin Panel -> Models
+* Download the following models
     - phi3:mini
     - all-minilm
 
 ### 🚀 Access OpenMRS and login:
-* Go to `localhost/openmrs/spa/home`
+* Go to `http://localhost/openmrs/spa/home`
 * Login with the following credentials:
     - Username: admin
     - Password: Admin123
+    - Choose any location and click on 'confirm'.
 
 ### 🚀 Access the LangServe API
 * Go to `localhost:8001/docs` (Empty Swagger UI)
 
-## 🛠️ *Now let us Install an Elixir (LangServe Template)*
+## Congratulations! You have successfully setup Dhanvantari! :tada:
+* Shut down the services: `dhti-cli docker -d`
 
-* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template
+## STEP 2: 🛠️ *Now let us Install an Elixir (Gen AI functionalities are packaged as elixirs)*
 
-* This elixir template summarizes text based on a simple prompt
-* You can use this template to build your own elixirs.
+* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template. This is just an elixir template that summarizes text based on a simple prompt. You can use this template to build your own elixirs!
 
-:running:
+:running: `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`. You may also install from a wheel file. Read more [here](/notes/instructions.md).
 
-`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`
-
-You may also install from a wheel file (after building it locally with `python setup.py bdist_wheel . -e path -v version`):
-
-`dhti-cli elixir install -e ../dhti-elixir-template/dist/dhti_elixir_template-0.0.1-py3-none-any.whl -n dhti-elixir-template -v 0.0.1`
-
-
-### 🔍 Examine bootstrap.py
+### 🔍 Examine bootstrap.py (Optional)
 `cat ~/dhti/elixir/app/bootstrap.py`
 
 This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options.
 
 ### 🔧 Create docker container
-`dhti-cli docker -n beapen/genai-test:1.0 -t elixir`
+`dhti-cli docker -n beapen/genai-test:1.0 -t elixir` (You can use any name for the container)
 
-### 🚀 Start the container with the new elixir (Optional, you can do it after the next two steps)
-`dhti-cli docker -u`
+### 🚀 Congratulations! You installed your first elixir. We will see it in action later!
 
-### 🔄  (Optional) While developing you can copy the app folder to a running container for testing (provided there are no changes in dependencies)
-`dhti-cli elixir dev -d ../dhti-elixir-template -n dhti-elixir-template -c dhti-langserve-1`
-
+While developing you can copy the app folder to a running container for testing (provided there are no changes in dependencies). Read more [here](/notes/instructions.md).
 
 ## :shell: *Now let us Install a Conch (OpenMRS O3 Template)*
 
