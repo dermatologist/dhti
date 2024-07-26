@@ -152,8 +152,7 @@ We can also install from a dev folder after cloning the repository (-e <path>). 
 
 ### :clap: Access the Conch in OpenMRS and test the integration
 
-### 🔁 Remove the services
-* Remove the services: `dhti-cli docker -d`
+You can remove the services by: `dhti-cli docker -d`
 
 :hugs: **Thank you for trying out Dhanvantari!**
 
