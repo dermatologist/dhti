@@ -136,20 +136,13 @@ This is where you can override defaults in the elixir for *LLM, embedding model,
 
 While developing you can copy the app folder to a running container for testing (provided there are no changes in dependencies). Read more [here](/notes/instructions.md).
 
-## :shell: *Now let us Install a Conch (OpenMRS O3 Template)*
+## STEP 3: :shell: *Now let us Install a Conch (The UI component)*
 
-* Let's install the conch here:https://github.com/dermatologist/openmrs-esm-dhti-template.
+* Let's install the conch here:https://github.com/dermatologist/openmrs-esm-dhti-template. This uses the elixir template that we installed in STEP 2 as the backend. You can use the template to build your own conchs.
 
-* This uses the elixir template to generate a summary.
-* You can use the template to build your own conchs.
+:shell: `dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template`
 
-:shell:
-
-`dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template`
-
-We can also install from a dev folder after cloning the repository (-e <path>):
-
-`dhti-cli conch install -e ../openmrs-esm-dhti-template -n openmrs-esm-dhti-template -v 0.0.1`
+We can also install from a dev folder after cloning the repository (-e <path>). While developing you can copy the dist folder to a running container for testing. Read more [here](/notes/instructions.md).
 
 ### 🔧 Create new docker container
 `dhti-cli docker -n beapen/conch-test:1.0 -t conch`
@@ -157,11 +150,7 @@ We can also install from a dev folder after cloning the repository (-e <path>):
 ### 🚀 Start the container with the new conch
 `dhti-cli docker -u`
 
-### 🔄 (Optional) While developing you can copy the dist folder to a running container for testing
-`dhti-cli conch dev -d ../openmrs-esm-dhti-template -n openmrs-esm-dhti-template -c dhti-frontend-1`
-
 ### :clap: Access the Conch in OpenMRS and test the integration
-
 
 ### 🔁 Remove the services
 * Remove the services: `dhti-cli docker -d`
