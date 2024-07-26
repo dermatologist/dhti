@@ -158,8 +158,10 @@ We can also install from a dev folder after cloning the repository (-e <path>). 
     - Username: admin
     - Password: Admin123
 
-You will see the new conch in the left margin. Click on it to see the UI.
+You will see the new conch in the left margin. Click on **Dhti aa** to see the UI.
 This is just a template, though. You can build your own conchs!
+Add some text to the text area and click on **Submit**.
+You will see the summarized text above the textbox in about 30 seconds. (The LLM is running in your local machine!)
 You can remove the services by: `dhti-cli docker -d`
 
 :hugs: **Thank you for trying out Dhanvantari!**
