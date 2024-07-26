@@ -7,11 +7,12 @@
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
 TL; DR: *dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.*
-[Paper coming soon!](https://nuchange.ca)
 
-Gen AI can transform medicine. But, it needs a framework for collaborative research and practice. Dhanvantari is a reference architecture/implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), :fire: FHIR repository with CQL support ([HAPI + Alphora](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! Dhanvantari is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.**
+Gen AI can transform medicine but needs a framework for collaborative research and practice. Dhanvantari is a reference architecture for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), :fire: FHIR repository with CQL support ([HAPI + Alphora](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! Dhanvantari is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.**
 
 The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. Dhanvantari supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**).
+
+Dhanvantari is a reference architecture for Gen AI in healthcare. [Paper coming soon!](https://nuchange.ca)
 
 ## ✨ Features
 * **Modular**: Supports installable Gen AI routines and UI elements.
@@ -28,11 +29,11 @@ The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* 
 * **Graph utilities**: Neo4j for graph utilities.
 * **LLM**: Ollama for self-hosting LLM models.
 
-## 🔧 For Gen AI Developers
+## 🔧 Developers
 
 *Developers can build elixirs and conchs for Dhanvantari.*
 
-:curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) to build new elixirs, and license it the way you want (We :heart: open-source!).
+:curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) to build new elixirs.
 
 :shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS. You can use [this template](https://github.com/dermatologist/openmrs-esm-dhti-template) to build new conches.
 
@@ -44,7 +45,7 @@ The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* 
 
 *Dhanvantari provides a platform to deploy language models and Gen AI applications in the context of an electronic health record.*
 
-DHTI serves as a platform for testing prompts, chains and agents in healthcare applications.  Since the stack uses the :fire: FHIR data model, it is easy to load synthetic data.
+This serves as a platform for testing prompts, chains and agents in healthcare applications.  Since the stack uses the :fire: FHIR data model, it is easy to load synthetic data.
 
 Tools to fine-tune language models for the stack are on our roadmap. We encourage all language models built for this platform to be open sourced on [HuggingFace](https://huggingface.co/) with the names starting with *dhti-*.
 
@@ -60,12 +61,12 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 * dhti-elixir-fhire: An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
 * dhti-elixir-fhirs: An elixir for text to FHIR search query conversion.
-* dhti-elixir-upload: Upload documents to the vector store for clinical knowledgebase and clinical trial matching.
+* dhti-elixir-upload: Upload documents to the vector store for patient recommendation and clinical trial matching.
 * openmrs-esm-qa: A sample conch for Q&A on patient records using the dhti-elixir-fhire elixir.
 
 ### 🏗️ *Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!*
 
-You only need:
+You need:
 * docker
 * nodejs
 
