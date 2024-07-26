@@ -76,7 +76,7 @@ You only need:
 * Build the CLI: `npm run build`
 * Install CLI locally: `npm link`
 * Test the CLI: `dhti-cli help`  *This will show the available commands.*
-* The working directory is `~/dhti` (You can [change it](/notes/instructions.md) if you want)
+* The working directory is `~/dhti` (You can [change it](#dhti-cli) if you want)
 
 ### 🔧 Create a new docker-compose
 * Create a new docker-compose file: `dhti-cli compose add -m ollama -m redis -m openmrs -m langserve`
@@ -122,7 +122,7 @@ It may take a while to download the images and start the services. ([OpenMRS](ht
 
 * Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template. This is just an elixir template that summarizes text based on a simple prompt. You can use this template to build your own elixirs!
 
-:running: `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`. You may also install from a wheel file. Read more [here](/notes/instructions.md).
+:running: `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`. You may also install from a wheel file. Read more [here](#dhti-cli).
 
 ### 🔍 Examine bootstrap.py (Optional)
 `cat ~/dhti/elixir/app/bootstrap.py`
@@ -142,7 +142,7 @@ While developing you can copy the app folder to a running container for testing 
 
 :shell: `dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template`
 
-We can also install from a dev folder after cloning the repository (-e <path>). While developing you can copy the dist folder to a running container for testing. Read more [here](/notes/instructions.md).
+We can also install from a dev folder after cloning the repository. While developing you can copy the dist folder to a running container for testing. Read more [here](/notes/instructions.md).
 
 ### 🔧 Create new docker container
 `dhti-cli docker -n beapen/conch-test:1.0 -t conch`
@@ -158,8 +158,9 @@ We can also install from a dev folder after cloning the repository (-e <path>). 
     - Username: admin
     - Password: Admin123
 
-You will see the new conch in the left margin. Click on **Dhti aa** to see the UI.
+You will see the new conch in the left margin. Click on **Dhti app** to see the UI.
 This is just a template, though. You can build your own conchs!
+
 Add some text to the text area and click on **Submit**.
 You will see the summarized text above the textbox in about 30 seconds. (The LLM is running in your local machine!)
 You can remove the services by: `dhti-cli docker -d`
