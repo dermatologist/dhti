@@ -147,11 +147,19 @@ We can also install from a dev folder after cloning the repository (-e <path>). 
 ### 🔧 Create new docker container
 `dhti-cli docker -n beapen/conch-test:1.0 -t conch`
 
-### 🚀 Start the container with the new conch
+## 🚀 It is now time to start Dhanvantari! :tada:
+
 `dhti-cli docker -u`
 
 ### :clap: Access the Conch in OpenMRS and test the integration
 
+* Go to `http://localhost/openmrs/spa/home`
+* Login with the following credentials:
+    - Username: admin
+    - Password: Admin123
+
+You will see the new conch in the left margin. Click on it to see the UI.
+This is just a template, though. You can build your own conchs!
 You can remove the services by: `dhti-cli docker -d`
 
 :hugs: **Thank you for trying out Dhanvantari!**
