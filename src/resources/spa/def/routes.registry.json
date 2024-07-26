@@ -1595,29 +1595,5 @@
                 "offline": true
             }
         ]
-    },
-    "@openmrs/esm-genai": {
-            "$schema": "https://json.openmrs.org/routes.schema.json",
-            "backendDependencies": {
-                "fhir2": "^2.0.0",
-                "webservices.rest": "^2.2.0"
-            },
-            "extensions": [
-                {
-                    "component": "genaiLeftPanelLink",
-                    "name": "genai-home-left-panel-link",
-                    "slot": "homepage-dashboard-slot",
-                    "meta": {
-                        "name": "genai",
-                        "title": "GenAI",
-                        "slot": "genai-app-slot"
-                    }
-                },
-                {
-                    "component": "root",
-                    "name": "genai-root",
-                    "slot": "genai-app-slot"
-                }
-            ]
     }
 }

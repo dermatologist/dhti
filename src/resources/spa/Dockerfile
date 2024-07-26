@@ -10,7 +10,6 @@ RUN corepack enable
 RUN yarn install
 RUN yarn build
 
-
 FROM server-image as server
 COPY ./def /usr/share/nginx/html
 RUN mkdir /usr/share/nginx/html/conch-version
