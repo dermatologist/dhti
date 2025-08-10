@@ -16,7 +16,7 @@ export default class Elixir extends Command {
 
   static override flags = {
     branch: Flags.string({char: 'b', default: "develop", description: 'Branch to install from'}),
-    container: Flags.string({char: 'c', default: "dhti-langserve-1", description: 'Name of the container to copy the conch to while in dev mode'}),
+    container: Flags.string({char: 'c', default: "dhti-langserve-1", description: 'Name of the container to copy the elixir to while in dev mode'}),
     dev: Flags.string({char: 'd', default: "none", description: 'Dev folder to install'}),
     git: Flags.string({char: 'g', default: "none", description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
