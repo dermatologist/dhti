@@ -9,7 +9,7 @@
 TL; DR: **dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.**
 [Paper coming soon!](https://nuchange.ca)
 
-Gen AI can transform medicine. But, it needs a framework for collaborative research and practice. Dhanvantari is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), :fire: FHIR repository with CQL support ([HAPI + Alphora](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! Dhanvantari is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.**
+Gen AI can transform medicine. But, it needs a framework for collaborative research and practice. Dhanvantari is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), tools on [MCP server](https://github.com/dermatologist/fhir-mcp-server),  vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), :fire: FHIR repository with CQL support ([HAPI + Alphora](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! Dhanvantari is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.** The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.
 
 The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. Dhanvantari supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**).
 
@@ -22,6 +22,7 @@ The essence of Dhanvantari is *modularity* with an emphasis on *configuration!* 
 * **Generate synthetic data**: Dhanvantari supports generating synthetic data for testing.
 * **CQL support**: CQL for clinical decision support.
 * **FHIR**: Data exchange with FHIR schema.
+* **MCP**: Built in MCP server for pluggable tools.
 * **EMR**: Built in EMR, OpenMRS, for patient records.
 * **Vector store**: Redis for vector store.
 * **Monitoring**: LangFuse for monitoring.
@@ -50,11 +51,17 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 :white_check_mark:
 * **Generate synthetic data**: Dhanvantari supports generating synthetic data for testing.
-* **CQL support**: CQL for clinical decision support.
+* **CQL support**: [CQL for clinical decision support](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html).
 * **FHIR**: Data exchange with FHIR schema.
 * **EMR**: Built in EMR, OpenMRS, for patient records.
 
  🌈 *Join us to make the Gen AI equitable and help doctors save lives!*
+
+## :sparkles: Resources
+* [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base): Base classes for dhti-elixir
+* [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template): A template for creating new dhti-elixirs.
+* [fhir-mcp-server](https://github.com/dermatologist/fhir-mcp-server): A MCP server for hosting FHIR-compliant tools.
+* [fhiry](https://github.com/dermatologist/fhiry): FHIR to pandas dataframe for data analytics, AI and ML!
 
 ## :sunglasses: Coming soon
 
