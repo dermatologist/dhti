@@ -1,9 +1,10 @@
-import {Ollama } from "@langchain/community/llms/ollama";
+import {Ollama } from "@langchain/ollama";
 import { ChatPromptTemplate} from "@langchain/core/prompts";
 import "reflect-metadata";
 import { container } from "tsyringe";
 // import { VertexAI } from "@langchain/google-vertexai";
 // import { GoogleVertexAIEmbeddings } from "@langchain/community/embeddings/googlevertexai";
+import { FakeListChatModel } from "@langchain/core/utils/testing";
 
 const bootstrap = async () => {
 
@@ -24,7 +25,12 @@ const bootstrap = async () => {
         numPredict: 128,
         temperature: 0.6,
     });
-    main_llm = ollama;
+
+    const fake_llm = new FakeListChatModel({
+        responses: ["I'll callback later.", "You 'console' them!"],
+    });
+
+    main_llm = fake_llm;
     // }
 
 
