@@ -13,7 +13,6 @@ langserve = { version = ">=0.0.51", extras = ["server"] }
 langfuse = ">=2.31.0"
 tiktoken = ">=0.4.0"
 uvicorn = {extras = ["standard"], version = ">=0.22.0"}
-dhti-elixir-base = ">=0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.1"
