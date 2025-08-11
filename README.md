@@ -77,7 +77,8 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 dhti-cli help
 ```
 
-### Get help for each plugin (As a example, get help for compose)
+### Get help for each plugin
+* As an example, get help for compose:
 
 ```
 dhti-cli compose --help
@@ -96,16 +97,16 @@ You only need:
 * Build the CLI: `npm run build`
 * Install CLI locally: `npm link`
 * Test the CLI: `dhti-cli help`  *This will show the available commands.*
-* The working directory is `~/dhti` (You can [change it](#dhti-cli) if you want)
+* The working directory is `~/dhti` (Customizable)
 
 ### 🔧 Create a new docker-compose
-* Create a new docker-compose file: `dhti-cli compose -m redis -m openmrs -m langserve`
+* Create a new docker-compose file: `dhti-cli compose -m openmrs -m langserve`
 
-* The docker-compose.yml is created with the following services:
-    - Ollama (LLM model server)
-    - Redis (Vectorstore)
+* The docker-compose.yml is created with the following modules:
     - OpenMRS (EMR)
     - LangServe (API for LLM models)
+
+Other available modules: `ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir` (Documentation in progress)
 
 You can read the newly created docker-compose by: `dhti-cli compose read`
 
@@ -131,17 +132,21 @@ It may take a while to download the images and start the services. ([OpenMRS](ht
 
 ## :running: STEP 2: 🛠️ *Now let us Install an Elixir (Gen AI functionalities are packaged as elixirs)*
 
-* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template. This is just an elixir template that summarizes text based on a simple prompt. You can use this template to build your own elixirs!
+* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template. This is just a template that uses a Mock LLM to output random text. You can use this template to build your own elixirs! (Cookiecutter to be released soon!) Later you will see how to add real LLM support.
 
-:running: `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`. You may also install from a wheel file. Read more [here](#dhti-cli).
+:running:
+
+`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`.
+
+You may also install from PyPi or a wheel file!
 
 ### 🔍 Examine bootstrap.py (Optional)
 `cat ~/dhti/elixir/app/bootstrap.py`
 
-This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options.
+This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options. [You may check out how to add real LLM support using Google Gemini, later!](/notes/add-llm.md)
 
 ### 🔧 Create docker container
-`dhti-cli docker -n beapen/genai-test:1.0 -t elixir` (You can use any name for the container)
+`dhti-cli docker -n beapen/genai-test:1.0 -t elixir` (You may replace `beapen/genai-test:1.0` with your own image name)
 
 ### 🚀 Congratulations! You installed your first elixir. We will see it in action later!
 
@@ -182,8 +187,8 @@ You can remove the services by: `dhti-cli docker -d`
 
 ## 🚀 Advanced
 
-### [Setting up Ollama](/notes/setup-ollama.md)
-### [CLI Options](/notes/cli-options.md)
+* [Setting up Ollama](/notes/setup-ollama.md)
+* [CLI Options](/notes/cli-options.md)
 
 ## Give us a star ⭐️
 If you find this project useful, give us a star. It helps others discover the project.
