@@ -143,10 +143,12 @@ You may also install from PyPi or a wheel file!
 ### 🔍 Examine bootstrap.py (Optional)
 `cat ~/dhti/elixir/app/bootstrap.py`
 
-This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options. [You may check out how to add real LLM support using Google Gemini, later!](/notes/add-llm.md)
+This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options. [You may check out how to inject a real LLM using Google Gemini!](/notes/add-llm.md)
 
 ### 🔧 Create docker container
-`dhti-cli docker -n beapen/genai-test:1.0 -t elixir` (You may replace `beapen/genai-test:1.0` with your own image name)
+`dhti-cli docker -n beapen/genai-test:1.0 -t elixir`
+
+(You may replace `beapen/genai-test:1.0` with your own image name)
 
 ### 🚀 Congratulations! You installed your first elixir. We will see it in action later!
 
@@ -178,7 +180,9 @@ You will see the new conch in the left margin. Click on **Dhti app** to see the 
 This is just a template, though. You can build your own conchs!
 
 Add some text to the text area and click on **Submit**.
-You will see the summarized text above the textbox in about 30 seconds. (The LLM is running in your local machine!)
+You will see the text above the textbox.
+
+### Stop the services
 You can remove the services by: `dhti-cli docker -d`
 
 ### The demo uses a template with mock LLM. [Check out how to add real LLM support using Google Gemini.](/notes/add-llm.md)
