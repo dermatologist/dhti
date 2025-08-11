@@ -17,7 +17,7 @@ export default class Compose extends Command {
   static override flags = {
     file: Flags.string({char: 'f', default: `${os.homedir()}/dhti/docker-compose.yml`, description: 'Full path to the docker compose file to read from. Creates if it does not exist'}),
     // flag with a value (-n, --name=VALUE)
-    module: Flags.string({char: 'm', description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis and neo4j)', multiple: true}),
+    module: Flags.string({char: 'm', description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir)', multiple: true}),
   }
 
   public static init = () => {
@@ -42,12 +42,13 @@ export default class Compose extends Command {
     const langserve = ['langserve']
     const ollama = ['ollama', 'ollama-webui']
     const langfuse = ['langfuse', 'postgres-db']
-    const cqlFhir = ['fhir', 'cql-elm', 'cql-web']
+    const cqlFhir = ['fhir', 'postgres-db', 'cql-elm', 'cql-web']
     const redis = ['redis', 'redis-commander']
     const neo4j = ['neo4j', 'fhirg']
     const gateway = ['gateway']
     const webui = ['ollama-webui']
     const fhir = ['fhir', 'postgres-db']
+    const mcpFhir = ['mcp-fhir', 'fhir', 'postgres-db']
 
 
     const _modules: {[key: string]: string[]} = {
@@ -56,6 +57,7 @@ export default class Compose extends Command {
       gateway,
       langfuse,
       langserve,
+      mcpFhir,
       neo4j,
       ollama,
       openmrs,
