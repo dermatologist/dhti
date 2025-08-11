@@ -1,7 +1,6 @@
 from kink import di
 from os import getenv
 from dotenv import load_dotenv
-from dhti_elixir_base import get_di
 from langchain_core.prompts import PromptTemplate
 from langchain_core.language_models.fake import FakeListLLM
 
