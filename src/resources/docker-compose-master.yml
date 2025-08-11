@@ -126,6 +126,12 @@ services:
         - "hapi.fhir.fhir_version=R4"
         - "hapi.fhir.cors.allowed-origins=*"
         - "hapi.fhir.cors.allowCredentials=true"
+        - "hapi.fhir.bulkdata.enabled=true"
+        - "hapi.fhir.bulk_export_enabled=true"
+        - "hapi.fhir.bulk_import_enabled=true"
+        - "hapi.fhir.enforce_referential_integrity_on_write=false"
+        - "hapi.fhir.enforce_referential_integrity_on_delete=false"
+
 
   cql-elm:
     image: cqframework/cql-translation-service:latest
