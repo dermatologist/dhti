@@ -126,6 +126,23 @@ services:
         - "hapi.fhir.fhir_version=R4"
         - "hapi.fhir.cors.allowed-origins=*"
         - "hapi.fhir.cors.allowCredentials=true"
+        - "hapi.fhir.bulkdata.enabled=true"
+        - "hapi.fhir.bulk_export_enabled=true"
+        - "hapi.fhir.bulk_import_enabled=true"
+        - "hapi.fhir.enforce_referential_integrity_on_write=false"
+        - "hapi.fhir.enforce_referential_integrity_on_delete=false"
+
+  mcp-fhir:
+    image: beapen/fhir-mcp-server:1.0
+    ports:
+      - 8006:8000
+    restart: "unless-stopped"
+    depends_on:
+      - fhir
+    environment:
+      - FHIR_SERVER_BASE_URL="http://fhir:8005/baseR4"
+      - FHIR_SERVER_SCOPES="*"
+      - FHIR_SERVER_ACCESS_TOKEN="none"
 
   cql-elm:
     image: cqframework/cql-translation-service:latest

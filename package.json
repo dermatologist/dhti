@@ -8,13 +8,14 @@
   },
   "bugs": "https://github.com/dermatologist/dhti/issues",
   "dependencies": {
-    "@langchain/community": "^0.2.17",
+    "@langchain/community": "^0.3.50",
+    "@langchain/ollama": "^0.2.3",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
     "child_process": "^1.0.2",
     "js-yaml": "^4.1.0",
-    "medpromptjs": "^0.2.2",
+    "medpromptjs": ">=0.4.3",
     "ora": "^8.0.1",
     "request": "^2.88.2"
   },
