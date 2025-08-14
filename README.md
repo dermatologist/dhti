@@ -100,7 +100,7 @@ You only need:
 * The working directory is `~/dhti` (Customizable)
 
 ### 🔧 Create a new docker-compose
-* Create a new docker-compose file: `dhti-cli compose -m openmrs -m langserve`
+* Create a new docker-compose file: `dhti-cli compose add -m openmrs -m langserve`
 
 * The docker-compose.yml is created with the following modules:
     - OpenMRS (EMR)
