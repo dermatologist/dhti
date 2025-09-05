@@ -1,0 +1,1 @@
+It uses four interconnected human figures in different colors, arranged in a circle to symbolize teamwork, diversity, and shared purpose. The clean, modern typography keeps it professional while the vibrant palette communicates accessibility and innovation.
