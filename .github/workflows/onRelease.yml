@@ -13,6 +13,6 @@ jobs:
         with:
           node-version: latest
       - run: npm install
-      - uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c
+      - uses: JS-DevTools/npm-publish@d9dc932de083f0e6de6a50f0d1097a7142c3751b
         with:
           token: ${{ secrets.NPM_TOKEN }}
