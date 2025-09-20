@@ -24,3 +24,17 @@ Content-Type: application/json
             "input": "What is the capital of France?"
         }
 }
+
+###  TODO Why is nested input needed?
+POST  http://localhost/langserve/dhti_elixir_template/invoke HTTP/1.1
+Content-Type: application/json
+
+{
+    "input": {
+        "input":
+            {"context":{"input":"Hello"}
+        }
+    },
+    "config":{},
+    "kwargs":{}
+}
