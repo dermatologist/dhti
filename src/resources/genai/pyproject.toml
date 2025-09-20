@@ -1,50 +1,81 @@
-[tool.poetry]
+
+[project]
 name = "genai"
-version = "0.0.1"
+dynamic = ["version"]
 description = "Langserve server for GenAI."
-authors = ["Bell Eapen <github_public@nuchange.ca>"]
-license = "Apache-2.0"
+authors = [{ name = "Bell Eapen", email = "github_public@nuchange.ca" }]
 readme = "README.md"
-packages = [{include = "app"}]
-
-[tool.poetry.dependencies]
-python = ">=3.10.0,<4.0"
-langserve = { version = ">=0.0.51", extras = ["server"] }
-langfuse = ">=2.31.0"
-tiktoken = ">=0.4.0"
-uvicorn = {extras = ["standard"], version = ">=0.22.0"}
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.2.1"
-pytest-asyncio = "^0.21.1"
-mypy = "^1.4.1"
-ruff = "^0.0.278"
-black = "^23.7.0"
-syrupy = "^4.0.2"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.ruff]
-select = [
-  "E",  # pycodestyle
-  "F",  # pyflakes
-  "I",  # isort
+keywords = ["python"]
+requires-python = ">=3.10,<4.0"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Healthcare Industry",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "langserve[server]>=0.0.51",
+  "langfuse>=2.31.0",
+  "tiktoken>=0.4.0",
+  "uvicorn[standard]>=0.22.0",
 ]
 
+[project.urls]
+Homepage = "https://dermatologist.github.io/dhti/"
+Repository = "https://github.com/dermatologist/dhti"
+Documentation = "https://dermatologist.github.io/dhti/"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.2.1",
+  "pytest-asyncio>=0.21.1",
+  "mypy>=1.4.1",
+  "ruff>=0.0.278",
+  "black>=23.7.0",
+  "syrupy>=4.0.2",
+]
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
+
+[tool.uv-dynamic-versioning]
+fallback-version = "0.1.0"
+
+[tool.uv.build-backend]
+source-exclude = ["tests/*", "examples/*", "docs/*", "notes/*", "notebooks/*"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
 [tool.mypy]
-ignore_missing_imports = "True"
-disallow_untyped_defs = "True"
+files = ["app"]
+disallow_untyped_defs = true
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-# --strict-markers will raise errors on unknown marks.
-# https://docs.pytest.org/en/7.1.x/how-to/mark.html#raising-errors-on-unknown-marks
-#
-# https://docs.pytest.org/en/7.1.x/reference/reference.html
-# --strict-config       any warnings encountered while parsing the `pytest`
-#                       section of the configuration file raise errors.
-#
-# https://github.com/tophat/syrupy
-# --snapshot-warn-unused    Prints a warning on unused snapshots rather than fail the test suite.
 addopts = "--strict-markers --strict-config --durations=5 --snapshot-warn-unused"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+fix = true
+select = ["E", "F", "I"]

@@ -1,27 +1,22 @@
-# The builder image, used to build the virtual environment
-FROM python:3.11-buster as builder
+# Use Python 3.12 slim as base image
+FROM python:3.12-slim AS base
 
-RUN pip install poetry==1.4.2
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
-
+# Set working directory
 WORKDIR /app
 
-COPY . ./
+# Copy pyproject.toml into the image
+COPY pyproject.toml /app/pyproject.toml
+COPY README.md /app/README.md
 
-RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+# Install dependencies and generate uv.lock
+RUN uv sync --no-dev
 
-# The runtime image, used to just run the code provided its virtual environment
-FROM python:3.11-slim-buster as runtime
+# Copy the project into the image
+COPY . /app
 
-ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
 
-COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-
-COPY app ./app
-
-CMD ["python", "app/server.py"]
+# Run the server
+CMD ["uv", "run", "python", "app/server.py"]
