@@ -112,7 +112,8 @@ export default class Elixir extends Command {
     }
 
     pyproject = pyproject.replace('dependencies = [', `dependencies = [\n"${flags.name}",`)
-    const newPyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
+    pyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
+    const newPyproject = pyproject
 
     // Add the elixir import and bootstrap to the server.py file
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
