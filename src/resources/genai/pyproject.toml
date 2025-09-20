@@ -26,6 +26,9 @@ dependencies = [
   "uvicorn[standard]>=0.22.0",
 ]
 
+[tool.uv.sources]
+# elixirs
+
 [project.urls]
 Homepage = "https://dermatologist.github.io/dhti/"
 Repository = "https://github.com/dermatologist/dhti"
