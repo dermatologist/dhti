@@ -98,7 +98,7 @@ export default class Elixir extends Command {
     }
 
     // Install the elixir from git adding to the pyproject.toml file
-    const pyproject = fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
+    let pyproject = fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
     const originalServer = fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
     let lineToAdd = ''
     if (flags.whl !== 'none') {
@@ -111,7 +111,9 @@ export default class Elixir extends Command {
       lineToAdd = flags.pypi
     }
 
-    const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
+    pyproject = pyproject.replace('dependencies = [', `dependencies = [\n"${flags.name}",`)
+    pyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
+    const newPyproject = pyproject
 
     // Add the elixir import and bootstrap to the server.py file
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
