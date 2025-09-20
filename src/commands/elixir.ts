@@ -111,7 +111,7 @@ export default class Elixir extends Command {
       lineToAdd = flags.pypi
     }
 
-    const newPyproject = pyproject.replace('[tool.poetry.dependencies]', `[tool.poetry.dependencies]\n${lineToAdd}`)
+    const newPyproject = pyproject.replace('dependencies = [', `dependencies = [\n${lineToAdd}`)
 
     // Add the elixir import and bootstrap to the server.py file
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
