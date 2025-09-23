@@ -9,11 +9,11 @@
 TL; DR: **dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.**
 [Paper coming soon!](https://nuchange.ca)
 
-Gen AI can transform medicine. But, it needs a framework for collaborative research and practice. DHTI is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), tools on [MCP server](https://github.com/dermatologist/fhir-mcp-server),  vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), 🔥 FHIR repository with [CQL](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html) support ([HAPI](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! DHTI is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.** The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.
+Gen AI can transform medicine. But it needs a framework for collaborative research and practice. DHTI is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), tools on [MCP server](https://github.com/dermatologist/fhir-mcp-server),  vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), 🔥 FHIR repository with [CQL](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html) support ([HAPI](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! DHTI is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.** The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.
 
-The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS making them potentially usable with any health information system.
+The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a [fork of the cds-hook sandbox](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) for testing that uses the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs (recommended).
 
-🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install elixirs and conches, create docker images for them, and more. 🚀 This helps to quickly test new ideas and share them with others. 🚀 Once tested, you can transition them to production team for deployment. Adoption of standards make this transition easier!
+🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to production team for deployment. Adoption of standards makes this transition easier!
 
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 09/12/2025.**
 
@@ -67,11 +67,18 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
  🌈 *Join us to make the Gen AI equitable and help doctors save lives!*
 
 ## :sparkles: Resources
+* [fhiry](https://github.com/dermatologist/fhiry): FHIR to pandas dataframe for data analytics, AI and ML!
+* [pyOMOP](https://github.com/dermatologist/pyomop): For OMOP CDM support
+  
+## :sparkles: Resources (in Beta)
 * [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base): Base classes for dhti-elixir
 * [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template): A template for creating new dhti-elixirs.
 * [fhir-mcp-server](https://github.com/dermatologist/fhir-mcp-server): A MCP server for hosting FHIR-compliant tools.
-* [fhiry](https://github.com/dermatologist/fhiry): FHIR to pandas dataframe for data analytics, AI and ML!
 
+## :sparkles: Resources (in Alpha)
+* [cookiecutter for scaffolding elixirs](https://github.com/dermatologist/cookiecutter-uv)
+* [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1)
+  
 ## :sunglasses: Coming soon
 
 * [dhti-elixir-fhire](https://github.com/dermatologist/dhti-elixir-fhire): An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
