@@ -122,11 +122,13 @@ export default class Elixir extends Command {
     const newCliImport = fs
       .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
       .replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
-    const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
-    const langfuseRoute = `add_routes(app, ${expoName}_${flags.type}.with_config(config), path="/langserve/${expoName}")` + commonRoutes
+    const langfuseRoute = `add_routes(app, ${expoName}_${flags.type}.with_config(config), path="/langserve/${expoName}")`
     const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-    const normalRoute = `add_routes(app, ${expoName}_${flags.type}, path="/langserve/${expoName}")` + commonRoutes
-    const finalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+    const normalRoute = `add_routes(app, ${expoName}_${flags.type}, path="/langserve/${expoName}")`
+    const newNormalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+    const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
+    const finalRoute = newNormalRoute.replace('#DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
       fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
