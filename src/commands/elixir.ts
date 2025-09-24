@@ -28,7 +28,6 @@ export default class Elixir extends Command {
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: '0.1.0', description: 'Version of the elixir'}),
-    type: Flags.string({char: 't', default: 'chain', description: 'Type of elixir (chain, tool or agent)'}),
     whl: Flags.string({char: 'e', default: 'none', description: 'Whl file to install'}),
     workdir: Flags.string({
       char: 'w',
@@ -118,13 +117,18 @@ export default class Elixir extends Command {
     // Add the elixir import and bootstrap to the server.py file
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
     CliImport += `${expoName}_bootstrap()\n`
-    CliImport += `from ${expoName}.chain import ${flags.type} as ${expoName}_${flags.type}\n`
+    CliImport += `
+from ${expoName}.chain import DhtiChain as ${expoName}_chain_class
+${expoName}_chain = ${expoName}_chain_class().get_chain_as_langchain_tool()
+${expoName}_mcp_tool = ${expoName}_chain_class().get_chain_as_mcp_tool
+mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
+    `
     const newCliImport = fs
       .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
       .replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
-    const langfuseRoute = `add_routes(app, ${expoName}_${flags.type}.with_config(config), path="/langserve/${expoName}")`
+    const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
     const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-    const normalRoute = `add_routes(app, ${expoName}_${flags.type}, path="/langserve/${expoName}")`
+    const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
     const newNormalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
     const finalRoute = newNormalRoute.replace('#DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
