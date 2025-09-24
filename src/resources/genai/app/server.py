@@ -7,7 +7,7 @@ from mcp.server.fastmcp import FastMCP
 mcp_server = FastMCP(name="dhti-mcp-server")
 
 # ! DO NOT REMOVE THE COMMENT BELOW
-# DHTI_CLI_IMPORT
+#DHTI_CLI_IMPORT
 import uvicorn
 
 # Comes after elixir bootstraps, so can override elixir configurations
@@ -50,7 +50,7 @@ except:
     x = True
 
 # ! DO NOT REMOVE THE COMMENT BELOW
-# DHTI_COMMON_ROUTE
+#DHTI_COMMON_ROUTE
 
 
 if __name__ == "__main__":
