@@ -21,6 +21,13 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 09/12/2025.**
 
+## What problems do DHTI solve?
+
+| I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR. | See https://github.com/dermatologist/dhti-elixir-template It provides a template to start adopting FHIR and cds-hooks as standards for data retrieval and display. |
+| --- | --- |
+| I need a simple platform for experimenting. | See https://github.com/dermatologist/dhti It gives you everything to start experimenting fast. |
+| I am a UI designer. I want to design helpful UI for real users. | See https://github.com/dermatologist/openmrs-esm-dhti-template It shows how to build interface components (conches) for OpenMRS an open-source EMR used by many. Read more about OpenMRS UI here: https://o3-docs.openmrs.org/ |
+
 ## Architecture
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/arch-1.drawio.svg" />
