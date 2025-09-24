@@ -17,16 +17,20 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
 </p>
 
-🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to production team for deployment. Adoption of standards makes this transition easier!
+🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to the production team for deployment. Adoption of standards makes this transition easier!
 
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 09/12/2025.**
 
 ## What problems do DHTI solve?
 
-| I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR. | See https://github.com/dermatologist/dhti-elixir-template It provides a template to start adopting FHIR and cds-hooks as standards for data retrieval and display. |
+| Why | How |
 | --- | --- |
-| I need a simple platform for experimenting. | See https://github.com/dermatologist/dhti It gives you everything to start experimenting fast. |
-| I am a UI designer. I want to design helpful UI for real users. | See https://github.com/dermatologist/openmrs-esm-dhti-template It shows how to build interface components (conches) for OpenMRS an open-source EMR used by many. Read more about OpenMRS UI here: https://o3-docs.openmrs.org/ |
+| I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR. | [This template](https://github.com/dermatologist/dhti-elixir-template) adopts FHIR and cds-hooks as standards for data retrieval and display. The [base class](https://github.com/dermatologist/dhti-elixir-base) provides reusable artifacts |
+| I need a simple platform for experimenting. | This repository provides  everything to start experimenting fast. The command-line tools help to virtualize and orchestrate your experiments using [Docker](https://www.docker.com/)|
+| I am a UI designer. I want to design helpful UI for real users. | See [this template](https://github.com/dermatologist/openmrs-esm-dhti-template). It shows how to build interface components (conches) for [OpenMRS](https://openmrs.org/) an open-source EMR used by many. Read more about [OpenMRS UI](https://o3-docs.openmrs.org/) |
+| We use another EMR  |  Your EMR may support CDS-Hook for displaying components. In that case, you can use [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) |
+| Our IT team is often unable to take my experiments to production. | Use DHTI, follow the recommended patterns, and you will make their lives easier.|
+
 
 ## Architecture
 <p align="center">
