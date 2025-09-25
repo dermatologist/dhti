@@ -14,7 +14,8 @@ const handleBundle = (newMessage: string) => {
     input: request,
   }
 
-  return axios.post('/langserve/dhti_elixir_template/invoke', {
+  const endpoint = process.env.LANGSERVE_POST_ENDPOINT || '/langserve/dhti_elixir_template/invoke'
+  return axios.post(endpoint, {
     input: _request,
     config: {},
     kwargs: {},
