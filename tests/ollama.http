@@ -1,6 +1,0 @@
-###
-
-curl http://localhost/ollama/api/generate -d '{
-  "model": "phi3",
-  "prompt": "Why is the sky blue?"
-}'

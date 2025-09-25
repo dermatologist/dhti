@@ -1,0 +1,88 @@
+{
+  "name": "dhti-cli",
+  "description": "DHTI CLI",
+  "version": "0.1.0",
+  "author": "Bell Eapen",
+  "bin": {
+    "dhti-cli": "bin/run.js"
+  },
+  "bugs": "https://github.com/dermatologist/dhti/issues",
+  "dependencies": {
+    "@langchain/community": "^0.3.53",
+    "@langchain/ollama": "^0.2.3",
+    "@oclif/core": "^4",
+    "@oclif/plugin-help": "^6",
+    "@oclif/plugin-plugins": "^5",
+    "child_process": "^1.0.2",
+    "js-yaml": "^4.1.0",
+    "medpromptjs": ">=0.4.3",
+    "ora": "^8.0.1",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "@oclif/prettier-config": "^0.2.1",
+    "@oclif/test": "^4",
+    "@types/chai": "^4",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10",
+    "@types/node": "^18",
+    "@types/request": "^2.48.12",
+    "@types/sinon": "^17.0.4",
+    "chai": "^4",
+    "eslint": "^8",
+    "eslint-config-oclif": "^5",
+    "eslint-config-oclif-typescript": "^3",
+    "eslint-config-prettier": "^9",
+    "mocha": "^10",
+    "oclif": "^4",
+    "shx": "^0.3.3",
+    "sinon": "^21.0.0",
+    "ts-node": "^10",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/dermatologist/dhti",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "oclif": {
+    "bin": "dhti-cli",
+    "dirname": "dhti-cli",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "hello": {
+        "description": "Say hello to the world and others"
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dermatologist/dhti.git"
+  },
+  "scripts": {
+    "build": "shx rm -rf dist && tsc -b",
+    "lint": "eslint . --ext .ts",
+    "fix": "eslint . --ext .ts --fix",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "echo 'npm run lint'",
+    "prepack": "oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md"
+  },
+  "types": "dist/index.d.ts"
+}

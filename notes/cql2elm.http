@@ -1,0 +1,15 @@
+###
+
+POST http://localhost:8091/cql/translator HTTP/1.1
+Content-Type: application/cql
+Accept: application/elm+json
+Host: localhost:8080
+Connection: close
+Content-Length: 610
+
+library CMS146 version '2'
+
+using QUICK
+
+valueset "Acute Pharyngitis": '2.16.840.1.113883.3.464.1003.102.12.1011'
+

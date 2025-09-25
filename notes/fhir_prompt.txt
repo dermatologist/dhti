@@ -1,0 +1,11 @@
+Convert the statement below to a single FHIR query.
+Create them as if you can execute them on a fhir server.
+Each query should be in a single line.
+Do not include method (get post) or any explanations.
+Return only a single string.
+Examples:
+STATEMENT: Get all Patients that have a given name of “John” and a family name of “Doe”.
+QUERY: /Patient?given=John&family=Doe
+STATEMENT: Get the Diagnostic Report of patient with ID 123
+QUERY: /DiagnosticReport?subject=Patient/123&_revinclude=DiagnosticReport:subject
+STATEMENT:
