@@ -145,12 +145,12 @@ export default class Mimic extends Command {
 }`
     // send a POST request to the server with the mimic_request body
     const response = await fetch(args.server, {
-      method: 'POST',
+      body: mimic_request,
       headers: {
         'Content-Type': 'application/fhir+json',
-        'Prefer': 'respond-async'
+        Prefer: 'respond-async',
       },
-      body: mimic_request,
+      method: 'POST',
     })
     if (!response.ok) {
       console.error(`Error: ${response.status} ${response.statusText}`)

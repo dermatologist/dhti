@@ -3,6 +3,12 @@
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/dhti-logo.jpg" />
 </p>
 
+[![npm version](https://badge.fury.io/js/dhti.svg)](https://www.npmjs.com/package/dhti)
+[![npm](https://img.shields.io/npm/dt/dhti)](https://www.npmjs.com/package/dhti)
+[![Build](https://github.com/dermatologist/dhti/workflows/CI/badge.svg)](https://nuchange.ca)
+[![Known Vulnerabilities](https://snyk.io/test/github/dermatologist/dhti/badge.svg)](https://www.npmjs.com/package/dhti)
+[![Documentation](https://badgen.net/badge/icon/documentation?icon=libraries&label)](https://dermatologist.github.io/dhti/)
+
 ## About
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
@@ -13,9 +19,24 @@ Gen AI can transform medicine. But it needs a framework for collaborative resear
 
 The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a [fork of the cds-hook sandbox](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) for testing that uses the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs (recommended).
 
-🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to production team for deployment. Adoption of standards makes this transition easier!
+<p align="center">
+  <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
+</p>
+
+🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to the production team for deployment. Adoption of standards makes this transition easier!
 
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 09/12/2025.**
+
+## What problems do DHTI solve?
+
+| Why | How |
+| --- | --- |
+| I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR. | [This template](https://github.com/dermatologist/dhti-elixir-template) adopts FHIR and cds-hooks as standards for data retrieval and display. The [base class](https://github.com/dermatologist/dhti-elixir-base) provides reusable artifacts |
+| I need a simple platform for experimenting. | This repository provides  everything to start experimenting fast. The command-line tools help to virtualize and orchestrate your experiments using [Docker](https://www.docker.com/)|
+| I am a UI designer. I want to design helpful UI for real users. | See [this template](https://github.com/dermatologist/openmrs-esm-dhti-template). It shows how to build interface components (conches) for [OpenMRS](https://openmrs.org/) an open-source EMR used by many. Read more about [OpenMRS UI](https://o3-docs.openmrs.org/) |
+| We use another EMR  |  Your EMR may support CDS-Hook for displaying components. In that case, you can use [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) |
+| Our IT team is often unable to take my experiments to production. | Use DHTI, follow the recommended patterns, and you will make their lives easier.|
+
 
 ## Architecture
 <p align="center">
@@ -69,7 +90,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 ## :sparkles: Resources
 * [fhiry](https://github.com/dermatologist/fhiry): FHIR to pandas dataframe for data analytics, AI and ML!
 * [pyOMOP](https://github.com/dermatologist/pyomop): For OMOP CDM support
-  
+
 ## :sparkles: Resources (in Beta)
 * [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base): Base classes for dhti-elixir
 * [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template): A template for creating new dhti-elixirs.
@@ -78,7 +99,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 ## :sparkles: Resources (in Alpha)
 * [cookiecutter for scaffolding elixirs](https://github.com/dermatologist/cookiecutter-uv)
 * [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1)
-  
+
 ## :sunglasses: Coming soon
 
 * [dhti-elixir-fhire](https://github.com/dermatologist/dhti-elixir-fhire): An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
@@ -216,5 +237,3 @@ If you find this project useful, give us a star. It helps others discover the pr
 ## Contributors
 
 * [Bell Eapen](https://nuchange.ca) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
-
-

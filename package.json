@@ -1,10 +1,10 @@
 {
   "name": "dhti-cli",
-  "description": "Dhanvantari CLI",
+  "description": "DHTI CLI",
   "version": "0.1.0",
   "author": "Bell Eapen",
   "bin": {
-    "dhti-cli": "./bin/run.js"
+    "dhti-cli": "bin/run.js"
   },
   "bugs": "https://github.com/dermatologist/dhti/issues",
   "dependencies": {
@@ -27,6 +27,7 @@
     "@types/mocha": "^10",
     "@types/node": "^18",
     "@types/request": "^2.48.12",
+    "@types/sinon": "^17.0.4",
     "chai": "^4",
     "eslint": "^8",
     "eslint-config-oclif": "^5",
@@ -35,6 +36,7 @@
     "mocha": "^10",
     "oclif": "^4",
     "shx": "^0.3.3",
+    "sinon": "^21.0.0",
     "ts-node": "^10",
     "typescript": "^5"
   },
@@ -68,7 +70,10 @@
       }
     }
   },
-  "repository": "dermatologist/dhti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dermatologist/dhti.git"
+  },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint . --ext .ts",
