@@ -1,0 +1,28 @@
+name: Generate and publish gh-pages
+# https://docs.github.com/en/actions/guides/building-and-testing-python
+# https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+on:
+  release:
+    types: [published]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        run: npm install --include=dev
+      - name: Build Docs 📚
+        run: npm run docs
+      - name: Deploy Docs 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: docs # The folder the action should deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Used to authenticate with the deploy action.

@@ -1,0 +1,36 @@
+name: "Bump Version"
+# include major/minor/patch in commit message
+
+on:
+  push:
+    branches:
+      - "release/**"
+
+jobs:
+  bump-version:
+    name: "Bump Version on release branch"
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v5"
+        with:
+          ref: ${{ github.ref }}
+      - name: "✏️ Generate release changelog"
+        uses: janheinrichmerker/action-github-changelog-generator@v2.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          user: dermatologist
+          maxIssues: 3
+          httpCache: true
+      - name:  'Automated Version Bump'
+        uses:  'phips28/gh-action-bump-version@master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          minor-wording:  'add,Adds,new'
+          major-wording:  'MAJOR,cut-major'
+          patch-wording:  'patch,fixes'     # Providing patch-wording will override commits
+                                            # defaulting to a patch bump.
+          rc-wording:     'RELEASE,alpha'
+          tag-prefix:    'v' #Prefix avoids conflict with git-flow tagging
