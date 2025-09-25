@@ -14,6 +14,6 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: npm install
-      - uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
