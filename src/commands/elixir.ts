@@ -20,13 +20,13 @@ export default class Elixir extends Command {
       description: 'Name of the container to copy the elixir to while in dev mode',
     }),
     dev: Flags.string({char: 'd', default: 'none', description: 'Dev folder to install'}),
+    git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
+    name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     pypi: Flags.string({
       char: 'p',
       default: 'none',
       description: 'PyPi package to install. Ex: dhti-elixir-base = ">=0.1.0"',
     }),
-    git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
-    name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: '0.1.0', description: 'Version of the elixir'}),
     whl: Flags.string({char: 'e', default: 'none', description: 'Whl file to install'}),
     workdir: Flags.string({
@@ -103,9 +103,11 @@ export default class Elixir extends Command {
     if (flags.whl !== 'none') {
       lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
     }
+
     if (flags.git !== 'none') {
       lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
     }
+
     if (flags.pypi !== 'none') {
       lineToAdd = flags.pypi
     }

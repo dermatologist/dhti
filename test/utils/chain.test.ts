@@ -1,5 +1,6 @@
-import {ChainService} from '../../src/utils/chain'
 import {expect} from 'chai'
+
+import {ChainService} from '../../src/utils/chain'
 
 describe('ChainService', () => {
   it('should instantiate with a container', () => {
@@ -14,7 +15,7 @@ describe('ChainService', () => {
     const mockPrompt = (input: any) => input + ' prompt'
     const mockMainLLM = (input: any) => input + ' llm'
     const container = {
-      resolve: (name: string) => {
+      resolve(name: string) {
         if (name === 'prompt') return mockPrompt
         if (name === 'main-llm') return mockMainLLM
       },
