@@ -148,13 +148,13 @@ export default class Mimic extends Command {
       body: mimic_request,
       headers: {
         'Content-Type': 'application/fhir+json',
-        'Prefer': 'respond-async'
+        Prefer: 'respond-async',
       },
       method: 'POST',
     })
     if (!response.ok) {
       console.error(`Error: ${response.status} ${response.statusText}`)
-      
+      return
     }
   }
 }
