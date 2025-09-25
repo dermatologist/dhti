@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "Bell Eapen",
   "bin": {
-    "dhti-cli": "./bin/run.js"
+    "dhti-cli": "bin/run.js"
   },
   "bugs": "https://github.com/dermatologist/dhti/issues",
   "dependencies": {
@@ -70,7 +70,10 @@
       }
     }
   },
-  "repository": "dermatologist/dhti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dermatologist/dhti.git"
+  },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint . --ext .ts",

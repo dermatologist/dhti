@@ -231,5 +231,3 @@ If you find this project useful, give us a star. It helps others discover the pr
 ## Contributors
 
 * [Bell Eapen](https://nuchange.ca) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
-
-
