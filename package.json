@@ -27,6 +27,7 @@
     "@types/mocha": "^10",
     "@types/node": "^18",
     "@types/request": "^2.48.12",
+    "@types/sinon": "^17.0.4",
     "chai": "^4",
     "eslint": "^8",
     "eslint-config-oclif": "^5",
@@ -35,6 +36,7 @@
     "mocha": "^10",
     "oclif": "^4",
     "shx": "^0.3.3",
+    "sinon": "^21.0.0",
     "ts-node": "^10",
     "typescript": "^5"
   },
