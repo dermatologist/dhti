@@ -3,6 +3,12 @@
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/dhti-logo.jpg" />
 </p>
 
+[![npm version](https://badge.fury.io/js/dhti.svg)](https://www.npmjs.com/package/dhti)
+[![npm](https://img.shields.io/npm/dt/dhti)](https://www.npmjs.com/package/dhti)
+[![Build](https://github.com/dermatologist/dhti/workflows/CI/badge.svg)](https://nuchange.ca)
+[![Known Vulnerabilities](https://snyk.io/test/github/dermatologist/dhti/badge.svg)](https://www.npmjs.com/package/dhti)
+[![Documentation](https://badgen.net/badge/icon/documentation?icon=libraries&label)](https://dermatologist.github.io/dhti/)
+
 ## About
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
