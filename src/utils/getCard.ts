@@ -1,4 +1,4 @@
-import {CDSHookCard} from './card'
+import {CDSHookCard} from './card.js'
 
 const cards = (response: any) => {
   const _cards = response?.data?.cards

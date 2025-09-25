@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {CDSHookRequest} from './request'
+import {CDSHookRequest} from './request.js'
 
 /**
  * Sends a CDS Hook Request where the request.context contains the user's input message.
