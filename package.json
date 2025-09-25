@@ -44,9 +44,9 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "/bin",
-    "/dist",
-    "/oclif.manifest.json"
+    "bin",
+    "dist",
+    "oclif.manifest.json"
   ],
   "homepage": "https://github.com/dermatologist/dhti",
   "keywords": [
