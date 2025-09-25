@@ -31,11 +31,13 @@ export type CDSHookCardIndicator = 'hard-stop' | 'info' | 'warning'
  */
 export class CDSHookCardSource {
   icon?: string
-  label!: string
+  label?: string
   url?: string
 
   constructor(init?: Partial<CDSHookCardSource>) {
     Object.assign(this, init)
+    // Optionally, set a default value for label if desired:
+    // if (this.label === undefined) this.label = '';
   }
 }
 
@@ -43,11 +45,14 @@ export class CDSHookCardSource {
  * Link associated with the CDS Hook Card
  */
 export class CDSHookCardLink {
-  label!: string
-  url!: string
+  label?: string
+  url?: string
 
   constructor(init?: Partial<CDSHookCardLink>) {
     Object.assign(this, init)
+    // Optionally, set default values for label and url if desired:
+    // if (this.label === undefined) this.label = '';
+    // if (this.url === undefined) this.url = '';
   }
 }
 
