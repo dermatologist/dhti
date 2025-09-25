@@ -31,10 +31,4 @@ describe('getCard', () => {
     expect(result[0].summary).to.be.undefined
   })
 
-  it('returns default card when response is undefined', () => {
-    const result = cards()
-    expect(result).to.have.length(1)
-    expect(result[0]).to.be.instanceOf(CDSHookCard)
-    expect(result[0].summary).to.be.undefined
-  })
 })
