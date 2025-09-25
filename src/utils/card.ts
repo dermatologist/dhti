@@ -59,7 +59,7 @@ export class CDSHookCard {
   indicator?: CDSHookCardIndicator
   links?: CDSHookCardLink[]
   source?: CDSHookCardSource
-  summary!: string
+  summary?: string
 
   constructor(init?: Partial<CDSHookCard>) {
     if (init) {
@@ -69,6 +69,8 @@ export class CDSHookCard {
       if (source) this.source = new CDSHookCardSource(source)
       if (links) this.links = links.map((l) => new CDSHookCardLink(l))
     }
+    // Optionally, set a default value for summary if desired:
+    // if (this.summary === undefined) this.summary = '';
   }
 
   /**
