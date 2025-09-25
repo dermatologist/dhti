@@ -1,7 +1,7 @@
 {
   "name": "dhti-cli",
   "description": "DHTI CLI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Bell Eapen",
   "bin": {
     "dhti-cli": "bin/run.js"
