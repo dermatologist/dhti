@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import {CDSHookRequest} from './request.js'
 
 /**
@@ -16,8 +17,8 @@ const handleBundle = (newMessage: string) => {
 
   const endpoint = process.env.LANGSERVE_POST_ENDPOINT || '/langserve/dhti_elixir_template/invoke'
   return axios.post(endpoint, {
-    input: _request,
     config: {},
+    input: _request,
     kwargs: {},
   })
 }

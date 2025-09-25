@@ -1,11 +1,12 @@
 import {expect} from 'chai'
-import cards from '../../src/utils/getCard'
+
 import {CDSHookCard} from '../../src/utils/card'
+import cards from '../../src/utils/getCard'
 
 describe('getCard', () => {
   it('returns last card when cards exist', () => {
     const cardObj1 = {summary: 'Card 1'}
-    const cardObj2 = {summary: 'Card 2', detail: 'Details'}
+    const cardObj2 = {detail: 'Details', summary: 'Card 2'}
     const response = {data: {cards: [cardObj1, cardObj2]}}
     const result = cards(response)
     expect(result).to.have.length(1)
@@ -31,7 +32,7 @@ describe('getCard', () => {
   })
 
   it('returns default card when response is undefined', () => {
-    const result = cards(undefined)
+    const result = cards()
     expect(result).to.have.length(1)
     expect(result[0]).to.be.instanceOf(CDSHookCard)
     expect(result[0].summary).to.be.undefined

@@ -1,8 +1,9 @@
+import axios from 'axios'
 import {expect} from 'chai'
 import sinon from 'sinon'
-import axios from 'axios'
-import handleBundle from '../../src/utils/useDhti'
+
 import {CDSHookRequest} from '../../src/utils/request'
+import handleBundle from '../../src/utils/useDhti'
 
 describe('handleBundle', () => {
   let postStub: sinon.SinonStub

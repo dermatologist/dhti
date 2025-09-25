@@ -1,6 +1,7 @@
 import {expect} from 'chai'
+
 // ...existing code...
-import {CDSHookCard, CDSHookCardSource, CDSHookCardLink} from '../../src/utils/card'
+import {CDSHookCard, CDSHookCardLink, CDSHookCardSource} from '../../src/utils/card'
 
 describe('CDSHookCardSource', () => {
   it('should construct with label only', () => {
@@ -10,7 +11,7 @@ describe('CDSHookCardSource', () => {
     expect(src.icon).to.be.undefined
   })
   it('should construct with all fields', () => {
-    const src = new CDSHookCardSource({label: 'CDC', url: 'https://cdc', icon: 'icon.png'})
+    const src = new CDSHookCardSource({icon: 'icon.png', label: 'CDC', url: 'https://cdc'})
     expect(src.label).to.equal('CDC')
     expect(src.url).to.equal('https://cdc')
     expect(src.icon).to.equal('icon.png')
@@ -37,14 +38,14 @@ describe('CDSHookCard', () => {
 
   it('should construct with all fields and nested objects', () => {
     const card = new CDSHookCard({
-      summary: 'Risk warning',
       detail: 'Details here',
       indicator: 'warning',
-      source: {label: 'CDC', url: 'https://cdc', icon: 'icon.png'},
       links: [
         {label: 'View Table', url: 'https://table'},
         {label: 'More Info', url: 'https://info'},
       ],
+      source: {icon: 'icon.png', label: 'CDC', url: 'https://cdc'},
+      summary: 'Risk warning',
     })
     expect(card.summary).to.equal('Risk warning')
     expect(card.detail).to.equal('Details here')
@@ -61,10 +62,10 @@ describe('CDSHookCard', () => {
 
   it('should build from plain object using from()', () => {
     const obj = {
-      summary: 'Info',
       indicator: 'info' as const,
-      source: {label: 'CDC'},
       links: [{label: 'Link', url: 'https://l'}],
+      source: {label: 'CDC'},
+      summary: 'Info',
     }
     const card = CDSHookCard.from(obj)
     expect(card).to.be.instanceOf(CDSHookCard)

@@ -1,4 +1,5 @@
 import {expect} from 'chai'
+
 import {CDSHookRequest} from '../../src/utils/request'
 
 describe('CDSHookRequest', () => {
@@ -15,11 +16,11 @@ describe('CDSHookRequest', () => {
 
   it('should construct with initial values', () => {
     const init = {
-      hookInstance: 'abc',
-      fhirServer: 'https://fhir',
-      fhirAuthorization: {token: '123'},
-      hook: 'patient-view',
       context: {patientId: 'p1'},
+      fhirAuthorization: {token: '123'},
+      fhirServer: 'https://fhir',
+      hook: 'patient-view',
+      hookInstance: 'abc',
       prefetch: {obs: {}},
     }
     const req = new CDSHookRequest(init)
@@ -32,7 +33,7 @@ describe('CDSHookRequest', () => {
   })
 
   it('should build from plain object using from()', () => {
-    const obj = {hook: 'order-select', context: {order: 'med'}}
+    const obj = {context: {order: 'med'}, hook: 'order-select'}
     const req = CDSHookRequest.from(obj)
     expect(req).to.be.instanceOf(CDSHookRequest)
     expect(req.hook).to.equal('order-select')

@@ -24,15 +24,15 @@
  * The allowed indicators for a CDS Hook Card.
  * Mirrors: Literal["info", "warning", "hard-stop"]
  */
-export type CDSHookCardIndicator = 'info' | 'warning' | 'hard-stop'
+export type CDSHookCardIndicator = 'hard-stop' | 'info' | 'warning'
 
 /**
  * Source of the CDS Hook Card
  */
 export class CDSHookCardSource {
+  icon?: string
   label!: string
   url?: string
-  icon?: string
 
   constructor(init?: Partial<CDSHookCardSource>) {
     Object.assign(this, init)
@@ -55,16 +55,16 @@ export class CDSHookCardLink {
  * CDS Hook Card Model
  */
 export class CDSHookCard {
-  summary!: string
   detail?: string
   indicator?: CDSHookCardIndicator
-  source?: CDSHookCardSource
   links?: CDSHookCardLink[]
+  source?: CDSHookCardSource
+  summary!: string
 
   constructor(init?: Partial<CDSHookCard>) {
     if (init) {
       // Shallow assign for primitives; nested objects handled below if present
-      const {source, links, ...rest} = init as CDSHookCard
+      const {links, source, ...rest} = init as CDSHookCard
       Object.assign(this, rest)
       if (source) this.source = new CDSHookCardSource(source)
       if (links) this.links = links.map((l) => new CDSHookCardLink(l))
