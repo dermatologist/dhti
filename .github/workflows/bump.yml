@@ -30,7 +30,7 @@ jobs:
         with:
           minor-wording:  'add,Adds,new'
           major-wording:  'MAJOR,cut-major'
-          patch-wording:  'patch,fixes'     # Providing patch-wording will override commits
+          patch-wording:  'patch,fixes,feat,chore,refactor'     # Providing patch-wording will override commits
                                             # defaulting to a patch bump.
           rc-wording:     'RELEASE,alpha'
           tag-prefix:    'v' #Prefix avoids conflict with git-flow tagging
