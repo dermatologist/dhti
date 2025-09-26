@@ -1,5 +1,7 @@
-import Cards from './getCard.js'
-import handleBundle from './useDhti.js'
+
+
 // ...add others as needed
 
-export {Cards, handleBundle}
+
+export {default as Cards} from './getCard.js'
+export {default as handleBundle} from './useDhti.js'
