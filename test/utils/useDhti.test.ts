@@ -22,7 +22,7 @@ describe('handleBundle', () => {
     await handleBundle(message)
     expect(postStub.calledOnce).to.be.true
     const [url, body] = postStub.firstCall.args
-    expect(url).to.equal('/langserve/dhti_elixir_template/invoke')
+    expect(url).to.equal('/langserve/dhti_elixir_template/cds-services/dhti-service')
     expect(body.input.input).to.be.instanceOf(CDSHookRequest)
     expect(body.input.input.context).to.deep.equal({input: message})
     expect(body.config).to.deep.equal({})

@@ -1,7 +1,7 @@
 {
   "name": "dhti-cli",
   "description": "DHTI CLI",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "author": "Bell Eapen",
   "bin": {
     "dhti-cli": "bin/run.js"
@@ -38,6 +38,7 @@
     "shx": "^0.3.3",
     "sinon": "^21.0.0",
     "ts-node": "^10",
+    "typedoc": "^0.28.13",
     "typescript": "^5"
   },
   "engines": {
@@ -75,14 +76,15 @@
     "url": "git+https://github.com/dermatologist/dhti.git"
   },
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "shx rm -rf dist && tsc -b && cp -r src/resources dist/",
     "lint": "eslint . --ext .ts",
     "fix": "eslint . --ext .ts --fix",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "echo 'npm run lint'",
-    "prepack": "oclif manifest && oclif readme",
+    "prepack": "npx oclif manifest && npx oclif readme --readme-path notes/README.md",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
+    "readme": "npx oclif readme --readme-path notes/README.md && git add notes/README.md",
+    "docs": "typedoc --exclude src/tool.ts --html docs src"
   },
   "types": "dist/index.d.ts"
 }

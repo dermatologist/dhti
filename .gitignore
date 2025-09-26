@@ -3,6 +3,7 @@
 **/.DS_Store
 /.idea
 /dist
+/docs
 /tmp
 node_modules
 oclif.manifest.json
@@ -13,3 +14,4 @@ yarn.lock
 pnpm-lock.yaml
 docker-compose.yml
 tsconfig.tsbuildinfo
+package-lock.json

@@ -127,13 +127,13 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
     `
     const newCliImport = fs
       .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
-      .replace('#DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
+      .replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
     const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
-    const newLangfuseRoute = newCliImport.replace('#DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
+    const newLangfuseRoute = newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
     const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
-    const newNormalRoute = newLangfuseRoute.replace('#DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+    const newNormalRoute = newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
-    const finalRoute = newNormalRoute.replace('#DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+    const finalRoute = newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
 
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
