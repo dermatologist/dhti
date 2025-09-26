@@ -28,9 +28,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          minor-wording:  'add,Adds,new'
+          minor-wording:  'add,Adds,new,feat,Feature/,update,Update,improve,Improve,fix,Fix,fixes'
           major-wording:  'MAJOR,cut-major'
-          patch-wording:  'patch,fixes,feat,chore,refactor'     # Providing patch-wording will override commits
+          patch-wording:  'patch,chore,refactor'     # Providing patch-wording will override commits
                                             # defaulting to a patch bump.
           rc-wording:     'RELEASE,alpha'
           tag-prefix:    'v' #Prefix avoids conflict with git-flow tagging
