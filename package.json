@@ -38,6 +38,7 @@
     "shx": "^0.3.3",
     "sinon": "^21.0.0",
     "ts-node": "^10",
+    "typedoc": "^0.28.13",
     "typescript": "^5"
   },
   "engines": {
@@ -82,7 +83,8 @@
     "posttest": "echo 'npm run lint'",
     "prepack": "oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
+    "version": "oclif readme && git add README.md",
+    "docs": "typedoc --exclude src/tool.ts --html docs src"
   },
   "types": "dist/index.d.ts"
 }
