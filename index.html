@@ -1,0 +1,205 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>dhti-cli</title><meta name="description" content="Documentation for dhti-cli"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">dhti-cli</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>dhti-cli</h1></div><div class="tsd-panel tsd-typography"><p align="center">
+  <img src="https://github.com/dermatologist/dhti/blob/develop/notes/dhti-logo.jpg" />
+</p>
+<p><a href="https://www.npmjs.com/package/dhti"><img src="https://badge.fury.io/js/dhti.svg" alt="npm version"></a>
+<a href="https://www.npmjs.com/package/dhti"><img src="https://img.shields.io/npm/dt/dhti" alt="npm"></a>
+<a href="https://nuchange.ca"><img src="https://github.com/dermatologist/dhti/workflows/CI/badge.svg" alt="Build"></a>
+<a href="https://www.npmjs.com/package/dhti"><img src="https://snyk.io/test/github/dermatologist/dhti/badge.svg" alt="Known Vulnerabilities"></a>
+<a href="https://dermatologist.github.io/dhti/"><img src="https://badgen.net/badge/icon/documentation?icon=libraries&amp;label" alt="Documentation"></a></p>
+<h2 id="about" class="tsd-anchor-link">About<a href="#about" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>🚀 <em>Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!</em></li>
+</ul>
+<p>TL; DR: <strong>dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.</strong>
+<a href="https://nuchange.ca">Paper coming soon!</a></p>
+<p>Gen AI can transform medicine. But it needs a framework for collaborative research and practice. DHTI is a reference architecture and an implementation for such a framework that integrates an EMR (<a href="https://openmrs.org/">OpenMRS</a>), :link: Gen AI application server (<a href="https://python.langchain.com/v0.2/docs/langserve/">LangServe</a>), self-hosted LLMs for privacy (<a href="https://ollama.com/">Ollama</a>), tools on <a href="https://github.com/dermatologist/fhir-mcp-server">MCP server</a>,  vector store for RAG (<a href="https://redis.io/">redis</a>), monitoring (<a href="https://langfuse.com/">LangFuse</a>), 🔥 FHIR repository with <a href="https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html">CQL</a> support (<a href="https://cloud.alphora.com/sandbox/r4/cqm/">HAPI</a>) and graph utilities (<a href="https://neo4j.com/">Neo4j</a>) in one docker-compose! DHTI is inspired by <a href="https://www.bahmni.org/">Bahmni</a> and <strong>aims to facilitate GenAI adoption and research in areas with low resources.</strong> The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.</p>
+<p>The essence of DHTI is <em>modularity</em> with an emphasis on <em>configuration!</em> It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through <a href="https://templates.langchain.com/">LangChain templates</a> (which we call :curry: <strong>elixir</strong>) and installable UI elements through <a href="https://o3-docs.openmrs.org/">OpenMRS O3</a> React container (which we call :shell: <strong>conch</strong>). 🔥 FHIR is used for backend and <a href="https://cds-hooks.org/">CDS-Hooks</a> for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a <a href="https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1">fork of the cds-hook sandbox</a> for testing that uses the <a href="https://cds-hooks.org/hooks/order-select/">order-select</a> hook, utilizing the contentString from the <a href="https://build.fhir.org/communicationrequest.html">FHIR CommunicationRequest</a> within the <a href="https://cds-hooks.org/examples/">cds-hook context</a> for user inputs (recommended).</p>
+<p align="center">
+  <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
+</p>
+<p>🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to the production team for deployment. Adoption of standards makes this transition easier!</p>
+<p>⭐️ <strong>Pitched at <a href="https://falling-walls.com/falling-walls-lab-illinois">Falling Walls Lab Illinois</a> and released on 09/12/2025.</strong></p>
+<h2 id="what-problems-do-dhti-solve" class="tsd-anchor-link">What problems do DHTI solve?<a href="#what-problems-do-dhti-solve" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><table>
+<thead>
+<tr>
+<th>Why</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR.</td>
+<td><a href="https://github.com/dermatologist/dhti-elixir-template">This template</a> adopts FHIR and cds-hooks as standards for data retrieval and display. The <a href="https://github.com/dermatologist/dhti-elixir-base">base class</a> provides reusable artifacts</td>
+</tr>
+<tr>
+<td>I need a simple platform for experimenting.</td>
+<td>This repository provides  everything to start experimenting fast. The command-line tools help to virtualize and orchestrate your experiments using <a href="https://www.docker.com/">Docker</a></td>
+</tr>
+<tr>
+<td>I am a UI designer. I want to design helpful UI for real users.</td>
+<td>See <a href="https://github.com/dermatologist/openmrs-esm-dhti-template">this template</a>. It shows how to build interface components (conches) for <a href="https://openmrs.org/">OpenMRS</a> an open-source EMR used by many. Read more about <a href="https://o3-docs.openmrs.org/">OpenMRS UI</a></td>
+</tr>
+<tr>
+<td>We use another EMR</td>
+<td>Your EMR may support CDS-Hook for displaying components. In that case, you can use <a href="https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1">cds-hooks-sandbox for testing</a></td>
+</tr>
+<tr>
+<td>Our IT team is often unable to take my experiments to production.</td>
+<td>Use DHTI, follow the recommended patterns, and you will make their lives easier.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="architecture" class="tsd-anchor-link">Architecture<a href="#architecture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p align="center">
+  <img src="https://github.com/dermatologist/dhti/blob/develop/notes/arch-1.drawio.svg" />
+</p>
+<h2 id="✨-features" class="tsd-anchor-link">✨ Features<a href="#✨-features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>Modular</strong>: Supports installable Gen AI routines and UI elements.</li>
+<li><strong>Quick prototyping</strong>: CLI helps in quick prototyping and testing of Gen AI routines and UI elements.</li>
+<li><strong>Easy to use</strong>: Can be installed in a few minutes.</li>
+<li><strong>Developer friendly</strong>: Copy working files to running containers for testing.</li>
+<li><strong>Dependency Injection</strong>: Dependency injection for models and hyperparameters for configuring elixirs.</li>
+<li><strong>Generate synthetic data</strong>: DHTI supports generating synthetic data for testing.</li>
+<li><strong>CQL support</strong>: <a href="https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html">CQL for clinical decision support</a>.</li>
+<li><strong>FHIR</strong>: Data exchange with FHIR schema.</li>
+<li><strong>MCP</strong>: Built in MCP server for pluggable tools.</li>
+<li><strong>EMR</strong>: Built in EMR, OpenMRS, for patient records.</li>
+<li><strong>Vector store</strong>: Redis for vector store.</li>
+<li><strong>Monitoring</strong>: LangFuse for monitoring.</li>
+<li><strong>Graph utilities</strong>: Neo4j for graph utilities.</li>
+<li><strong>LLM</strong>: Ollama for self-hosting LLM models.</li>
+</ul>
+<h2 id="🔧-for-gen-ai-developers" class="tsd-anchor-link">🔧 For Gen AI Developers<a href="#🔧-for-gen-ai-developers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p><em>Developers can build elixirs and conchs for DHTI.</em></p>
+<p>:curry: Elixirs are <a href="(https://templates.langchain.com/)">LangChain templates</a> for backend GenAI functionality. By convention, Elixirs are prefixed with <em>dhti-elixir-</em> and all elixirs depend on <a href="https://github.com/dermatologist/dhti-elixir-base">dhti-elixir-base</a> which provides some base classes and defines dependencies. You can use <a href="https://github.com/dermatologist/dhti-elixir-template">this template</a> to build new elixirs, and license it the way you want (We :heart: open-source!).</p>
+<p>:shell: Conches are <a href="https://o3-docs.openmrs.org/">OpenMRS O3s</a> and follow the standard naming convention <em>openmrs-esm-</em>. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS. You can use <a href="https://github.com/dermatologist/openmrs-esm-dhti-template">this template</a> to build new conches.</p>
+<p>:white_check_mark:</p>
+<ul>
+<li><strong>Developer friendly</strong>: Copy working files to running containers for testing.</li>
+<li><strong>Dependency Injection</strong>: Dependency injection for models and hyperparameters for configuring elixirs.</li>
+</ul>
+<h2 id="🧠-for-gen-ai-researchers" class="tsd-anchor-link">🧠 For Gen AI Researchers<a href="#🧠-for-gen-ai-researchers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p><em>DHTI provides a platform to deploy language models and Gen AI applications in the context of an electronic health record.</em></p>
+<p>DHTI serves as a platform for testing prompts, chains and agents in healthcare applications.  Since the stack uses the :fire: FHIR data model, it is easy to load synthetic data.</p>
+<p>Tools to fine-tune language models for the stack are on our roadmap. We encourage all language models built for this platform to be open sourced on <a href="https://huggingface.co/">HuggingFace</a> with the names starting with <em>dhti-</em>.</p>
+<p>:white_check_mark:</p>
+<ul>
+<li><strong>Generate synthetic data</strong>: DHTI supports generating synthetic data for testing.</li>
+<li><strong>CQL support</strong>: <a href="https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html">CQL for clinical decision support</a>.</li>
+<li><strong>FHIR</strong>: Data exchange with FHIR schema.</li>
+<li><strong>EMR</strong>: Built in EMR, OpenMRS, for patient records.</li>
+</ul>
+<p>🌈 <em>Join us to make the Gen AI equitable and help doctors save lives!</em></p>
+<h2 id="sparkles-resources" class="tsd-anchor-link">:sparkles: Resources<a href="#sparkles-resources" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="https://github.com/dermatologist/fhiry">fhiry</a>: FHIR to pandas dataframe for data analytics, AI and ML!</li>
+<li><a href="https://github.com/dermatologist/pyomop">pyOMOP</a>: For OMOP CDM support</li>
+</ul>
+<h2 id="sparkles-resources-in-beta" class="tsd-anchor-link">:sparkles: Resources (in Beta)<a href="#sparkles-resources-in-beta" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="https://github.com/dermatologist/dhti-elixir-base">dhti-elixir-base</a>: Base classes for dhti-elixir</li>
+<li><a href="https://github.com/dermatologist/dhti-elixir-template">dhti-elixir-template</a>: A template for creating new dhti-elixirs.</li>
+<li><a href="https://github.com/dermatologist/fhir-mcp-server">fhir-mcp-server</a>: A MCP server for hosting FHIR-compliant tools.</li>
+</ul>
+<h2 id="sparkles-resources-in-alpha" class="tsd-anchor-link">:sparkles: Resources (in Alpha)<a href="#sparkles-resources-in-alpha" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="https://github.com/dermatologist/cookiecutter-uv">cookiecutter for scaffolding elixirs</a></li>
+<li><a href="https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1">cds-hooks-sandbox for testing</a></li>
+</ul>
+<h2 id="sunglasses-coming-soon" class="tsd-anchor-link">:sunglasses: Coming soon<a href="#sunglasses-coming-soon" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="https://github.com/dermatologist/dhti-elixir-fhire">dhti-elixir-fhire</a>: An elixir for extracting embeddings from FHIR resources for Q&amp;A on patient records.</li>
+<li><a href="https://github.com/dermatologist/dhti-elixir-fhirs">dhti-elixir-fhirs</a>: An elixir for text to FHIR search query conversion.</li>
+<li><a href="https://github.com/dermatologist/dhti-elixir-upload-file">dhti-elixir-upload</a>: Upload documents to the vector store for clinical knowledgebase and clinical trial matching.</li>
+<li><a href="https://github.com/dermatologist/openmrs-esm-genai">openmrs-esm-qa</a>: A sample conch for Q&amp;A on patient records using the dhti-elixir-fhire elixir.</li>
+</ul>
+<h2 id="🔧-usage" class="tsd-anchor-link">🔧 Usage<a href="#🔧-usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h3 id="list-of-plugins" class="tsd-anchor-link">List of plugins<a href="#list-of-plugins" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code><span class="hl-0">dhti</span><span class="hl-1">-</span><span class="hl-0">cli</span><span class="hl-1"> </span><span class="hl-0">help</span>
+</code><button>Copy</button></pre>
+
+<h3 id="get-help-for-each-plugin" class="tsd-anchor-link">Get help for each plugin<a href="#get-help-for-each-plugin" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>As an example, get help for compose:</li>
+</ul>
+<pre><code><span class="hl-0">dhti</span><span class="hl-1">-</span><span class="hl-0">cli</span><span class="hl-1"> </span><span class="hl-0">compose</span><span class="hl-1"> --</span><span class="hl-0">help</span>
+</code><button>Copy</button></pre>
+
+<h3 id="🏗️-try-it-out-it-takes-only-a-few-minutes-to-setup-genai-backed-emr-in-your-local-machine" class="tsd-anchor-link">🏗️ <em>Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!</em><a href="#🏗️-try-it-out-it-takes-only-a-few-minutes-to-setup-genai-backed-emr-in-your-local-machine" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>You only need:</p>
+<ul>
+<li>docker</li>
+<li>nodejs</li>
+</ul>
+<h2 id="walking-step-1" class="tsd-anchor-link">:walking: Step 1<a href="#walking-step-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>Git clone this repository: <code>git clone https://github.com/dermatologist/dhti.git &amp;&amp; cd dhti</code></li>
+<li>Install the required packages: <code>npm install</code></li>
+<li>Build the CLI: <code>npm run build</code></li>
+<li>Install CLI locally: <code>npm link</code></li>
+<li>Test the CLI: <code>dhti-cli help</code>  <em>This will show the available commands.</em></li>
+<li>The working directory is <code>~/dhti</code> (Customizable)</li>
+</ul>
+<h3 id="🔧-create-a-new-docker-compose" class="tsd-anchor-link">🔧 Create a new docker-compose<a href="#🔧-create-a-new-docker-compose" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>
+<p>Create a new docker-compose file: <code>dhti-cli compose add -m openmrs -m langserve</code></p>
+</li>
+<li>
+<p>The docker-compose.yml is created with the following modules:</p>
+<ul>
+<li>OpenMRS (EMR)</li>
+<li>LangServe (API for LLM models)</li>
+</ul>
+</li>
+</ul>
+<p>Other available modules: <code>ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir</code> (Documentation in progress)</p>
+<p>You can read the newly created docker-compose by: <code>dhti-cli compose read</code></p>
+<h3 id="🚀-start-the-services-for-initial-setup" class="tsd-anchor-link">🚀 Start the services for initial setup<a href="#🚀-start-the-services-for-initial-setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>Start the services: <code>dhti-cli docker -u</code></li>
+</ul>
+<p>It may take a while to download the images and start the services. (<a href="https://openmrs.org/">OpenMRS</a> may take upto 45 mins the first time to setup the database)</p>
+<h3 id="🚀-access-openmrs-and-login" class="tsd-anchor-link">🚀 Access OpenMRS and login:<a href="#🚀-access-openmrs-and-login" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>Go to <code>http://localhost/openmrs/spa/home</code></li>
+<li>Login with the following credentials:
+<ul>
+<li>Username: admin</li>
+<li>Password: Admin123</li>
+<li>Choose any location and click on 'confirm'.</li>
+</ul>
+</li>
+</ul>
+<h3 id="🚀-access-the-langserve-api" class="tsd-anchor-link">🚀 Access the LangServe API<a href="#🚀-access-the-langserve-api" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>Go to <code>localhost:8001/docs</code> (Empty Swagger UI)</li>
+</ul>
+<h2 id="congratulations-you-have-successfully-setup-dhti-tada" class="tsd-anchor-link">Congratulations! You have successfully setup DHTI! :tada:<a href="#congratulations-you-have-successfully-setup-dhti-tada" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>Shut down the services: <code>dhti-cli docker -d</code></li>
+</ul>
+<h2 id="running-step-2-🛠️-now-let-us-install-an-elixir-gen-ai-functionalities-are-packaged-as-elixirs" class="tsd-anchor-link">:running: STEP 2: 🛠️ <em>Now let us Install an Elixir (Gen AI functionalities are packaged as elixirs)</em><a href="#running-step-2-🛠️-now-let-us-install-an-elixir-gen-ai-functionalities-are-packaged-as-elixirs" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>Let's install the elixir here: <a href="https://github.com/dermatologist/dhti-elixir-template">https://github.com/dermatologist/dhti-elixir-template</a>. This is just a template that uses a Mock LLM to output random text. You can use this template to build your own elixirs! (Cookiecutter to be released soon!) Later you will see how to add real LLM support.</li>
+</ul>
+<p>:running:</p>
+<p><code>dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template</code>.</p>
+<p>You may also install from PyPi or a wheel file!</p>
+<h3 id="🔍-examine-bootstrappy-optional" class="tsd-anchor-link">🔍 Examine <a href="http://bootstrap.py">bootstrap.py</a> (Optional)<a href="#🔍-examine-bootstrappy-optional" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>cat ~/dhti/elixir/app/bootstrap.py</code></p>
+<p>This is where you can override defaults in the elixir for <em>LLM, embedding model, hyperparameters etc that are injected at runtime.</em> Refer to each elixir for the available options. <a href="/notes/add-llm.md">You may check out how to inject a real LLM using Google Gemini!</a></p>
+<h3 id="🔧-create-docker-container" class="tsd-anchor-link">🔧 Create docker container<a href="#🔧-create-docker-container" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>dhti-cli docker -n beapen/genai-test:1.0 -t elixir</code></p>
+<p>(You may replace <code>beapen/genai-test:1.0</code> with your own image name)</p>
+<h3 id="🚀-congratulations-you-installed-your-first-elixir-we-will-see-it-in-action-later" class="tsd-anchor-link">🚀 Congratulations! You installed your first elixir. We will see it in action later!<a href="#🚀-congratulations-you-installed-your-first-elixir-we-will-see-it-in-action-later" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>While developing you can copy the app folder to a running container for testing (provided there are no changes in dependencies). Read more <a href="/notes/dev-copy.md">here</a>.</p>
+<h2 id="step-3-shell-now-let-us-install-a-conch-the-ui-component" class="tsd-anchor-link">STEP 3: :shell: <em>Now let us Install a Conch (The UI component)</em><a href="#step-3-shell-now-let-us-install-a-conch-the-ui-component" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>Let's install the conch here:<a href="https://github.com/dermatologist/openmrs-esm-dhti-template">https://github.com/dermatologist/openmrs-esm-dhti-template</a>. This uses the elixir template that we installed in STEP 2 as the backend. You can use the template to build your own conchs.</li>
+</ul>
+<p>:shell: <code>dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template</code></p>
+<p>We can also install from a dev folder after cloning the repository. While developing you can copy the dist folder to a running container for testing. Read more <a href="/notes/dev-copy.md">here</a>.</p>
+<h3 id="🔧-create-new-docker-container" class="tsd-anchor-link">🔧 Create new docker container<a href="#🔧-create-new-docker-container" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p><code>dhti-cli docker -n beapen/conch-test:1.0 -t conch</code></p>
+<h2 id="🚀-it-is-now-time-to-start-dhti" class="tsd-anchor-link">🚀 It is now time to start DHTI!<a href="#🚀-it-is-now-time-to-start-dhti" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p><code>dhti-cli docker -u</code></p>
+<h3 id="clap-access-the-conch-in-openmrs-and-test-the-integration" class="tsd-anchor-link">:clap: Access the Conch in OpenMRS and test the integration<a href="#clap-access-the-conch-in-openmrs-and-test-the-integration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li>Go to <code>http://localhost/openmrs/spa/home</code></li>
+<li>Login with the following credentials:
+<ul>
+<li>Username: admin</li>
+<li>Password: Admin123</li>
+</ul>
+</li>
+</ul>
+<p>You will see the new conch in the left margin. Click on <strong>Dhti app</strong> to see the UI.
+This is just a template, though. You can build your own conchs!</p>
+<p>Add some text to the text area and click on <strong>Submit</strong>.
+You will see the text above the textbox.</p>
+<h3 id="stop-the-services" class="tsd-anchor-link">Stop the services<a href="#stop-the-services" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>You can remove the services by: <code>dhti-cli docker -d</code></p>
+<h3 id="the-demo-uses-a-template-with-mock-llm-check-out-how-to-add-real-llm-support-using-google-gemini" class="tsd-anchor-link">The demo uses a template with mock LLM. <a href="/notes/add-llm.md">Check out how to add real LLM support using Google Gemini.</a><a href="#the-demo-uses-a-template-with-mock-llm-check-out-how-to-add-real-llm-support-using-google-gemini" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>:hugs: <strong>Thank you for trying out DHTI!</strong></p>
+<h2 id="🚀-advanced" class="tsd-anchor-link">🚀 Advanced<a href="#🚀-advanced" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="/notes/setup-ollama.md">Setting up Ollama</a></li>
+<li><a href="/notes/cli-options.md">CLI Options</a></li>
+</ul>
+<h2 id="give-us-a-star-⭐️" class="tsd-anchor-link">Give us a star ⭐️<a href="#give-us-a-star-⭐️" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>If you find this project useful, give us a star. It helps others discover the project.</p>
+<h2 id="details-of-cli-commands" class="tsd-anchor-link"><a href="/notes/README.md">Details of CLI Commands</a><a href="#details-of-cli-commands" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h2 id="contributors" class="tsd-anchor-link">Contributors<a href="#contributors" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><a href="https://nuchange.ca">Bell Eapen</a> | <a href="https://twitter.com/beapen"><img src="https://img.shields.io/twitter/follow/beapen?style=social" alt="Twitter Follow"></a></li>
+</ul>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#about"><span>About</span></a><a href="#what-problems-do-dhti-solve"><span>What problems do <wbr/>DHTI solve?</span></a><a href="#architecture"><span>Architecture</span></a><a href="#✨-features"><span>✨ <wbr/>Features</span></a><a href="#🔧-for-gen-ai-developers"><span>🔧 <wbr/>For <wbr/>Gen <wbr/>AI <wbr/>Developers</span></a><a href="#🧠-for-gen-ai-researchers"><span>🧠 <wbr/>For <wbr/>Gen <wbr/>AI <wbr/>Researchers</span></a><a href="#sparkles-resources"><span>:sparkles: <wbr/>Resources</span></a><a href="#sparkles-resources-in-beta"><span>:sparkles: <wbr/>Resources (in <wbr/>Beta)</span></a><a href="#sparkles-resources-in-alpha"><span>:sparkles: <wbr/>Resources (in <wbr/>Alpha)</span></a><a href="#sunglasses-coming-soon"><span>:sunglasses: <wbr/>Coming soon</span></a><a href="#🔧-usage"><span>🔧 <wbr/>Usage</span></a><ul><li><a href="#list-of-plugins"><span>List of plugins</span></a></li><li><a href="#get-help-for-each-plugin"><span>Get help for each plugin</span></a></li><li><a href="#🏗️-try-it-out-it-takes-only-a-few-minutes-to-setup-genai-backed-emr-in-your-local-machine"><span>🏗️ <wbr/>Try it out! <wbr/>It takes only a few minutes to setup <wbr/>Gen<wbr/>AI backed <wbr/>EMR in your local machine!</span></a></li></ul><a href="#walking-step-1"><span>:walking: <wbr/>Step 1</span></a><ul><li><a href="#🔧-create-a-new-docker-compose"><span>🔧 <wbr/>Create a new docker-<wbr/>compose</span></a></li><li><a href="#🚀-start-the-services-for-initial-setup"><span>🚀 <wbr/>Start the services for initial setup</span></a></li><li><a href="#🚀-access-openmrs-and-login"><span>🚀 <wbr/>Access <wbr/>Open<wbr/>MRS and login:</span></a></li><li><a href="#🚀-access-the-langserve-api"><span>🚀 <wbr/>Access the <wbr/>Lang<wbr/>Serve <wbr/>API</span></a></li></ul><a href="#congratulations-you-have-successfully-setup-dhti-tada"><span>Congratulations! <wbr/>You have successfully setup <wbr/>DHTI! :tada:</span></a><a href="#running-step-2-🛠️-now-let-us-install-an-elixir-gen-ai-functionalities-are-packaged-as-elixirs"><span>:running: <wbr/>STEP 2: 🛠️ <wbr/>Now let us <wbr/>Install an <wbr/>Elixir (<wbr/>Gen <wbr/>AI functionalities are packaged as elixirs)</span></a><ul><li><a href="#🔍-examine-bootstrappy-optional"><span>🔍 <wbr/>Examine bootstrap.py (<wbr/>Optional)</span></a></li><li><a href="#🔧-create-docker-container"><span>🔧 <wbr/>Create docker container</span></a></li><li><a href="#🚀-congratulations-you-installed-your-first-elixir-we-will-see-it-in-action-later"><span>🚀 <wbr/>Congratulations! <wbr/>You installed your first elixir. <wbr/>We will see it in action later!</span></a></li></ul><a href="#step-3-shell-now-let-us-install-a-conch-the-ui-component"><span>STEP 3: :shell: <wbr/>Now let us <wbr/>Install a <wbr/>Conch (<wbr/>The <wbr/>UI component)</span></a><ul><li><a href="#🔧-create-new-docker-container"><span>🔧 <wbr/>Create new docker container</span></a></li></ul><a href="#🚀-it-is-now-time-to-start-dhti"><span>🚀 <wbr/>It is now time to start <wbr/>DHTI!</span></a><ul><li><a href="#clap-access-the-conch-in-openmrs-and-test-the-integration"><span>:clap: <wbr/>Access the <wbr/>Conch in <wbr/>Open<wbr/>MRS and test the integration</span></a></li><li><a href="#stop-the-services"><span>Stop the services</span></a></li><li><a href="#the-demo-uses-a-template-with-mock-llm-check-out-how-to-add-real-llm-support-using-google-gemini"><span>The demo uses a template with mock <wbr/>LLM. <wbr/>Check out how to add real <wbr/>LLM support using <wbr/>Google <wbr/>Gemini.</span></a></li></ul><a href="#🚀-advanced"><span>🚀 <wbr/>Advanced</span></a><a href="#give-us-a-star-⭐️"><span>Give us a star ⭐️</span></a><a href="#details-of-cli-commands"><span>Details of <wbr/>CLI <wbr/>Commands</span></a><a href="#contributors"><span>Contributors</span></a></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">dhti-cli</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
