@@ -63,7 +63,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 
 *Developers can build elixirs and conchs for DHTI.*
 
-:curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) or the [cookiecutter](https://github.com/dermatologist/cookiecutter-uv)to build new elixirs, and license it the way you want (We :heart: open-source!).
+:curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) or the [cookiecutter](https://github.com/dermatologist/cookiecutter-uv) to build new elixirs, and license it the way you want (We :heart: open-source!).
 
 :shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. You can use [this template](https://github.com/dermatologist/openmrs-esm-dhti-template) to build new conches.
 
@@ -109,7 +109,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 ## 🔧  Try it out
 
-* You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. **We use a fake LLM script for testing purposes, so you don't need an OpenAI key to run this project. It just says "Paris" or "I don't know" to any prompt. You can replace it with any internal or external LLM service later.**
+* You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. We use a fake LLM script for testing purposes, so you don't need an OpenAI key to run this project. It just says "Paris" or "I don't know" to any prompt. You can replace it with any internal or external LLM service later.
 
 * `npx dhti-cli help` to see all available commands.
 
