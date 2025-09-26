@@ -1,8 +1,9 @@
 import {Args, Command, Flags} from '@oclif/core'
-import { exec } from 'node:child_process';
+import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import {fileURLToPath} from 'node:url'
 export default class Elixir extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
@@ -38,6 +39,11 @@ export default class Elixir extends Command {
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Elixir)
+
+    // Resolve resources directory for both dev (src) and packaged (dist)
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
+    const RESOURCES_DIR = path.resolve(__dirname, '../resources')
 
     if (!flags.name) {
       console.log('Please provide a name for the elixir')
@@ -84,7 +90,7 @@ export default class Elixir extends Command {
       fs.mkdirSync(`${flags.workdir}/elixir`)
     }
 
-    fs.cpSync('src/resources/genai', `${flags.workdir}/elixir`, {recursive: true})
+    fs.cpSync(path.join(RESOURCES_DIR, 'genai'), `${flags.workdir}/elixir`, {recursive: true})
 
     // if whl is not none, copy the whl file to thee whl directory
     if (flags.whl !== 'none') {
