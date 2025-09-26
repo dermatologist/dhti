@@ -117,11 +117,11 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 * `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template` to install a sample elixir from github. (Optionally) You may configure the hyperparameters in `~/dhti/elixir/app/bootstrap.py`. You can install multiple elixirs.
 
-* `npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir`
+* `npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir` to build a docker image for the elixir.
 
 * `npx dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template` to install a simple OpenMRS ESM module (conch)from github. You can install multiple conches.
 
-* `npx dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch` to build a docker image for the conch.
+* `npx dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch` to build a docker image for the conches.
 
 * `npx dhti-cli docker -u` to start all the docker images in your docker-compose.yml.
 
