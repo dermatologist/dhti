@@ -234,6 +234,8 @@ You can remove the services by: `dhti-cli docker -d`
 ## Give us a star ⭐️
 If you find this project useful, give us a star. It helps others discover the project.
 
+## [Details of CLI Commands](/notes/README.md)
+
 ## Contributors
 
 * [Bell Eapen](https://nuchange.ca) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
