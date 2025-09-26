@@ -1,0 +1,4 @@
+// typedoc.json
+{
+    "projectDocuments": ["notes/README.md"]
+}
