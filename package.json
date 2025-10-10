@@ -33,6 +33,7 @@
     "eslint-config-oclif": "^5",
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9",
+    "jest": "^30.2.0",
     "mocha": "^10",
     "oclif": "^4",
     "shx": "^0.3.3",
