@@ -30,7 +30,7 @@
     "@types/sinon": "^17.0.4",
     "chai": "^4",
     "eslint": "^8",
-    "eslint-config-oclif": "^5",
+    "eslint-config-oclif": "^6",
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9",
     "mocha": "^10",
