@@ -9,7 +9,7 @@
   "bugs": "https://github.com/dermatologist/dhti/issues",
   "dependencies": {
     "@langchain/community": "^0.3.53",
-    "@langchain/ollama": "^0.2.3",
+    "@langchain/ollama": "^1.0.0",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5",
