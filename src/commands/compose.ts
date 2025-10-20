@@ -139,6 +139,10 @@ export default class Compose extends Command {
       console.log('Writing file:', toWrite)
 
       fs.writeFileSync(flags.file, toWrite, 'utf8')
+
+      console.log('Copying mcp.json from resources to the directory where docker-compose.yml is located')
+      fs.copyFileSync(path.join(RESOURCES_DIR, 'mcp.json'), path.join(path.dirname(flags.file), 'mcp.json'))
+      
     } catch (error) {
       console.error(error)
     }
