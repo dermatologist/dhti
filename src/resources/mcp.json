@@ -2,13 +2,18 @@
   "mcpServers": {
     "sequential-thinking": {
       "type": "stdio",
-      "command": "npx",
+      "command": "docker",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
+        "run",
+        "-i",
+        "--rm",
+        "--init",
+        "-e",
+        "DOCKER_CONTAINER=true",
+        "mcp/sequentialthinking"
       ],
       "env": {},
-      "icon": "#EA8685"
+      "icon": "#85A3EA"
     }
   }
 }
