@@ -10,7 +10,7 @@ services:
       - backend
     ports:
       - "80:80"
-      - "9000:80"
+      - "9100:80"
 
 
   frontend:
@@ -225,6 +225,17 @@ services:
       - spring.neo4j.authentication.username=neo4j
       - spring.neo4j.authentication.password=password
 
+  mcpx:
+    image: us-central1-docker.pkg.dev/prj-common-442813/mcpx/mcpx:latest
+    ports:
+      - 9000:9000
+      - 5173:5173
+      - 9001:9001
+      # - 3000:3000 Exposing port 3000 is optional and used for Prometheus metrics scraping. It collides with langfuse port.
+    privileged: true
+    restart: "unless-stopped"
+    volumes:
+      - mcpx-config:/lunar/packages/mcpx-server/config
 
 volumes:
   openmrs-data: ~
@@ -236,3 +247,4 @@ volumes:
   ollama-code: ~
   ollama-root: ~
   ollama-webui: ~
+  mcpx-config: ~

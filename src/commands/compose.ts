@@ -62,6 +62,7 @@ export default class Compose extends Command {
     const webui = ['ollama-webui']
     const fhir = ['fhir', 'postgres-db']
     const mcpFhir = ['mcp-fhir', 'fhir', 'postgres-db']
+    const dockter = ['mcpx']
 
     const _modules: {[key: string]: string[]} = {
       cqlFhir,
@@ -75,6 +76,7 @@ export default class Compose extends Command {
       openmrs,
       redis,
       webui,
+      dockter
     }
 
     try {
