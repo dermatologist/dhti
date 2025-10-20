@@ -226,7 +226,7 @@ services:
       - spring.neo4j.authentication.password=password
 
   mcpx:
-    image: us-central1-docker.pkg.dev/prj-common-442813/mcpx/mcpx:latest
+    image: us-central1-docker.pkg.dev/prj-common-442813/mcpx/mcpx:v0.2.21-a8b7079
     ports:
       - 9000:9000
       - 5173:5173
