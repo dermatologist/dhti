@@ -8,18 +8,19 @@
 [![Build](https://github.com/dermatologist/dhti/workflows/CI/badge.svg)](https://nuchange.ca)
 [![Known Vulnerabilities](https://snyk.io/test/github/dermatologist/dhti/badge.svg)](https://www.npmjs.com/package/dhti-cli)
 [![Documentation](https://badgen.net/badge/icon/documentation?icon=libraries&label)](https://dermatologist.github.io/dhti/)
+[![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
 
-## About
+
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
-### TL; DR: **dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.** 👉 [Try it out today!](#try-it-out)
-[Paper coming soon!](https://nuchange.ca)
+#### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI applications within an Electronic Health Record (EHR), facilitating the seamless transition of your experiments to clinical practice.
+👉 [Try it out today!](#try-it-out) and give us a star ⭐️ if you like it!
 
-### Want to know more?
+### About
 
 Generative AI features are built as [LangServe Apps](https://python.langchain.com/docs/langserve/) (elixirs) that can be installed into a LangServe instance and exposed as APIs. [OpenMRS O3 esm](https://o3-docs.openmrs.org/) / [**CDS hook** clients](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) (conchs) provide the interface to communicate with these APIs. All backend data exchange is done through the **FHIR API** (a base class provides all these features). dhti-cli simplifies this process by providing a CLI that includes managing a Docker Compose with all additional components, such as [Ollama](https://ollama.com/) for **local LLM hosting**. LLM and hyperparameters are **injected at runtime** and can be easily swapped. In essence, dhti decouples GenAI modules from the rest of the system. 👉 [Try it out today!](#try-it-out)
 
-### Want to know all?
+### Want to know more?
 
 Gen AI can transform medicine. But it needs a framework for collaborative research and practice. DHTI is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), tools on [MCP server](https://github.com/dermatologist/fhir-mcp-server),  vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), 🔥 FHIR repository with [CQL](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html) support ([HAPI](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! DHTI is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.** The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.
 
