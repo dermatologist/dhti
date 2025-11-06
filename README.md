@@ -50,6 +50,8 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/arch-1.drawio.svg" />
 </p>
 
+🔥 **Coming soon!:** We are currently working on expanding the DHTI architecture to support traditional machine learning models, such as *EEG sleep stage classification* and *trichogram analysis*, exposing inference pipelines as agentic tools!
+
 ## ✨ Features
 * **Modular**: Supports installable Gen AI routines and UI elements.
 * **Quick prototyping**: CLI helps in quick prototyping and testing of Gen AI routines and UI elements.
@@ -169,4 +171,4 @@ If you find this project useful, give us a star. It helps others discover the pr
 
 ## Contributors
 
-* [Bell Eapen](https://nuchange.ca) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
+* [Bell Eapen](https://nuchange.ca) ([UIS](https://www.uis.edu/directory/bell-punneliparambil-eapen)) |  [Contact](https://nuchange.ca/contact) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
