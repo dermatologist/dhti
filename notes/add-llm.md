@@ -60,3 +60,13 @@ langchain-google-genai = "*"
 ....
 
 ```
+
+
+## Copy the updated file and restart the services
+
+```bash
+
+npx dhti-cli docker bootstrap -f ~/dhti/elixir/app/bootstrap.py -c dhti-langserve-1
+
+```
+
