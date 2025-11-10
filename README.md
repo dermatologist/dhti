@@ -31,7 +31,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
   <img src="https://github.com/dermatologist/openmrs-esm-dhti-template/blob/develop/notes/conch.jpg" />
 </p>
 
-  *[OpenMRS ESM DHTI template](https://github.com/dermatologist/openmrs-esm-dhti-template). It is a simple but functional EMR chatbot!* 👉 [Try it out today!](#try-it-out)
+  *[OpenMRS ESM DHTI template](https://github.com/dermatologist/openmrs-esm-dhti-template) + [DHTI elixir template](https://github.com/dermatologist/dhti-elixir-template) together forms a simple but functional EMR chatbot too!* 👉 [Try it out today!](#try-it-out)
 
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
