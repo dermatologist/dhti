@@ -56,11 +56,11 @@ export default class Elixir extends Command {
     // docker restart dhti-langserve-1
     if (args.op === 'dev') {
       console.log(
-        `cd ${flags.dev} && docker cp ${expoName}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${expoName}`,
+        `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`,
       )
       try {
         exec(
-          `cd ${flags.dev} && docker cp ${expoName}/. ${flags.container}:/app/.venv/lib/python3.11/site-packages/${expoName}`,
+          `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`,
           (error, stdout, stderr) => {
             if (error) {
               console.error(`exec error: ${error}`)

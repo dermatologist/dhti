@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4.4.0
+      - uses: actions/setup-node@v5.0.0
         with:
           node-version: 20
       - name: Install Dependencies
@@ -20,7 +20,7 @@ jobs:
       - name: Build Docs 📚
         run: npm run docs
       - name: Deploy Docs 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: JamesIves/github-pages-deploy-action@v4.7.4
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: docs # The folder the action should deploy

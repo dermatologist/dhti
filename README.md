@@ -3,27 +3,43 @@
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/dhti-logo.jpg" />
 </p>
 
-[![npm version](https://badge.fury.io/js/dhti.svg)](https://www.npmjs.com/package/dhti)
-[![npm](https://img.shields.io/npm/dt/dhti)](https://www.npmjs.com/package/dhti)
+[![npm version](https://badge.fury.io/js/dhti-cli.svg)](https://www.npmjs.com/package/dhti-cli)
+[![npm](https://img.shields.io/npm/dt/dhti-cli)](https://www.npmjs.com/package/dhti-cli)
 [![Build](https://github.com/dermatologist/dhti/workflows/CI/badge.svg)](https://nuchange.ca)
-[![Known Vulnerabilities](https://snyk.io/test/github/dermatologist/dhti/badge.svg)](https://www.npmjs.com/package/dhti)
+[![Known Vulnerabilities](https://snyk.io/test/github/dermatologist/dhti/badge.svg)](https://www.npmjs.com/package/dhti-cli)
 [![Documentation](https://badgen.net/badge/icon/documentation?icon=libraries&label)](https://dermatologist.github.io/dhti/)
+[![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
 
-## About
+
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
-TL; DR: **dhti-cli is for quick prototyping, developing, sharing and testing of Gen AI applications, models, and UI elements within the context of an electronic health record.**
-[Paper coming soon!](https://nuchange.ca)
+#### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI applications within an Electronic Health Record (EHR), facilitating the seamless transition of your experiments to clinical practice.
+👉 [Try it out today!](#try-it-out) and give us a star ⭐️ if you like it!
+
+### About
+
+Generative AI features are built as [LangServe Apps](https://python.langchain.com/docs/langserve/) (elixirs) that can be installed into a LangServe instance and exposed as APIs. [OpenMRS O3 esm](https://o3-docs.openmrs.org/) / [**CDS hook** clients](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) (conchs) provide the interface to communicate with these APIs. All backend data exchange is done through the **FHIR API** (a base class provides all these features). dhti-cli simplifies this process by providing a CLI that includes managing a Docker Compose with all additional components, such as [Ollama](https://ollama.com/) for **local LLM hosting**. LLM and hyperparameters are **injected at runtime** and can be easily swapped. In essence, dhti decouples GenAI modules from the rest of the system. 👉 [Try it out today!](#try-it-out)
+
+### Want to know more?
 
 Gen AI can transform medicine. But it needs a framework for collaborative research and practice. DHTI is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), tools on [MCP server](https://github.com/dermatologist/fhir-mcp-server),  vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), 🔥 FHIR repository with [CQL](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html) support ([HAPI](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! DHTI is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.** The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.
 
-The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangChain templates](https://templates.langchain.com/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a [fork of the cds-hook sandbox](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) for testing that uses the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs (recommended).
+The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangServe Apps](https://python.langchain.com/docs/langserve/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a [fork of the cds-hook sandbox](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) for testing that uses the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs (recommended).
+
+
+<p align="center">
+  <img src="https://github.com/dermatologist/openmrs-esm-dhti-template/blob/develop/notes/conch.jpg" />
+</p>
+
+  *[OpenMRS ESM DHTI template](https://github.com/dermatologist/openmrs-esm-dhti-template) + [DHTI elixir template](https://github.com/dermatologist/dhti-elixir-template) together forms a simple but functional EMR chatbot too!* 👉 [Try it out today!](#try-it-out)
 
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
 </p>
 
-🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to the production team for deployment. Adoption of standards makes this transition easier!
+*[CDS-Hooks sandbox](https://github.com/dermatologist/cds-hooks-sandbox) for testing conchs without OpenMRS.* 👉 [Try it out today!](#try-it-out)
+
+🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to the production team for deployment. Adoption of standards makes this transition easier! 👉 [Try it out today!](#try-it-out)
 
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 09/12/2025.**
 
@@ -42,6 +58,8 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/arch-1.drawio.svg" />
 </p>
+
+🔥 **Coming soon!:** We are currently working on expanding the DHTI architecture to support traditional machine learning models, such as *EEG sleep stage classification* and *trichogram analysis*, exposing inference pipelines as agentic tools!
 
 ## ✨ Features
 * **Modular**: Supports installable Gen AI routines and UI elements.
@@ -63,13 +81,14 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 
 *Developers can build elixirs and conchs for DHTI.*
 
-:curry: Elixirs are [LangChain templates]((https://templates.langchain.com/)) for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) to build new elixirs, and license it the way you want (We :heart: open-source!).
+:curry: Elixirs are [LangServe Apps](https://python.langchain.com/docs/langserve/)  for backend GenAI functionality. By convention, Elixirs are prefixed with *dhti-elixir-* and all elixirs depend on [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base) which provides some base classes and defines dependencies. You can use [this template](https://github.com/dermatologist/dhti-elixir-template) or the [cookiecutter](https://github.com/dermatologist/cookiecutter-uv) to build new elixirs, and license it the way you want (We :heart: open-source!).
 
-:shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. A separate OpenMRS independant container for conchs is on our roadmap for use outside OpenMRS. You can use [this template](https://github.com/dermatologist/openmrs-esm-dhti-template) to build new conches.
+:shell: Conches are [OpenMRS O3s](https://o3-docs.openmrs.org/) and follow the standard naming convention *openmrs-esm-*. You can use [this template](https://github.com/dermatologist/openmrs-esm-dhti-template) to build new conches.
 
 :white_check_mark:
 * **Developer friendly**: Copy working files to running containers for testing.
 * **Dependency Injection**: Dependency injection for models and hyperparameters for configuring elixirs.
+* 👉 [Try it out today!](#try-it-out)
 
 ## 🧠 For Gen AI Researchers
 
@@ -82,8 +101,9 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 :white_check_mark:
 * **Generate synthetic data**: DHTI supports generating synthetic data for testing.
 * **CQL support**: [CQL for clinical decision support](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html).
-* **FHIR**: Data exchange with FHIR schema.
-* **EMR**: Built in EMR, OpenMRS, for patient records.
+* **FHIR**: Data exchange with FHIR schema and **CDS-Hooks** for frontend-backend communication.
+* **EMR**: Built-in EMR, OpenMRS, for patient records.
+* 👉 [Try it out today!](#try-it-out)
 
  🌈 *Join us to make the Gen AI equitable and help doctors save lives!*
 
@@ -94,6 +114,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 ## :sparkles: Resources (in Beta)
 * [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base): Base classes for dhti-elixir
 * [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template): A template for creating new dhti-elixirs.
+* [openmrs-esm-dhti-template](https://github.com/dermatologist/openmrs-esm-dhti-template): A conch template for OpenMRS
 * [fhir-mcp-server](https://github.com/dermatologist/fhir-mcp-server): A MCP server for hosting FHIR-compliant tools.
 
 ## :sparkles: Resources (in Alpha)
@@ -107,104 +128,23 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * [dhti-elixir-upload](https://github.com/dermatologist/dhti-elixir-upload-file): Upload documents to the vector store for clinical knowledgebase and clinical trial matching.
 * [openmrs-esm-qa](https://github.com/dermatologist/openmrs-esm-genai): A sample conch for Q&A on patient records using the dhti-elixir-fhire elixir.
 
-## 🔧 Usage
+## Try it out
 
-### List of plugins
-```
-dhti-cli help
-```
+* You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. We use a fake LLM script for testing purposes, so you don't need an OpenAI key to run this project. It just says "Paris" or "I don't know" to any prompt. You can replace it with any internal or external LLM service later.
 
-### Get help for each plugin
-* As an example, get help for compose:
+* `npx dhti-cli help` to see all available commands.
 
-```
-dhti-cli compose --help
-```
+* `npx dhti-cli compose add -m openmrs -m langserve` to add OpenMRS and Langserve elixirs to your docker-compose.yml at ~/dhti. Other available modules: `ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir`. You can read the newly created docker-compose by: `npx dhti-cli compose read`
 
-### 🏗️ *Try it out! It takes only a few minutes to setup GenAI backed EMR in your local machine!*
+* `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template` to install a sample elixir from github. (Optionally) You may configure the hyperparameters in `~/dhti/elixir/app/bootstrap.py`. You can install multiple elixirs.
 
-You only need:
-* docker
-* nodejs
+* `npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir` to build a docker image for the elixir.
 
-## :walking: Step 1
+* `npx dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template` to install a simple OpenMRS ESM module (conch)from github. You can install multiple conches.
 
-* Git clone this repository: `git clone https://github.com/dermatologist/dhti.git && cd dhti`
-* Install the required packages: `npm install`
-* Build the CLI: `npm run build`
-* Install CLI locally: `npm link`
-* Test the CLI: `dhti-cli help`  *This will show the available commands.*
-* The working directory is `~/dhti` (Customizable)
+* `npx dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch` to build a docker image for the conches.
 
-### 🔧 Create a new docker-compose
-* Create a new docker-compose file: `dhti-cli compose add -m openmrs -m langserve`
-
-* The docker-compose.yml is created with the following modules:
-    - OpenMRS (EMR)
-    - LangServe (API for LLM models)
-
-Other available modules: `ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir` (Documentation in progress)
-
-You can read the newly created docker-compose by: `dhti-cli compose read`
-
-
-### 🚀 Start the services for initial setup
-* Start the services: `dhti-cli docker -u`
-
-It may take a while to download the images and start the services. ([OpenMRS](https://openmrs.org/) may take upto 45 mins the first time to setup the database)
-
-
-### 🚀 Access OpenMRS and login:
-* Go to `http://localhost/openmrs/spa/home`
-* Login with the following credentials:
-    - Username: admin
-    - Password: Admin123
-    - Choose any location and click on 'confirm'.
-
-### 🚀 Access the LangServe API
-* Go to `localhost:8001/docs` (Empty Swagger UI)
-
-## Congratulations! You have successfully setup DHTI! :tada:
-* Shut down the services: `dhti-cli docker -d`
-
-## :running: STEP 2: 🛠️ *Now let us Install an Elixir (Gen AI functionalities are packaged as elixirs)*
-
-* Let's install the elixir here: https://github.com/dermatologist/dhti-elixir-template. This is just a template that uses a Mock LLM to output random text. You can use this template to build your own elixirs! (Cookiecutter to be released soon!) Later you will see how to add real LLM support.
-
-:running:
-
-`dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template`.
-
-You may also install from PyPi or a wheel file!
-
-### 🔍 Examine bootstrap.py (Optional)
-`cat ~/dhti/elixir/app/bootstrap.py`
-
-This is where you can override defaults in the elixir for *LLM, embedding model, hyperparameters etc that are injected at runtime.* Refer to each elixir for the available options. [You may check out how to inject a real LLM using Google Gemini!](/notes/add-llm.md)
-
-### 🔧 Create docker container
-`dhti-cli docker -n beapen/genai-test:1.0 -t elixir`
-
-(You may replace `beapen/genai-test:1.0` with your own image name)
-
-### 🚀 Congratulations! You installed your first elixir. We will see it in action later!
-
-While developing you can copy the app folder to a running container for testing (provided there are no changes in dependencies). Read more [here](/notes/dev-copy.md).
-
-## STEP 3: :shell: *Now let us Install a Conch (The UI component)*
-
-* Let's install the conch here:https://github.com/dermatologist/openmrs-esm-dhti-template. This uses the elixir template that we installed in STEP 2 as the backend. You can use the template to build your own conchs.
-
-:shell: `dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template`
-
-We can also install from a dev folder after cloning the repository. While developing you can copy the dist folder to a running container for testing. Read more [here](/notes/dev-copy.md).
-
-### 🔧 Create new docker container
-`dhti-cli docker -n beapen/conch-test:1.0 -t conch`
-
-## 🚀 It is now time to start DHTI!
-
-`dhti-cli docker -u`
+* `npx dhti-cli docker -u` to start all the docker images in your docker-compose.yml.
 
 ### :clap: Access the Conch in OpenMRS and test the integration
 
@@ -219,8 +159,9 @@ This is just a template, though. You can build your own conchs!
 Add some text to the text area and click on **Submit**.
 You will see the text above the textbox.
 
-### Stop the services
-You can remove the services by: `dhti-cli docker -d`
+* `npx dhti-cli docker -d` to stop and delete all the docker containers.
+
+Read more in [notes/steps.md](/notes/steps.md). Complete documentation is in progress.
 
 ### The demo uses a template with mock LLM. [Check out how to add real LLM support using Google Gemini.](/notes/add-llm.md)
 
@@ -228,6 +169,7 @@ You can remove the services by: `dhti-cli docker -d`
 
 ## 🚀 Advanced
 
+* [Detailed steps to try it out](/notes/steps.md)
 * [Setting up Ollama](/notes/setup-ollama.md)
 * [CLI Options](/notes/cli-options.md)
 
@@ -238,4 +180,4 @@ If you find this project useful, give us a star. It helps others discover the pr
 
 ## Contributors
 
-* [Bell Eapen](https://nuchange.ca) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
+* [Bell Eapen](https://nuchange.ca) ([UIS](https://www.uis.edu/directory/bell-punneliparambil-eapen)) |  [Contact](https://nuchange.ca/contact) | [![Twitter Follow](https://img.shields.io/twitter/follow/beapen?style=social)](https://twitter.com/beapen)
