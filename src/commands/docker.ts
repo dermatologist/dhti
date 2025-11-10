@@ -23,7 +23,7 @@ export default class Docker extends Command {
     container: Flags.string({
       char: 'c',
       default: 'dhti-langserve-1',
-      description: 'Name of the container to copy the elixir to while in dev mode',
+      description: 'Name of the container to copy the bootstrap file to while in dev mode',
     }),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
     type: Flags.string({char: 't', default: 'elixir', description: 'Type of the service (elixir/conch)'}),
@@ -59,7 +59,7 @@ export default class Docker extends Command {
       return
     }
 
-    if (args.path !== 'bootstrap' && !flags.name && (!flags.up || !flags.down)) {
+    if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down) {
       console.log('Please provide a name for the container to build')
       this.exit(1)
     }
@@ -70,7 +70,7 @@ export default class Docker extends Command {
         console.log('Please provide a valid path to bootstrap.py file')
         this.exit(1)
       }
-      // copy -f to container:/app/app/
+      // copy -f to container:/app/app/ and only restart after copy completes
       exec(`docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`)
@@ -79,17 +79,17 @@ export default class Docker extends Command {
 
         console.log(`stdout: ${stdout}`)
         console.error(`stderr: ${stderr}`)
-      })
 
-      // restart the container
-      exec(`docker restart ${flags.container}`, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`)
-          return
-        }
+        // restart the container only after copy completes
+        exec(`docker restart ${flags.container}`, (restartError, restartStdout, restartStderr) => {
+          if (restartError) {
+            console.error(`exec error: ${restartError}`)
+            return
+          }
 
-        console.log(`stdout: ${stdout}`)
-        console.error(`stderr: ${stderr}`)
+          console.log(`stdout: ${restartStdout}`)
+          console.error(`stderr: ${restartStderr}`)
+        })
       })
       return
     }
@@ -111,6 +111,10 @@ export default class Docker extends Command {
     )
 
     // read the docker-compose file
+    if (!fs.existsSync(flags.file)) {
+      console.error(`Error: The file "${flags.file}" does not exist.`)
+      this.exit(1)
+    }
     const dockerCompose: any = yaml.load(fs.readFileSync(flags.file, 'utf8'))
     // if type is elixir set image of backend to name, else set image of frontend to name
     if (flags.type === 'elixir') {
