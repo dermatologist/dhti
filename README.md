@@ -26,9 +26,18 @@ Gen AI can transform medicine. But it needs a framework for collaborative resear
 
 The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangServe Apps](https://python.langchain.com/docs/langserve/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a [fork of the cds-hook sandbox](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) for testing that uses the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs (recommended).
 
+
+<p align="center">
+  <img src="https://github.com/dermatologist/openmrs-esm-dhti-template/blob/develop/notes/conch.jpg" />
+</p>
+
+  *[OpenMRS ESM DHTI template](https://github.com/dermatologist/openmrs-esm-dhti-template). It is a simple but functional EMR chatbot!* 👉 [Try it out today!](#try-it-out)
+
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
 </p>
+
+*[CDS-Hooks sandbox](https://github.com/dermatologist/cds-hooks-sandbox) for testing conchs without OpenMRS.* 👉 [Try it out today!](#try-it-out)
 
 🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conch, create Docker images for them, and more. 🚀 This helps to test new ideas and share them with others quickly. 🚀 Once tested, you can transition them to the production team for deployment. Adoption of standards makes this transition easier! 👉 [Try it out today!](#try-it-out)
 
