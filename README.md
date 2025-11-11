@@ -159,9 +159,9 @@ You will see the text above the textbox.
 
 * `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
-Read more in [notes/steps.md](/notes/steps.md). Complete documentation is in progress.
+Read [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki) for more details.
 
-### The demo uses a template with mock LLM. [Check out how to add real LLM support using Google Gemini.](/notes/add-llm.md)
+## 👋 The demo uses mock LLM. 👉 [Check out how to add real LLMs and configure them.](https://github.com/dermatologist/dhti/wiki/Configuration)
 
 :hugs: **Thank you for trying out DHTI!**
 
