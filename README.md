@@ -31,7 +31,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
   <img src="https://github.com/dermatologist/openmrs-esm-dhti-template/blob/develop/notes/conch.jpg" />
 </p>
 
-  *[OpenMRS ESM DHTI template](https://github.com/dermatologist/openmrs-esm-dhti-template) + [DHTI elixir template](https://github.com/dermatologist/dhti-elixir-template) together forms a simple but functional EMR chatbot too!* 👉 [Try it out today!](#try-it-out)
+  *[OpenMRS ESM DHTI template](https://github.com/dermatologist/openmrs-esm-dhti-template) (frontend) + [DHTI elixir template](https://github.com/dermatologist/dhti-elixir-template) (backend) together forms a simple but functional EMR chatbot too!* 👉 [Try it out today!](#try-it-out)
 
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
@@ -113,8 +113,8 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 ## :sparkles: Resources (in Beta)
 * [dhti-elixir-base](https://github.com/dermatologist/dhti-elixir-base): Base classes for dhti-elixir
-* [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template): A template for creating new dhti-elixirs.
-* [openmrs-esm-dhti-template](https://github.com/dermatologist/openmrs-esm-dhti-template): A conch template for OpenMRS
+* [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template): A template for creating new dhti-elixirs & a **simple EMR chatbot backend**.
+* [openmrs-esm-dhti-template](https://github.com/dermatologist/openmrs-esm-dhti-template): A conch template for OpenMRS & a **simple EMR chatbot frontend**.
 * [fhir-mcp-server](https://github.com/dermatologist/fhir-mcp-server): A MCP server for hosting FHIR-compliant tools.
 
 ## :sparkles: Resources (in Alpha)
@@ -123,10 +123,8 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 ## :sunglasses: Coming soon
 
-* [dhti-elixir-fhire](https://github.com/dermatologist/dhti-elixir-fhire): An elixir for extracting embeddings from FHIR resources for Q&A on patient records.
-* [dhti-elixir-fhirs](https://github.com/dermatologist/dhti-elixir-fhirs): An elixir for text to FHIR search query conversion.
+* [dhti-elixir-fhire](https://github.com/dermatologist/dhti-elixir-fhire): An elixir for FHIR embeddings.
 * [dhti-elixir-upload](https://github.com/dermatologist/dhti-elixir-upload-file): Upload documents to the vector store for clinical knowledgebase and clinical trial matching.
-* [openmrs-esm-qa](https://github.com/dermatologist/openmrs-esm-genai): A sample conch for Q&A on patient records using the dhti-elixir-fhire elixir.
 
 ## Try it out
 
@@ -161,9 +159,9 @@ You will see the text above the textbox.
 
 * `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
-Read more in [notes/steps.md](/notes/steps.md). Complete documentation is in progress.
+Read [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki) for more details.
 
-### The demo uses a template with mock LLM. [Check out how to add real LLM support using Google Gemini.](/notes/add-llm.md)
+## 👋 The demo uses mock LLM. 👉 [Check out how to add real LLMs and configure them.](https://github.com/dermatologist/dhti/wiki/Configuration)
 
 :hugs: **Thank you for trying out DHTI!**
 
