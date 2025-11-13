@@ -3,7 +3,7 @@ import {expect} from 'chai'
 
 describe('mimic', () => {
   it('runs mimic cmd', async () => {
-    const {stdout} = await runCommand('mimic')
+    await runCommand('mimic')
   })
 
   it('runs mimic cmd with --dry-run flag', async () => {

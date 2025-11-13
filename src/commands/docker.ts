@@ -138,6 +138,7 @@ export default class Docker extends Command {
         console.log(chalk.green(`  Set frontend.image = ${flags.name}`))
         console.log(chalk.green(`  Set frontend.pull_policy = if_not_present`))
       }
+
       return
     }
 

@@ -121,25 +121,31 @@ export default class Conch extends Command {
         if (args.op === 'install') {
           console.log(chalk.green(`    Add import: ${flags.name.replace('openmrs-', '@openmrs/')} -> ./${flags.name}-${flags.repoVersion}/${flags.name}.js`))
         }
+
         if (args.op === 'uninstall') {
           console.log(chalk.green(`    Remove import: ${flags.name.replace('openmrs-', '@openmrs/')}`))
         }
+
         console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/spa-assemble-config.json`))
         if (args.op === 'install') {
           console.log(chalk.green(`    Add module: ${flags.name.replace('openmrs-', '@openmrs/')} = ${flags.repoVersion}`))
         }
+
         if (args.op === 'uninstall') {
           console.log(chalk.green(`    Remove module: ${flags.name.replace('openmrs-', '@openmrs/')}`))
         }
+
         console.log(chalk.cyan(`  - ${flags.workdir}/conch/Dockerfile`))
         console.log(chalk.green(`    Update with conch=${flags.name}, version=${flags.repoVersion}, image=${flags.image}`))
         console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/routes.registry.json`))
         if (args.op === 'install') {
           console.log(chalk.green(`    Add routes for ${flags.name.replace('openmrs-', '@openmrs/')}`))
         }
+
         if (args.op === 'uninstall') {
           console.log(chalk.green(`    Remove routes for ${flags.name.replace('openmrs-', '@openmrs/')}`))
         }
+
         return
       }
 

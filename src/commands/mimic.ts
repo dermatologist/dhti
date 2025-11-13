@@ -173,7 +173,7 @@ export default class Mimic extends Command {
     })
     if (!response.ok) {
       console.error(`Error: ${response.status} ${response.statusText}`)
-      return;
+      
     }
   }
 }

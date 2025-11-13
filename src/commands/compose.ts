@@ -87,14 +87,12 @@ export default class Compose extends Command {
       let existingData: any = {services: {}, version: '3.8'}
       if (fs.existsSync(flags.file)) {
         existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'))
-      } else {
-        if (flags['dry-run']) {
+      } else if (flags['dry-run']) {
           console.log(chalk.yellow(`[DRY RUN] Would create directory: ${os.homedir()}/dhti`))
           console.log(chalk.yellow(`[DRY RUN] Would create file: ${flags.file}`))
         } else {
           Compose.init() // Create the file if it does not exist
         }
-      }
 
       // Echo the existing data to the console
       if (args.op === 'read') {

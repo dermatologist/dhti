@@ -59,9 +59,11 @@ export default class Synthetic extends Command {
 				if (args.prompt) {
 					console.log(chalk.cyan(`  Prompt file: ${args.prompt}`))
 				}
+
 				console.log(chalk.green('[DRY RUN] Would process input file records using LLM'))
 				console.log(chalk.green(`[DRY RUN] Would write processed records to ${args.output}`))
 			}
+
 			return
 		}
 

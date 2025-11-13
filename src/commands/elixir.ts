@@ -151,6 +151,7 @@ export default class Elixir extends Command {
       pyproject = pyproject.replace('dependencies = [', `dependencies = [\n"${flags.name}",`)
       pyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
     }
+
     const newPyproject = pyproject
 
     // Add the elixir import and bootstrap to the server.py file
@@ -168,6 +169,7 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
         .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
         .replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
     }
+
     const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
     const newLangfuseRoute = flags['dry-run'] ? '' : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
     const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
