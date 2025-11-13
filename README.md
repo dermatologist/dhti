@@ -66,6 +66,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 * **Quick prototyping**: CLI helps in quick prototyping and testing of Gen AI routines and UI elements.
 * **Easy to use**: Can be installed in a few minutes.
 * **Developer friendly**: Copy working files to running containers for testing.
+* **Dry-run mode**: Preview changes before execution with the `--dry-run` flag.
 * **Dependency Injection**: Dependency injection for models and hyperparameters for configuring elixirs.
 * **Generate synthetic data**: DHTI supports generating synthetic data for testing.
 * **CQL support**: [CQL for clinical decision support](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html).
@@ -131,6 +132,11 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. We use a fake LLM script for testing purposes, so you don't need an OpenAI key to run this project. It just says "Paris" or "I don't know" to any prompt. You can replace it with any internal or external LLM service later.
 
 * `npx dhti-cli help` to see all available commands.
+
+* **🔍 Dry-run mode**: Add the `--dry-run` flag to any command to preview what changes will be made without actually executing them. This is helpful for understanding the impact of commands before running them. For example:
+  - `npx dhti-cli compose add -m langserve --dry-run` to preview modules that would be added
+  - `npx dhti-cli elixir install -n test-elixir --dry-run` to see what files would be created/modified
+  - `npx dhti-cli docker -u --dry-run` to preview the docker compose up command
 
 * `npx dhti-cli compose add -m openmrs -m langserve` to add OpenMRS and Langserve elixirs to your docker-compose.yml at ~/dhti. Other available modules: `ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir`. You can read the newly created docker-compose by: `npx dhti-cli compose read`
 
