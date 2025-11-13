@@ -1,4 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
 
 export default class Mimic extends Command {
   static override args = {
@@ -7,6 +8,13 @@ export default class Mimic extends Command {
 
   static override description = 'Submit a FHIR request to a server'
   static override examples = ['<%= config.bin %> <%= command.id %>']
+
+  static override flags = {
+    'dry-run': Flags.boolean({
+      default: false,
+      description: 'Show what changes would be made without actually making them',
+    }),
+  }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Mimic)
@@ -143,6 +151,17 @@ export default class Mimic extends Command {
   } ]
 
 }`
+
+    if (flags['dry-run']) {
+      console.log(chalk.yellow(`[DRY RUN] Would send POST request to: ${args.server}`))
+      console.log(chalk.cyan('[DRY RUN] Request headers:'))
+      console.log(chalk.green('  Content-Type: application/fhir+json'))
+      console.log(chalk.green('  Prefer: respond-async'))
+      console.log(chalk.cyan('[DRY RUN] Request body:'))
+      console.log(mimic_request)
+      return
+    }
+
     // send a POST request to the server with the mimic_request body
     const response = await fetch(args.server, {
       body: mimic_request,

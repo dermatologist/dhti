@@ -1,4 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
 import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -21,6 +22,10 @@ export default class Conch extends Command {
       description: 'Name of the container to copy the conch to while in dev mode',
     }),
     dev: Flags.string({char: 'd', default: 'none', description: 'Dev folder to install'}),
+    'dry-run': Flags.boolean({
+      default: false,
+      description: 'Show what changes would be made without actually making them',
+    }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
     image: Flags.string({
       char: 'i',
@@ -53,23 +58,28 @@ export default class Conch extends Command {
     // docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
     // docker restart dhti-frontend-1
     if (args.op === 'dev') {
-      console.log(
-        `cd ${flags.dev} && yarn build && docker cp dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`,
-      )
-      try {
-        exec(
-          `cd ${flags.dev} && yarn build && docker cp dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`)
-              return
-            }
+      const buildCommand = `cd ${flags.dev} && yarn build && docker cp dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`
+      const restartCommand = `docker restart ${flags.container}`
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute commands:'))
+        console.log(chalk.cyan(`  ${buildCommand}`))
+        console.log(chalk.cyan(`  ${restartCommand}`))
+        return
+      }
 
-            console.log(`stdout: ${stdout}`)
-            console.error(`stderr: ${stderr}`)
-          },
-        )
-        exec(`docker restart ${flags.container}`, (error, stdout, stderr) => {
+      console.log(buildCommand)
+      try {
+        exec(buildCommand, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`)
+            return
+          }
+
+          console.log(`stdout: ${stdout}`)
+          console.error(`stderr: ${stderr}`)
+        })
+        exec(restartCommand, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
             return
@@ -81,19 +91,58 @@ export default class Conch extends Command {
       } catch (error) {
         console.log('Error copying conch to container', error)
       }
+
+      return
     }
 
     // Create a directory to install the elixir
     if (!fs.existsSync(`${flags.workdir}/conch`)) {
-      fs.mkdirSync(`${flags.workdir}/conch`)
+      if (flags['dry-run']) {
+        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${flags.workdir}/conch`))
+      } else {
+        fs.mkdirSync(`${flags.workdir}/conch`)
+      }
     }
 
-    fs.cpSync(path.join(RESOURCES_DIR, 'spa'), `${flags.workdir}/conch`, {recursive: true})
+    if (flags['dry-run']) {
+      console.log(chalk.yellow(`[DRY RUN] Would copy resources from ${RESOURCES_DIR}/spa to ${flags.workdir}/conch`))
+    } else {
+      fs.cpSync(path.join(RESOURCES_DIR, 'spa'), `${flags.workdir}/conch`, {recursive: true})
+    }
 
     // Rewrite files
 
     const rewrite = () => {
       flags.name = flags.name ?? 'openmrs-esm-genai'
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would update configuration files:'))
+        console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/importmap.json`))
+        if (args.op === 'install') {
+          console.log(chalk.green(`    Add import: ${flags.name.replace('openmrs-', '@openmrs/')} -> ./${flags.name}-${flags.repoVersion}/${flags.name}.js`))
+        }
+        if (args.op === 'uninstall') {
+          console.log(chalk.green(`    Remove import: ${flags.name.replace('openmrs-', '@openmrs/')}`))
+        }
+        console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/spa-assemble-config.json`))
+        if (args.op === 'install') {
+          console.log(chalk.green(`    Add module: ${flags.name.replace('openmrs-', '@openmrs/')} = ${flags.repoVersion}`))
+        }
+        if (args.op === 'uninstall') {
+          console.log(chalk.green(`    Remove module: ${flags.name.replace('openmrs-', '@openmrs/')}`))
+        }
+        console.log(chalk.cyan(`  - ${flags.workdir}/conch/Dockerfile`))
+        console.log(chalk.green(`    Update with conch=${flags.name}, version=${flags.repoVersion}, image=${flags.image}`))
+        console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/routes.registry.json`))
+        if (args.op === 'install') {
+          console.log(chalk.green(`    Add routes for ${flags.name.replace('openmrs-', '@openmrs/')}`))
+        }
+        if (args.op === 'uninstall') {
+          console.log(chalk.green(`    Remove routes for ${flags.name.replace('openmrs-', '@openmrs/')}`))
+        }
+        return
+      }
+
       // Read and process importmap.json
       const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/importmap.json`, 'utf8'))
       if (args.op === 'install')
@@ -132,15 +181,26 @@ export default class Conch extends Command {
     }
 
     if (flags.git !== 'none') {
+      const cloneCommand = `git clone ${flags.git} ${flags.workdir}/conch/${flags.name}`
+      const checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute git commands:'))
+        console.log(chalk.cyan(`  ${cloneCommand}`))
+        console.log(chalk.cyan(`  ${checkoutCommand}`))
+        rewrite()
+        return
+      }
+
       // git clone the repository
-      exec(`git clone ${flags.git} ${flags.workdir}/conch/${flags.name}`, (error, stdout, stderr) => {
+      exec(cloneCommand, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`)
           return
         }
 
         // Checkout the branch
-        exec(`cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`, (error, stdout, stderr) => {
+        exec(checkoutCommand, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
             return
@@ -159,8 +219,13 @@ export default class Conch extends Command {
 
     // If flags.dev is not none, copy the dev folder to the conch directory
     if (flags.dev !== 'none' && args.op !== 'dev') {
-      fs.cpSync(flags.dev, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
-      rewrite()
+      if (flags['dry-run']) {
+        console.log(chalk.yellow(`[DRY RUN] Would copy ${flags.dev} to ${flags.workdir}/conch/${flags.name}`))
+        rewrite()
+      } else {
+        fs.cpSync(flags.dev, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
+        rewrite()
+      }
     }
   }
 }
