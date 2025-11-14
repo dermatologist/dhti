@@ -133,14 +133,9 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 * `npx dhti-cli help` to see all available commands.
 
-* **🔍 Dry-run mode**: Add the `--dry-run` flag to any command to preview what changes will be made without actually executing them. This is helpful for understanding the impact of commands before running them. For example:
-  - `npx dhti-cli compose add -m langserve --dry-run` to preview modules that would be added
-  - `npx dhti-cli elixir install -n test-elixir --dry-run` to see what files would be created/modified
-  - `npx dhti-cli docker -u --dry-run` to preview the docker compose up command
-
 * `npx dhti-cli compose add -m openmrs -m langserve` to add OpenMRS and Langserve elixirs to your docker-compose.yml at ~/dhti. Other available modules: `ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir`. You can read the newly created docker-compose by: `npx dhti-cli compose read`
 
-* `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template` to install a sample elixir from github. (Optionally) You may configure the hyperparameters in `~/dhti/elixir/app/bootstrap.py`. You can install multiple elixirs.
+* `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template` to install a sample elixir from github. *(Optional)* You may configure the LLM and hyperparameters in `~/dhti/elixir/app/bootstrap.py`. You can install multiple elixirs.
 
 * `npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir` to build a docker image for the elixir.
 
@@ -149,6 +144,10 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * `npx dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch` to build a docker image for the conches.
 
 * `npx dhti-cli docker -u` to start all the docker images in your docker-compose.yml.
+
+* *(Optional)* **🔍 Dry-run mode**: Add the `--dry-run` flag to any command to preview what changes will be made without actually executing them. For example:
+  - `npx dhti-cli compose add -m langserve --dry-run` to preview modules that would be added
+  - `npx dhti-cli elixir install -n test-elixir --dry-run` to see what files would be created/modified
 
 ### :clap: Access the Conch in OpenMRS and test the integration
 
