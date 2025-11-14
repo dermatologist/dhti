@@ -1,4 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
 import yaml from 'js-yaml'
 import { exec } from 'node:child_process';
 import fs from 'node:fs'
@@ -14,16 +15,20 @@ export default class Docker extends Command {
   static override examples = ['<%= config.bin %> <%= command.id %>']
 
   static override flags = {
-    down: Flags.boolean({char: 'd', default: false, description: 'Run docker-compose down after building'}),
-    file: Flags.string({
-      char: 'f',
-      default: `${os.homedir()}/dhti/docker-compose.yml`,
-      description: 'Full path to the docker compose file to edit or run.',
-    }),
     container: Flags.string({
       char: 'c',
       default: 'dhti-langserve-1',
       description: 'Name of the container to copy the bootstrap file to while in dev mode',
+    }),
+    down: Flags.boolean({char: 'd', default: false, description: 'Run docker-compose down after building'}),
+    'dry-run': Flags.boolean({
+      default: false,
+      description: 'Show what changes would be made without actually making them',
+    }),
+    file: Flags.string({
+      char: 'f',
+      default: `${os.homedir()}/dhti/docker-compose.yml`,
+      description: 'Full path to the docker compose file to edit or run.',
     }),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
     type: Flags.string({char: 't', default: 'elixir', description: 'Type of the service (elixir/conch)'}),
@@ -34,7 +39,14 @@ export default class Docker extends Command {
     const {args, flags} = await this.parse(Docker)
 
     if (flags.up) {
-      exec(`docker compose -f ${flags.file} up -d`, (error, stdout, stderr) => {
+      const upCommand = `docker compose -f ${flags.file} up -d`
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute:'))
+        console.log(chalk.cyan(`  ${upCommand}`))
+        return
+      }
+
+      exec(upCommand, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`)
           return
@@ -47,7 +59,14 @@ export default class Docker extends Command {
     }
 
     if (flags.down) {
-      exec(`docker compose -f ${flags.file} down`, (error, stdout, stderr) => {
+      const downCommand = `docker compose -f ${flags.file} down`
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute:'))
+        console.log(chalk.cyan(`  ${downCommand}`))
+        return
+      }
+
+      exec(downCommand, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`)
           return
@@ -70,8 +89,19 @@ export default class Docker extends Command {
         console.log('Please provide a valid path to bootstrap.py file')
         this.exit(1)
       }
+
+      const copyCommand = `docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`
+      const restartCommand = `docker restart ${flags.container}`
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute:'))
+        console.log(chalk.cyan(`  ${copyCommand}`))
+        console.log(chalk.cyan(`  ${restartCommand}`))
+        return
+      }
+
       // copy -f to container:/app/app/ and only restart after copy completes
-      exec(`docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`, (error, stdout, stderr) => {
+      exec(copyCommand, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`)
           return
@@ -81,7 +111,7 @@ export default class Docker extends Command {
         console.error(`stderr: ${stderr}`)
 
         // restart the container only after copy completes
-        exec(`docker restart ${flags.container}`, (restartError, restartStdout, restartStderr) => {
+        exec(restartCommand, (restartError, restartStdout, restartStderr) => {
           if (restartError) {
             console.error(`exec error: ${restartError}`)
             return
@@ -93,28 +123,44 @@ export default class Docker extends Command {
       })
       return
     }
-    // cd to path, docker build tag with name
-    const spinner = ora('Running docker build ..').start()
-    exec(
-      `cd ${args.path}/${flags.type} && docker build -t ${flags.name} . > /dev/null 2>&1`,
-      (error, stdout, stderr) => {
-        if (error) {
-          spinner.fail('Docker build failed')
-          console.error(`exec error: ${error}`)
-          return
-        }
 
-        spinner.succeed('Docker build successful')
-        console.log(`stdout: ${stdout}`)
-        console.error(`stderr: ${stderr}`)
-      },
-    )
+    // cd to path, docker build tag with name
+    const buildCommand = `cd ${args.path}/${flags.type} && docker build -t ${flags.name} . > /dev/null 2>&1`
+    
+    if (flags['dry-run']) {
+      console.log(chalk.yellow('[DRY RUN] Would execute:'))
+      console.log(chalk.cyan(`  ${buildCommand}`))
+      console.log(chalk.yellow(`[DRY RUN] Would update docker-compose file: ${flags.file}`))
+      if (flags.type === 'elixir') {
+        console.log(chalk.green(`  Set langserve.image = ${flags.name}`))
+        console.log(chalk.green(`  Set langserve.pull_policy = if_not_present`))
+      } else {
+        console.log(chalk.green(`  Set frontend.image = ${flags.name}`))
+        console.log(chalk.green(`  Set frontend.pull_policy = if_not_present`))
+      }
+
+      return
+    }
+
+    const spinner = ora('Running docker build ..').start()
+    exec(buildCommand, (error, stdout, stderr) => {
+      if (error) {
+        spinner.fail('Docker build failed')
+        console.error(`exec error: ${error}`)
+        return
+      }
+
+      spinner.succeed('Docker build successful')
+      console.log(`stdout: ${stdout}`)
+      console.error(`stderr: ${stderr}`)
+    })
 
     // read the docker-compose file
     if (!fs.existsSync(flags.file)) {
       console.error(`Error: The file "${flags.file}" does not exist.`)
       this.exit(1)
     }
+
     const dockerCompose: any = yaml.load(fs.readFileSync(flags.file, 'utf8'))
     // if type is elixir set image of backend to name, else set image of frontend to name
     if (flags.type === 'elixir') {
