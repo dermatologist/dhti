@@ -1,4 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
 import fs from 'node:fs'
 
 import bootstrap from '../utils/bootstrap.js'
@@ -18,6 +19,10 @@ export default class Synthetic extends Command {
 	]
 
 	static override flags = {
+		'dry-run': Flags.boolean({
+			default: false,
+			description: 'Show what changes would be made without actually making them',
+		}),
 		inputField: Flags.string({char: 'i', default: 'input', description: 'Input field to use', options: ['input', 'instruction', 'output']}),
 		maxCycles: Flags.integer({char: 'm', default: 0, description: 'Maximum number of cycles to run'}),
 		maxRecords: Flags.integer({char: 'r', default: 10, description: 'Maximum number of records to generate'}),
@@ -30,14 +35,40 @@ export default class Synthetic extends Command {
 		// read prompt file if provided
 		if (args.prompt)
 			prompt = fs.readFileSync(args.prompt ?? '', 'utf8')
-		const container = await bootstrap()
-		const chain = new ChainService(container)
 
 		// if no output file, exit with error
 		if (!args.output) {
 			console.log("Please provide an output file")
 			this.exit(1)
 		}
+
+		if (flags['dry-run']) {
+			console.log(chalk.yellow('[DRY RUN] Synthetic data generation simulation'))
+			console.log(chalk.cyan(`  Output file: ${args.output}`))
+			console.log(chalk.cyan(`  Max records: ${flags.maxRecords}`))
+			
+			if (flags.maxCycles) {
+				console.log(chalk.cyan(`  Max cycles: ${flags.maxCycles}`))
+				console.log(chalk.cyan(`  Output field: ${flags.outputField}`))
+				console.log(chalk.green('[DRY RUN] Would generate synthetic data in batches using LLM'))
+				console.log(chalk.green(`[DRY RUN] Would write ${flags.maxRecords} records to ${args.output}`))
+			} else {
+				console.log(chalk.cyan(`  Input file: ${args.input}`))
+				console.log(chalk.cyan(`  Input field: ${flags.inputField}`))
+				console.log(chalk.cyan(`  Output field: ${flags.outputField}`))
+				if (args.prompt) {
+					console.log(chalk.cyan(`  Prompt file: ${args.prompt}`))
+				}
+
+				console.log(chalk.green('[DRY RUN] Would process input file records using LLM'))
+				console.log(chalk.green(`[DRY RUN] Would write processed records to ${args.output}`))
+			}
+
+			return
+		}
+
+		const container = await bootstrap()
+		const chain = new ChainService(container)
 
 		if (flags.maxCycles){ // No input file, can process in batches
 			const input = {

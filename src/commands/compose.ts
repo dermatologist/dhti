@@ -1,4 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
 import yaml from 'js-yaml'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -15,6 +16,10 @@ export default class Compose extends Command {
   static override examples = ['<%= config.bin %> <%= command.id %>']
 
   static override flags = {
+    'dry-run': Flags.boolean({
+      default: false,
+      description: 'Show what changes would be made without actually making them',
+    }),
     file: Flags.string({
       char: 'f',
       default: `${os.homedir()}/dhti/docker-compose.yml`,
@@ -82,9 +87,12 @@ export default class Compose extends Command {
       let existingData: any = {services: {}, version: '3.8'}
       if (fs.existsSync(flags.file)) {
         existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'))
-      } else {
-        Compose.init() // Create the file if it does not exist
-      }
+      } else if (flags['dry-run']) {
+          console.log(chalk.yellow(`[DRY RUN] Would create directory: ${os.homedir()}/dhti`))
+          console.log(chalk.yellow(`[DRY RUN] Would create file: ${flags.file}`))
+        } else {
+          Compose.init() // Create the file if it does not exist
+        }
 
       // Echo the existing data to the console
       if (args.op === 'read') {
@@ -94,8 +102,13 @@ export default class Compose extends Command {
 
       // Delete flags.file if args.op is reset
       if (args.op === 'reset') {
-        fs.unlinkSync(flags.file)
-        Compose.init() // Recreate the file
+        if (flags['dry-run']) {
+          console.log(chalk.yellow(`[DRY RUN] Would delete file: ${flags.file}`))
+          console.log(chalk.yellow(`[DRY RUN] Would recreate file: ${flags.file}`))
+        } else {
+          fs.unlinkSync(flags.file)
+          Compose.init() // Recreate the file
+        }
       }
 
       // if existing data is not null and arg is delete, remove the modules from the existing data
@@ -106,9 +119,18 @@ export default class Compose extends Command {
           modulesToDelete = modulesToDelete.concat(_modules[module])
         }
 
-        for (const module of modulesToDelete ?? []) {
-          if (existingData.services[module]) {
-            delete existingData.services[module]
+        if (flags['dry-run']) {
+          console.log(chalk.yellow('[DRY RUN] Would delete the following modules:'))
+          for (const module of modulesToDelete ?? []) {
+            if (existingData.services[module]) {
+              console.log(chalk.cyan(`  - ${module}`))
+            }
+          }
+        } else {
+          for (const module of modulesToDelete ?? []) {
+            if (existingData.services[module]) {
+              delete existingData.services[module]
+            }
           }
         }
       }
@@ -121,22 +143,36 @@ export default class Compose extends Command {
           modulesToAdd = modulesToAdd.concat(_modules[module])
         }
 
-        for (const module of modulesToAdd ?? []) {
-          existingData.services[module] = masterData.services[module]
+        if (flags['dry-run']) {
+          console.log(chalk.yellow('[DRY RUN] Would add the following modules:'))
+          for (const module of modulesToAdd ?? []) {
+            console.log(chalk.cyan(`  - ${module}`))
+          }
+        } else {
+          for (const module of modulesToAdd ?? []) {
+            existingData.services[module] = masterData.services[module]
+          }
         }
       }
 
       // Add all volumes from master data to existing data by default
-      existingData.volumes = {}
-      for (const key of Object.keys(masterData.volumes)) {
-        existingData.volumes[key] = masterData.volumes[key]
+      if (!flags['dry-run']) {
+        existingData.volumes = {}
+        for (const key of Object.keys(masterData.volumes)) {
+          existingData.volumes[key] = masterData.volumes[key]
+        }
       }
 
       const toWrite = yaml.dump(existingData).replaceAll('null', '')
 
-      console.log('Writing file:', toWrite)
-
-      fs.writeFileSync(flags.file, toWrite, 'utf8')
+      if (flags['dry-run']) {
+        console.log(chalk.yellow(`[DRY RUN] Would write to file: ${flags.file}`))
+        console.log(chalk.green('[DRY RUN] File content would be:'))
+        console.log(toWrite)
+      } else {
+        console.log('Writing file:', toWrite)
+        fs.writeFileSync(flags.file, toWrite, 'utf8')
+      }
     } catch (error) {
       console.error(error)
     }

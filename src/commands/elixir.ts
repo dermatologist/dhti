@@ -1,4 +1,5 @@
 import {Args, Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
 import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -21,6 +22,10 @@ export default class Elixir extends Command {
       description: 'Name of the container to copy the elixir to while in dev mode',
     }),
     dev: Flags.string({char: 'd', default: 'none', description: 'Dev folder to install'}),
+    'dry-run': Flags.boolean({
+      default: false,
+      description: 'Show what changes would be made without actually making them',
+    }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     pypi: Flags.string({
@@ -55,23 +60,28 @@ export default class Elixir extends Command {
     // if arg is dev then copy to docker as below
     // docker restart dhti-langserve-1
     if (args.op === 'dev') {
-      console.log(
-        `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`,
-      )
-      try {
-        exec(
-          `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`)
-              return
-            }
+      const devCommand = `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`
+      const restartCommand = `docker restart ${flags.container}`
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute commands:'))
+        console.log(chalk.cyan(`  ${devCommand}`))
+        console.log(chalk.cyan(`  ${restartCommand}`))
+        return
+      }
 
-            console.log(`stdout: ${stdout}`)
-            console.error(`stderr: ${stderr}`)
-          },
-        )
-        exec(`docker restart ${flags.container}`, (error, stdout, stderr) => {
+      console.log(devCommand)
+      try {
+        exec(devCommand, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`)
+            return
+          }
+
+          console.log(`stdout: ${stdout}`)
+          console.error(`stderr: ${stderr}`)
+        })
+        exec(restartCommand, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
             return
@@ -83,28 +93,47 @@ export default class Elixir extends Command {
       } catch (error) {
         console.log('Error copying conch to container', error)
       }
+
+      return
     }
 
     // Create a directory to install the elixir
     if (!fs.existsSync(`${flags.workdir}/elixir`)) {
-      fs.mkdirSync(`${flags.workdir}/elixir`)
+      if (flags['dry-run']) {
+        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${flags.workdir}/elixir`))
+      } else {
+        fs.mkdirSync(`${flags.workdir}/elixir`)
+      }
     }
 
-    fs.cpSync(path.join(RESOURCES_DIR, 'genai'), `${flags.workdir}/elixir`, {recursive: true})
+    if (flags['dry-run']) {
+      console.log(chalk.yellow(`[DRY RUN] Would copy resources from ${RESOURCES_DIR}/genai to ${flags.workdir}/elixir`))
+    } else {
+      fs.cpSync(path.join(RESOURCES_DIR, 'genai'), `${flags.workdir}/elixir`, {recursive: true})
+    }
 
     // if whl is not none, copy the whl file to thee whl directory
     if (flags.whl !== 'none') {
       if (!fs.existsSync(`${flags.workdir}/elixir/whl/`)) {
-        fs.mkdirSync(`${flags.workdir}/whl/`)
+        if (flags['dry-run']) {
+          console.log(chalk.yellow(`[DRY RUN] Would create directory: ${flags.workdir}/whl/`))
+        } else {
+          fs.mkdirSync(`${flags.workdir}/whl/`)
+        }
       }
 
-      fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
-      console.log('Installing elixir from whl file. Please modify boostrap.py file if needed')
+      if (flags['dry-run']) {
+        console.log(chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`))
+        console.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify boostrap.py file if needed'))
+      } else {
+        fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
+        console.log('Installing elixir from whl file. Please modify boostrap.py file if needed')
+      }
     }
 
     // Install the elixir from git adding to the pyproject.toml file
-    let pyproject = fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
-    const originalServer = fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
+    let pyproject = flags['dry-run'] ? '' : fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
+    const originalServer = flags['dry-run'] ? '' : fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
     let lineToAdd = ''
     if (flags.whl !== 'none') {
       lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
@@ -118,8 +147,11 @@ export default class Elixir extends Command {
       lineToAdd = flags.pypi
     }
 
-    pyproject = pyproject.replace('dependencies = [', `dependencies = [\n"${flags.name}",`)
-    pyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
+    if (!flags['dry-run']) {
+      pyproject = pyproject.replace('dependencies = [', `dependencies = [\n"${flags.name}",`)
+      pyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
+    }
+
     const newPyproject = pyproject
 
     // Add the elixir import and bootstrap to the server.py file
@@ -131,29 +163,50 @@ ${expoName}_chain = ${expoName}_chain_class().get_chain_as_langchain_tool()
 ${expoName}_mcp_tool = ${expoName}_chain_class().get_chain_as_mcp_tool
 mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
     `
-    const newCliImport = fs
-      .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
-      .replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
+    let newCliImport = ''
+    if (!flags['dry-run']) {
+      newCliImport = fs
+        .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
+        .replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
+    }
+
     const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
-    const newLangfuseRoute = newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
+    const newLangfuseRoute = flags['dry-run'] ? '' : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
     const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
-    const newNormalRoute = newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+    const newNormalRoute = flags['dry-run'] ? '' : newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
-    const finalRoute = newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+    const finalRoute = flags['dry-run'] ? '' : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
 
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
-      fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
-      fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, finalRoute)
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would update files:'))
+        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/pyproject.toml`))
+        console.log(chalk.green(`    Add dependency: "${flags.name}"`))
+        console.log(chalk.green(`    Add source: ${lineToAdd}`))
+        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/app/server.py`))
+        console.log(chalk.green(`    Add import and routes for ${expoName}`))
+      } else {
+        fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
+        fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, finalRoute)
+      }
     }
 
     if (args.op === 'uninstall') {
-      // if args.op === uninstall, remove the line from the pyproject.toml file
-      fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, pyproject.replace(lineToAdd, ''))
-      let newServer = originalServer.replace(CliImport, '')
-      newServer = newServer.replace(langfuseRoute, '')
-      newServer = newServer.replace(normalRoute, '')
-      fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, newServer)
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would update files:'))
+        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/pyproject.toml`))
+        console.log(chalk.green(`    Remove source: ${lineToAdd}`))
+        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/app/server.py`))
+        console.log(chalk.green(`    Remove import and routes for ${expoName}`))
+      } else {
+        // if args.op === uninstall, remove the line from the pyproject.toml file
+        fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, pyproject.replace(lineToAdd, ''))
+        let newServer = originalServer.replace(CliImport, '')
+        newServer = newServer.replace(langfuseRoute, '')
+        newServer = newServer.replace(normalRoute, '')
+        fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, newServer)
+      }
     }
   }
 }
