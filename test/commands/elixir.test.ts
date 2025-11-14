@@ -10,7 +10,6 @@ describe('elixir', () => {
   it('runs elixir cmd with --dry-run flag', async () => {
     const {stdout} = await runCommand(['elixir', 'install', '-n', 'test-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('Would create directory')
-    expect(stdout).to.contain('Would update files')
+    expect(stdout).to.contain('Would copy resources from')
   })
 })
