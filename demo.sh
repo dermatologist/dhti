@@ -1,9 +1,9 @@
 rm -rf ~/dhti
 npx -y dhti-cli compose add -m openmrs -m langserve
 npx -y dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template
-npx -y dhti-cli docker -n beapen/genai-test:1.0 -t elixir
+npx -y dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir
 npx -y dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template
-npx -y dhti-cli docker -n beapen/conch-test:1.0 -t conch
+npx -y dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch
 npx -y dhti-cli docker -u
 ## Wait for all containers to be up and running before accessing OpenMRS
 sleep 45
