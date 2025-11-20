@@ -109,7 +109,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * **EMR**: Built-in EMR, OpenMRS, for patient records.
 * 👉 [Try it out today!](#try-it-out)
 
- 🌈 *Join us to make the Gen AI equitable and help doctors save lives!*
+*Join us to make the Gen AI equitable and help doctors save lives!*
 
 ## :sparkles: Resources
 * [fhiry](https://github.com/dermatologist/fhiry): FHIR to pandas dataframe for data analytics, AI and ML!
@@ -133,6 +133,8 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 ## Try it out
 
 * You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. We use a fake LLM script for testing purposes, so you don't need an OpenAI key to run this project. It just says "Paris" or "I don't know" to any prompt. You can replace it with any internal or external LLM service later.
+
+👉  **If you are in a hurry, just run `./demo.sh` from a terminal (Linux or MacOS) in the root folder to try out the demo.** Windows users can use WSL. You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/). This script runs all the commands below. Once done, use `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
 * `npx dhti-cli help` to see all available commands.
 

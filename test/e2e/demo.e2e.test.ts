@@ -10,7 +10,7 @@ describe('E2E Demo Script', function () {
   // ESM-compatible __dirname
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
-  const demoScript = path.resolve(__dirname, '../../demo.sh')
+  const demoScript = path.resolve(__dirname, '../../e2e.sh')
   let output = ''
 
   before(function () {
