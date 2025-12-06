@@ -225,6 +225,15 @@ services:
       - spring.neo4j.authentication.username=neo4j
       - spring.neo4j.authentication.password=password
 
+  mcpx:
+    image: us-central1-docker.pkg.dev/prj-common-442813/mcpx/mcpx:latest
+    ports:
+      - 8000:8000
+    restart: "unless-stopped"
+    volumes:
+      - mcpx-config:/lunar/packages/mcpx-server/config
+      - /var/run/docker.sock:/var/run/docker.sock
+
 
 volumes:
   openmrs-data: ~
@@ -236,3 +245,4 @@ volumes:
   ollama-code: ~
   ollama-root: ~
   ollama-webui: ~
+  mcpx-config: ~
