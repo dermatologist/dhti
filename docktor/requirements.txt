@@ -1,5 +1,5 @@
 mcp[cli]
-pyhealth
-torch
+# pyhealth
+# torch
 numpy
 pandas

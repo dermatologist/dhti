@@ -2,7 +2,7 @@
 # pyHealth skin cancer classification pipeline
 # This is a sample inference pipeline using pyHealth and MCP.
 
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
