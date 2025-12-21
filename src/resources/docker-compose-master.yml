@@ -10,7 +10,7 @@ services:
       - backend
     ports:
       - "80:80"
-      - "9000:80"
+      - "9001:80"
 
 
   frontend:
@@ -228,11 +228,19 @@ services:
   mcpx:
     image: us-central1-docker.pkg.dev/prj-common-442813/mcpx/mcpx:latest
     ports:
-      - 8000:8000
-    restart: "unless-stopped"
+      - "8000:8000"
+      - "9000:9000"
+      - "5173:5173"
+      - "3000:3000"
+    # environment:
+    #   - MCPX_PORT=9000
+    #   - MCPX_SERVER_URL="http://10.0.0.211:9000"
+    #   - VITE_MCPX_SERVER_PORT=9000
+    #   - VITE_MCPX_SERVER_URL="http://10.0.0.211:9000"
+    restart: unless-stopped
     volumes:
       - mcpx-config:/lunar/packages/mcpx-server/config
-      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
 
 
 volumes:
