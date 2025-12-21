@@ -26,6 +26,8 @@ To add a new pipeline, use the `docktor install` command:
 
 ```bash
 dhti-cli docktor install my-pipeline --image my-image:latest --model-path ./path/to/models
+
+dhti-cli docktor install my-pipeline --image my-image:latest --model-path ./path/to/models -e DEBUG=true
 ```
 
 - `install`: The operation to perform.

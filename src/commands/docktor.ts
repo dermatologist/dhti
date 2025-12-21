@@ -19,6 +19,11 @@ export default class Docktor extends Command {
   ]
 
   static override flags = {
+    environment: Flags.string({
+      char: 'e',
+      multiple: true,
+      description: 'Environment variables to pass to docker (format: VAR=value)',
+    }),
     image: Flags.string({char: 'i', description: 'Docker image for the inference pipeline (required for install)'}),
     'model-path': Flags.string({char: 'm', description: 'Local path to the model directory (optional for install)'}),
     workdir: Flags.string({
@@ -54,12 +59,16 @@ export default class Docktor extends Command {
         this.error('Image is required for install operation')
       }
 
-      const env: Record<string, string> = {}
       const binds: string[] = []
+      const envVars: string[] = []
 
       if (flags['model-path']) {
         const absModelPath = path.resolve(flags['model-path'])
         binds.push(`${absModelPath}:/model`)
+      }
+
+      if (flags.environment && flags.environment.length > 0) {
+        envVars.push(...flags.environment)
       }
 
       // Add socket mounting for docker tools if needed, but primarily we want the container to run as a server
@@ -69,8 +78,14 @@ export default class Docktor extends Command {
 
       mcpConfig.mcpServers[args.name] = {
         command: 'docker',
-        args: ['run', '-i', '--rm', ...binds.flatMap((b) => ['-v', b]), flags.image],
-        env,
+        args: [
+          'run',
+          '-i',
+          '--rm',
+          ...binds.flatMap((b) => ['-v', b]),
+          ...envVars.flatMap((e) => ['-e', e]),
+          flags.image,
+        ],
       }
 
       fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2))
