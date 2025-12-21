@@ -25,7 +25,11 @@ export default class Docktor extends Command {
       description: 'Environment variables to pass to docker (format: VAR=value)',
     }),
     image: Flags.string({char: 'i', description: 'Docker image for the inference pipeline (required for install)'}),
-    'model-path': Flags.string({char: 'm', description: 'Local path to the model directory (optional for install)'}),
+    'model-path': Flags.string({
+      char: 'm',
+      default: '/lunar/packages/mcpx-server/config',
+      description: 'Local path to the model directory (optional for install)',
+    }),
     workdir: Flags.string({
       char: 'w',
       default: `${os.homedir()}/dhti`,
@@ -36,7 +40,7 @@ export default class Docktor extends Command {
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Docktor)
 
-    const mcpxConfigPath = path.join(flags.workdir, 'mcpx-config')
+    const mcpxConfigPath = path.join(flags.workdir, 'config')
     const mcpJsonPath = path.join(mcpxConfigPath, 'mcp.json')
 
     // Ensure config directory exists
@@ -101,7 +105,7 @@ export default class Docktor extends Command {
       // Copy only mcp.json to container and restart
       try {
         const {execSync} = await import('node:child_process')
-        execSync(`docker cp ${mcpJsonPath} dhti-mcpx-1:/lunar/packages/mcpx-server/config/`)
+        execSync(`docker cp ${mcpxConfigPath} dhti-mcpx-1:/lunar/packages/mcpx-server/`)
         this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
         execSync('docker restart dhti-mcpx-1')
         this.log(chalk.green('Restarted dhti-mcpx-1 container.'))
