@@ -21,11 +21,17 @@ export default class Docktor extends Command {
   static override flags = {
     image: Flags.string({char: 'i', description: 'Docker image for the inference pipeline (required for install)'}),
     'model-path': Flags.string({char: 'm', description: 'Local path to the model directory (optional for install)'}),
+    workdir: Flags.string({
+      char: 'w',
+      default: `${os.homedir()}/dhti`,
+      description: 'Working directory for MCPX config',
+    }),
   }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Docktor)
-    const mcpxConfigPath = path.join(os.homedir(), 'mcpx-config')
+
+    const mcpxConfigPath = path.join(flags.workdir, 'mcpx-config')
     const mcpJsonPath = path.join(mcpxConfigPath, 'mcp.json')
 
     // Ensure config directory exists
@@ -52,8 +58,8 @@ export default class Docktor extends Command {
       const binds: string[] = []
 
       if (flags['model-path']) {
-           const absModelPath = path.resolve(flags['model-path'])
-           binds.push(`${absModelPath}:/model`)
+        const absModelPath = path.resolve(flags['model-path'])
+        binds.push(`${absModelPath}:/model`)
       }
 
       // Add socket mounting for docker tools if needed, but primarily we want the container to run as a server
@@ -62,21 +68,14 @@ export default class Docktor extends Command {
       // Based on MCP std, docker servers are defined with `docker` command.
 
       mcpConfig.mcpServers[args.name] = {
-        command: "docker",
-        args: [
-            "run",
-            "-i",
-            "--rm",
-            ...binds.flatMap(b => ["-v", b]),
-            flags.image
-        ],
-        env
+        command: 'docker',
+        args: ['run', '-i', '--rm', ...binds.flatMap((b) => ['-v', b]), flags.image],
+        env,
       }
 
       fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2))
       this.log(chalk.green(`Inference pipeline '${args.name}' added to MCPX config.`))
       this.log(chalk.yellow('Please restart the MCPX container to apply changes: docker restart dhti-mcpx-1'))
-
     } else if (args.op === 'remove') {
       if (!args.name) {
         this.error('Name is required for remove operation')
@@ -90,14 +89,13 @@ export default class Docktor extends Command {
       } else {
         this.log(chalk.yellow(`Inference pipeline '${args.name}' not found.`))
       }
-
     } else if (args.op === 'list') {
       this.log(chalk.blue('Installed Inference Pipelines:'))
       for (const [name, config] of Object.entries(mcpConfig.mcpServers)) {
-          this.log(`- ${name}: ${(config as any).args.join(' ')}`)
+        this.log(`- ${name}: ${(config as any).args.join(' ')}`)
       }
     } else {
-        this.error(`Unknown operation: ${args.op}`)
+      this.error(`Unknown operation: ${args.op}`)
     }
   }
 }
