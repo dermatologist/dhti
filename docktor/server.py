@@ -10,17 +10,25 @@ mcp = FastMCP("pyhealth-classifier")
 # In a real scenario, you would load the model from /model
 MODEL_PATH = "/model/model.pth"
 
+
+# Input is always a string representing patient ID
 @mcp.tool()
-def classify_skin_lesion(image_data: str) -> str:
+def classify_skin_lesion(patientId: str) -> str:
     """
     Classify a skin lesion from image data.
 
     Args:
-        image_data: Base64 encoded string of the image.
+        patientId: The ID of the patient whose skin lesion is to be classified.
 
     Returns:
         JSON string containing classification result.
     """
+
+    # Read the file from /model/ starting with patientId
+    image_path = f"/model/{patientId}.jpg"
+    if not os.path.exists(image_path):
+        return json.dumps({"error": f"Image for patient ID {patientId} not found.", "status": "failed"})
+
     # Mock classification logic
     # In a real scenario, you would preprocess the image and run inference
 
