@@ -75,7 +75,17 @@ export default class Docktor extends Command {
 
       fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2))
       this.log(chalk.green(`Inference pipeline '${args.name}' added to MCPX config.`))
-      this.log(chalk.yellow('Please restart the MCPX container to apply changes: docker restart dhti-mcpx-1'))
+
+      // Copy only mcp.json to container and restart
+      try {
+        const {execSync} = await import('node:child_process')
+        execSync(`docker cp ${mcpJsonPath} dhti-mcpx-1:/lunar/packages/mcpx-server/config/`)
+        this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
+        execSync('docker restart dhti-mcpx-1')
+        this.log(chalk.green('Restarted dhti-mcpx-1 container.'))
+      } catch (err) {
+        this.log(chalk.red('Failed to copy config or restart container. Please check Docker status.'))
+      }
     } else if (args.op === 'remove') {
       if (!args.name) {
         this.error('Name is required for remove operation')
