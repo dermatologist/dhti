@@ -49,7 +49,12 @@ export default class Docktor extends Command {
       fs.writeFileSync(mcpJsonPath, JSON.stringify({mcpServers: {}}, null, 2))
     }
 
-    const mcpConfig = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'))
+    let mcpConfig = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'))
+
+    // Ensure mcpServers exists
+    if (!mcpConfig.mcpServers) {
+      mcpConfig.mcpServers = {}
+    }
 
     if (args.op === 'install') {
       if (!args.name) {
@@ -76,6 +81,7 @@ export default class Docktor extends Command {
       // We need to configure it in mcp.json so MCPX picks it up.
       // Based on MCP std, docker servers are defined with `docker` command.
 
+      // Add (merge) new server into existing mcpServers
       mcpConfig.mcpServers[args.name] = {
         command: 'docker',
         args: [
@@ -88,6 +94,7 @@ export default class Docktor extends Command {
         ],
       }
 
+      // Write back the updated config (preserving all other properties and existing servers)
       fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2))
       this.log(chalk.green(`Inference pipeline '${args.name}' added to MCPX config.`))
 
@@ -106,8 +113,9 @@ export default class Docktor extends Command {
         this.error('Name is required for remove operation')
       }
 
-      if (mcpConfig.mcpServers[args.name]) {
+      if (mcpConfig.mcpServers && mcpConfig.mcpServers[args.name]) {
         delete mcpConfig.mcpServers[args.name]
+        // Write back the updated config (preserving all other properties and remaining servers)
         fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2))
         this.log(chalk.green(`Inference pipeline '${args.name}' removed from MCPX config.`))
         this.log(chalk.yellow('Please restart the MCPX container to apply changes: docker restart dhti-mcpx-1'))
