@@ -1,0 +1,43 @@
+# Multi-stage build for Go MCP server
+
+# Stage 1: Build
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /build
+
+# Install dependencies
+RUN apk add --no-cache git
+
+# Copy go mod and sum files (if they exist)
+COPY go.mod go.sum* ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY mcp.go .
+
+# Build the binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o mcp .
+
+# Stage 2: Runtime
+FROM alpine:latest
+
+WORKDIR /app
+
+# Install ca-certificates for HTTPS support if needed
+RUN apk --no-cache add ca-certificates
+
+# Copy binary from builder
+COPY --from=builder /build/mcp /app/mcp
+
+# Create /model directory for input files
+RUN mkdir -p /model
+
+# Run as non-root
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser
+USER appuser
+
+# Run the MCP server
+ENTRYPOINT ["/app/mcp"]
