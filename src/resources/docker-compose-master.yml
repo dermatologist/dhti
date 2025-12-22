@@ -133,7 +133,7 @@ services:
         - "hapi.fhir.enforce_referential_integrity_on_delete=false"
 
   mcp-fhir:
-    image: beapen/fhir-mcp-server:1.0
+    image: beapen/fhir-mcp-server:4.0
     ports:
       - 8006:8000
     restart: "unless-stopped"
