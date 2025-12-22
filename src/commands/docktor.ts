@@ -6,7 +6,7 @@ import path from 'node:path'
 
 export default class Docktor extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install, remove, list)', required: true}),
+    op: Args.string({description: 'Operation to perform (install, remove, restart, list)', required: true}),
     name: Args.string({description: 'Name of the inference pipeline (e.g., skin-cancer-classifier)', required: false}),
   }
 
@@ -35,6 +35,18 @@ export default class Docktor extends Command {
       default: `${os.homedir()}/dhti`,
       description: 'Working directory for MCPX config',
     }),
+  }
+
+  private async restartMcpxContainer(mcpxConfigPath: string): Promise<void> {
+    try {
+      const {execSync} = await import('node:child_process')
+      execSync(`docker cp ${mcpxConfigPath} dhti-mcpx-1:/lunar/packages/mcpx-server/`)
+      this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
+      execSync('docker restart dhti-mcpx-1')
+      this.log(chalk.green('Restarted dhti-mcpx-1 container.'))
+    } catch (err) {
+      this.log(chalk.red('Failed to copy config or restart container. Please check Docker status.'))
+    }
   }
 
   public async run(): Promise<void> {
@@ -103,15 +115,7 @@ export default class Docktor extends Command {
       this.log(chalk.green(`Inference pipeline '${args.name}' added to MCPX config.`))
 
       // Copy only mcp.json to container and restart
-      try {
-        const {execSync} = await import('node:child_process')
-        execSync(`docker cp ${mcpxConfigPath} dhti-mcpx-1:/lunar/packages/mcpx-server/`)
-        this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
-        execSync('docker restart dhti-mcpx-1')
-        this.log(chalk.green('Restarted dhti-mcpx-1 container.'))
-      } catch (err) {
-        this.log(chalk.red('Failed to copy config or restart container. Please check Docker status.'))
-      }
+      await this.restartMcpxContainer(mcpxConfigPath)
     } else if (args.op === 'remove') {
       if (!args.name) {
         this.error('Name is required for remove operation')
@@ -122,10 +126,12 @@ export default class Docktor extends Command {
         // Write back the updated config (preserving all other properties and remaining servers)
         fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2))
         this.log(chalk.green(`Inference pipeline '${args.name}' removed from MCPX config.`))
-        this.log(chalk.yellow('Please restart the MCPX container to apply changes: docker restart dhti-mcpx-1'))
+        this.log(chalk.yellow('Please restart the MCPX container to apply changes: dhti-cli docktor restart'))
       } else {
         this.log(chalk.yellow(`Inference pipeline '${args.name}' not found.`))
       }
+    } else if (args.op === 'restart') {
+      await this.restartMcpxContainer(mcpxConfigPath)
     } else if (args.op === 'list') {
       this.log(chalk.blue('Installed Inference Pipelines:'))
       for (const [name, config] of Object.entries(mcpConfig.mcpServers)) {
