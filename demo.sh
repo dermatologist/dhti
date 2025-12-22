@@ -1,3 +1,4 @@
+#!/bin/bash
 rm -rf ~/dhti
 npx -y dhti-cli compose add -m openmrs -m langserve
 npx -y dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template
