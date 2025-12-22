@@ -154,7 +154,8 @@ export default class Docktor extends Command {
     } else if (args.op === 'list') {
       this.log(chalk.blue('Installed Inference Pipelines:'))
       for (const [name, config] of Object.entries(mcpConfig.mcpServers)) {
-        this.log(`- ${name}: ${(config as any).args.join(' ')}`)
+        const argsList = Array.isArray((config as any).args) ? (config as any).args.join(' ') : ''
+        this.log(`- ${name}: ${argsList}`)
       }
     } else {
       this.error(`Unknown operation: ${args.op}`)
