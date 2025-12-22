@@ -19,6 +19,11 @@ export default class Docktor extends Command {
   ]
 
   static override flags = {
+    container: Flags.string({
+      char: 'c',
+      default: 'dhti-mcpx-1',
+      description: 'Docker container name for MCPX (use docker ps to find the correct name)',
+    }),
     environment: Flags.string({
       char: 'e',
       multiple: true,
@@ -37,15 +42,19 @@ export default class Docktor extends Command {
     }),
   }
 
-  private async restartMcpxContainer(mcpxConfigPath: string): Promise<void> {
+  private async restartMcpxContainer(mcpxConfigPath: string, containerName: string): Promise<void> {
     try {
       const {execSync} = await import('node:child_process')
-      execSync(`docker cp ${mcpxConfigPath} dhti-mcpx-1:/lunar/packages/mcpx-server/`)
+      execSync(`docker cp ${mcpxConfigPath} ${containerName}:/lunar/packages/mcpx-server/`)
       this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
-      execSync('docker restart dhti-mcpx-1')
-      this.log(chalk.green('Restarted dhti-mcpx-1 container.'))
+      execSync(`docker restart ${containerName}`)
+      this.log(chalk.green(`Restarted ${containerName} container.`))
     } catch (err) {
-      this.log(chalk.red('Failed to copy config or restart container. Please check Docker status.'))
+      this.log(
+        chalk.red(
+          `Failed to copy config or restart container '${containerName}'. Please check Docker status and container name.`,
+        ),
+      )
     }
   }
 
@@ -96,9 +105,7 @@ export default class Docktor extends Command {
 
         if (invalidEnvVars.length > 0) {
           this.error(
-            `Invalid environment variable format. Expected 'NAME=value'. Invalid entries: ${invalidEnvVars.join(
-              ', ',
-            )}`,
+            `Invalid environment variable format. Expected 'NAME=value'. Invalid entries: ${invalidEnvVars.join(', ')}`,
           )
         }
         envVars.push(...flags.environment)
@@ -127,7 +134,7 @@ export default class Docktor extends Command {
       this.log(chalk.green(`Inference pipeline '${args.name}' added to MCPX config.`))
 
       // Copy only mcp.json to container and restart
-      await this.restartMcpxContainer(mcpxConfigPath)
+      await this.restartMcpxContainer(mcpxConfigPath, flags.container)
     } else if (args.op === 'remove') {
       if (!args.name) {
         this.error('Name is required for remove operation')
@@ -143,7 +150,7 @@ export default class Docktor extends Command {
         this.log(chalk.yellow(`Inference pipeline '${args.name}' not found.`))
       }
     } else if (args.op === 'restart') {
-      await this.restartMcpxContainer(mcpxConfigPath)
+      await this.restartMcpxContainer(mcpxConfigPath, flags.container)
     } else if (args.op === 'list') {
       this.log(chalk.blue('Installed Inference Pipelines:'))
       for (const [name, config] of Object.entries(mcpConfig.mcpServers)) {
