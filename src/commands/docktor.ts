@@ -89,6 +89,18 @@ export default class Docktor extends Command {
       }
 
       if (flags.environment && flags.environment.length > 0) {
+        const invalidEnvVars = flags.environment.filter((e) => {
+          const idx = e.indexOf('=')
+          return idx <= 0 || idx === e.length - 1
+        })
+
+        if (invalidEnvVars.length > 0) {
+          this.error(
+            `Invalid environment variable format. Expected 'NAME=value'. Invalid entries: ${invalidEnvVars.join(
+              ', ',
+            )}`,
+          )
+        }
         envVars.push(...flags.environment)
       }
 
