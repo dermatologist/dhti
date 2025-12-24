@@ -22,6 +22,9 @@ Generative AI features are built as [LangServe Apps](https://python.langchain.co
 
 ### Want to know more?
 
+*Watch this demo video:*
+[![WATCH DHTI DEMO](https://img.youtube.com/vi/5jFFe3wqKM0/0.jpg)](https://www.youtube.com/watch?v=5jFFe3wqKM0)
+
 Gen AI can transform medicine. But it needs a framework for collaborative research and practice. DHTI is a reference architecture and an implementation for such a framework that integrates an EMR ([OpenMRS](https://openmrs.org/)), :link: Gen AI application server ([LangServe](https://python.langchain.com/v0.2/docs/langserve/)), self-hosted LLMs for privacy ([Ollama](https://ollama.com/)), tools on [MCP server](https://github.com/dermatologist/fhir-mcp-server),  vector store for RAG ([redis](https://redis.io/)), monitoring ([LangFuse](https://langfuse.com/)), 🔥 FHIR repository with [CQL](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html) support ([HAPI](https://cloud.alphora.com/sandbox/r4/cqm/)) and graph utilities ([Neo4j](https://neo4j.com/)) in one docker-compose! DHTI is inspired by [Bahmni](https://www.bahmni.org/) and **aims to facilitate GenAI adoption and research in areas with low resources.** The MCP server hosts pluggable, agent-invokable tools (FHIR query, summarization, terminology lookup, custom analytics, etc.) that you can extend without modifying core services.
 
 The essence of DHTI is *modularity* with an emphasis on *configuration!* It is non-opinionated on LLMs, hyperparameters and pretty much everything. DHTI supports installable Gen AI routines through [LangServe Apps](https://python.langchain.com/docs/langserve/) (which we call :curry: **elixir**) and installable UI elements through [OpenMRS O3](https://o3-docs.openmrs.org/) React container (which we call :shell: **conch**). 🔥 FHIR is used for backend and [CDS-Hooks](https://cds-hooks.org/) for frontend communication, decoupling conches from OpenMRS, making them potentially usable with any health information system. We have a [fork of the cds-hook sandbox](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) for testing that uses the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs (recommended).
@@ -106,7 +109,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 * **EMR**: Built-in EMR, OpenMRS, for patient records.
 * 👉 [Try it out today!](#try-it-out)
 
- 🌈 *Join us to make the Gen AI equitable and help doctors save lives!*
+*Join us to make the Gen AI equitable and help doctors save lives!*
 
 ## :sparkles: Resources
 * [fhiry](https://github.com/dermatologist/fhiry): FHIR to pandas dataframe for data analytics, AI and ML!
@@ -130,6 +133,8 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 ## Try it out
 
 * You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. We use a fake LLM script for testing purposes, so you don't need an OpenAI key to run this project. It just says "Paris" or "I don't know" to any prompt. You can replace it with any internal or external LLM service later.
+
+👉  **If you are in a hurry, just run `./demo.sh` from a terminal (Linux or MacOS) in the root folder to try out the demo.** Windows users can use WSL. You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/). This script runs all the commands below. Once done, use `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
 * `npx dhti-cli help` to see all available commands.
 

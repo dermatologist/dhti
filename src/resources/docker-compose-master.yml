@@ -10,7 +10,7 @@ services:
       - backend
     ports:
       - "80:80"
-      - "9000:80"
+      - "9001:80"
 
 
   frontend:
@@ -133,7 +133,7 @@ services:
         - "hapi.fhir.enforce_referential_integrity_on_delete=false"
 
   mcp-fhir:
-    image: beapen/fhir-mcp-server:1.0
+    image: beapen/fhir-mcp-server:4.0
     ports:
       - 8006:8000
     restart: "unless-stopped"
@@ -225,6 +225,23 @@ services:
       - spring.neo4j.authentication.username=neo4j
       - spring.neo4j.authentication.password=password
 
+  mcpx:
+    image: us-central1-docker.pkg.dev/prj-common-442813/mcpx/mcpx:latest
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+      - "5173:5173"
+      - "3000:3000"
+    # environment:
+    #   - MCPX_PORT=9000
+    #   - MCPX_SERVER_URL="http://10.0.0.211:9000"
+    #   - VITE_MCPX_SERVER_PORT=9000
+    #   - VITE_MCPX_SERVER_URL="http://10.0.0.211:9000"
+    restart: unless-stopped
+    volumes:
+      - mcpx-config:/lunar/packages/mcpx-server/config
+    privileged: true
+
 
 volumes:
   openmrs-data: ~
@@ -236,3 +253,4 @@ volumes:
   ollama-code: ~
   ollama-root: ~
   ollama-webui: ~
+  mcpx-config: ~

@@ -28,7 +28,7 @@ export default class Compose extends Command {
     // flag with a value (-n, --name=VALUE)
     module: Flags.string({
       char: 'm',
-      description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir)',
+      description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis, neo4j, mcpFhir, mcpx and docktor)',
       multiple: true,
     }),
   }
@@ -67,6 +67,8 @@ export default class Compose extends Command {
     const webui = ['ollama-webui']
     const fhir = ['fhir', 'postgres-db']
     const mcpFhir = ['mcp-fhir', 'fhir', 'postgres-db']
+    const mcpx = ['mcpx']
+    const docktor = ['mcpx']
 
     const _modules: {[key: string]: string[]} = {
       cqlFhir,
@@ -75,6 +77,8 @@ export default class Compose extends Command {
       langfuse,
       langserve,
       mcpFhir,
+      mcpx,
+      docktor,
       neo4j,
       ollama,
       openmrs,

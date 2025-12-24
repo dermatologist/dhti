@@ -1,0 +1,8 @@
+{
+	"servers": {
+        "mcpx": {
+                "transport": "http",
+                "url": "http://0.0.0.0:9000/mcp",
+        }
+    }
+}
