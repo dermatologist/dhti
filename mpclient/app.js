@@ -11,7 +11,7 @@
  * - PORT: listening port (default 8111)
  * - MPCLIENT_BASE_URL: external base URL of this app (default http://localhost:8111)
  * - MEDPLUM_ISSUER_URL: Medplum base URL (default http://localhost:8103)
- * - MEDPLUM_FHIR_BASE_URL: FHIR base URL (default http://localhost:8103/fhir/R4)
+ * - MEDPLUM_FHIR_BASE_URL: FHIR base URL (default http://medplum-server:8103/fhir/R4)
  * - MEDPLUM_CLIENT_ID: OAuth client id
  * - MEDPLUM_CLIENT_SECRET: OAuth client secret
  * - MEDPLUM_REDIRECT_URL: redirect URI registered in Medplum (default http://localhost:8111)
@@ -19,6 +19,7 @@
  */
 
 const crypto = require('node:crypto');
+const zlib = require('node:zlib');
 const express = require('express');
 const session = require('express-session');
 
@@ -33,7 +34,7 @@ const MEDPLUM_TOKEN_URL = process.env.MEDPLUM_TOKEN_URL || 'http://medplum-serve
 const TOKEN_URL = MEDPLUM_TOKEN_URL;
 
 // FHIR proxy target
-const MEDPLUM_FHIR_BASE_URL = process.env.MEDPLUM_FHIR_BASE_URL || 'http://localhost:8103/fhir/R4';
+const MEDPLUM_FHIR_BASE_URL = process.env.MEDPLUM_FHIR_BASE_URL || 'http://medplum-server:8103/fhir/R4';
 
 // OAuth client settings
 const MEDPLUM_CLIENT_ID =
@@ -301,7 +302,7 @@ app.get('/', async (req, res) => {
   if (!code) {
     const isAuthed = Boolean(req.session.token);
     const defaultIssuerUrl = req.session.config?.issuerUrl || process.env.MEDPLUM_ISSUER_URL || 'http://localhost:8103';
-    const defaultFhirUrl = req.session.config?.fhirBaseUrl || process.env.MEDPLUM_FHIR_BASE_URL || 'http://localhost:8103/fhir/R4';
+    const defaultFhirUrl = req.session.config?.fhirBaseUrl || process.env.MEDPLUM_FHIR_BASE_URL || 'http://medplum-server:8103/fhir/R4';
     const defaultTokenUrl = req.session.config?.tokenUrl || process.env.MEDPLUM_TOKEN_URL || 'http://medplum-server:8103/oauth2/token';
     const defaultClientId = req.session.config?.clientId || process.env.MEDPLUM_CLIENT_ID || '9d49ca0f-16e1-4c85-9f35-e4ad4d695023';
     const defaultClientSecret = req.session.config?.clientSecret || process.env.MEDPLUM_CLIENT_SECRET || 'e0e1868b887f2cad871a121035a0acf1579823e840b3e7d357bc85d10e726248';
@@ -460,6 +461,7 @@ app.use(
 
       headers.authorization = `Bearer ${accessToken}`;
 
+
       const upstream = await fetch(targetUrl.toString(), {
         method: req.method,
         headers,
@@ -471,10 +473,24 @@ app.use(
       upstream.headers.forEach((value, key) => {
         // Avoid setting hop-by-hop headers
         if (key.toLowerCase() === 'transfer-encoding') return;
+        // Remove content-encoding since we'll decompress if needed
+        if (key.toLowerCase() === 'content-encoding') return;
         res.setHeader(key, value);
       });
 
-      const buf = Buffer.from(await upstream.arrayBuffer());
+      let buf = Buffer.from(await upstream.arrayBuffer());
+
+      // Decompress gzip if needed
+      const contentEncoding = upstream.headers.get('content-encoding');
+      if (contentEncoding === 'gzip') {
+        buf = await new Promise((resolve, reject) => {
+          zlib.gunzip(buf, (err, decompressed) => {
+            if (err) reject(err);
+            else resolve(decompressed);
+          });
+        });
+      }
+
       // Use res.end() for raw buffers (res.send() may not handle raw data correctly with express.raw middleware)
       res.end(buf);
     } catch (e) {
