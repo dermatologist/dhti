@@ -82,20 +82,25 @@ function getNowSeconds() {
   return Math.floor(Date.now() / 1000);
 }
 
-async function exchangeCodeForToken({ code, codeVerifier }) {
+async function exchangeCodeForToken({ code, codeVerifier, config }) {
+  const clientId = config.clientId || MEDPLUM_CLIENT_ID;
+  const clientSecret = config.clientSecret || MEDPLUM_CLIENT_SECRET;
+  const tokenUrl = `${(config.issuerUrl || MEDPLUM_ISSUER_URL).replace(/\/$/, '')}/oauth2/token`;
+  const redirectUrl = config.redirectUrl || MEDPLUM_REDIRECT_URL;
+
   const body = toFormBody({
     grant_type: 'authorization_code',
-    client_id: MEDPLUM_CLIENT_ID,
+    client_id: clientId,
     code,
-    redirect_uri: MEDPLUM_REDIRECT_URL,
+    redirect_uri: redirectUrl,
     code_verifier: codeVerifier,
   });
 
-  const res = await fetch(TOKEN_URL, {
+  const res = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
-      authorization: basicAuthHeader(MEDPLUM_CLIENT_ID, MEDPLUM_CLIENT_SECRET),
+      authorization: basicAuthHeader(clientId, clientSecret),
     },
     body,
   });
@@ -110,18 +115,22 @@ async function exchangeCodeForToken({ code, codeVerifier }) {
   return JSON.parse(text);
 }
 
-async function refreshToken(refreshTokenValue) {
+async function refreshToken(refreshTokenValue, config) {
+  const clientId = config.clientId || MEDPLUM_CLIENT_ID;
+  const clientSecret = config.clientSecret || MEDPLUM_CLIENT_SECRET;
+  const tokenUrl = `${(config.issuerUrl || MEDPLUM_ISSUER_URL).replace(/\/$/, '')}/oauth2/token`;
+
   const body = toFormBody({
     grant_type: 'refresh_token',
-    client_id: MEDPLUM_CLIENT_ID,
+    client_id: clientId,
     refresh_token: refreshTokenValue,
   });
 
-  const res = await fetch(TOKEN_URL, {
+  const res = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
-      authorization: basicAuthHeader(MEDPLUM_CLIENT_ID, MEDPLUM_CLIENT_SECRET),
+      authorization: basicAuthHeader(clientId, clientSecret),
     },
     body,
   });
@@ -168,6 +177,8 @@ async function ensureFreshAccessToken(req) {
     throw new Error('No token in session');
   }
 
+  const config = req.session.config || {};
+
   // token.expires_at is unix seconds
   const now = getNowSeconds();
   const expiresAt = token.expires_at || 0;
@@ -181,7 +192,7 @@ async function ensureFreshAccessToken(req) {
     throw new Error('Access token expired and no refresh_token available');
   }
 
-  const refreshed = await refreshToken(token.refresh_token);
+  const refreshed = await refreshToken(token.refresh_token, config);
 
   // Preserve refresh_token if refresh response does not include a new one
   const nextRefreshToken = refreshed.refresh_token || token.refresh_token;
@@ -213,7 +224,17 @@ app.use(
   })
 );
 
+// Parse form data
+app.use(express.urlencoded({ extended: false }));
+
 app.get('/auth/login', (req, res) => {
+  // Use config from session if available, else use env vars or defaults
+  const issuerUrl = req.session.config?.issuerUrl || process.env.MEDPLUM_ISSUER_URL || 'http://localhost:8103';
+  const clientId = req.session.config?.clientId || process.env.MEDPLUM_CLIENT_ID || '9d49ca0f-16e1-4c85-9f35-e4ad4d695023';
+  const redirectUrl = req.session.config?.redirectUrl || process.env.MEDPLUM_REDIRECT_URL || MPCLIENT_BASE_URL;
+
+  const authorizeUrl = `${issuerUrl.replace(/\/$/, '')}/oauth2/authorize`;
+
   // PKCE
   const codeVerifier = randomString(32);
   const codeChallenge = sha256Base64Url(codeVerifier);
@@ -226,16 +247,38 @@ app.get('/auth/login', (req, res) => {
   // Request offline_access so we can refresh tokens.
   const scope = 'openid offline_access';
 
-  const authorizeUrl = new URL(AUTHORIZE_URL);
-  authorizeUrl.searchParams.set('response_type', 'code');
-  authorizeUrl.searchParams.set('client_id', MEDPLUM_CLIENT_ID);
-  authorizeUrl.searchParams.set('redirect_uri', MEDPLUM_REDIRECT_URL);
-  authorizeUrl.searchParams.set('scope', scope);
-  authorizeUrl.searchParams.set('state', state);
-  authorizeUrl.searchParams.set('code_challenge_method', 'S256');
-  authorizeUrl.searchParams.set('code_challenge', codeChallenge);
+  const url = new URL(authorizeUrl);
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('client_id', clientId);
+  url.searchParams.set('redirect_uri', redirectUrl);
+  url.searchParams.set('scope', scope);
+  url.searchParams.set('state', state);
+  url.searchParams.set('code_challenge_method', 'S256');
+  url.searchParams.set('code_challenge', codeChallenge);
 
-  res.redirect(authorizeUrl.toString());
+  res.redirect(url.toString());
+});
+
+// Handle form submission from home page
+app.post('/auth/login', (req, res) => {
+  const { issuerUrl, fhirBaseUrl, clientId, clientSecret, redirectUrl } = req.body;
+
+  // Validate inputs
+  if (!issuerUrl || !fhirBaseUrl || !clientId || !clientSecret || !redirectUrl) {
+    return res.status(400).send('<h1>Missing required fields</h1><p><a href="/">Go back</a></p>');
+  }
+
+  // Store config in session for use during token exchange and proxy
+  req.session.config = {
+    issuerUrl,
+    fhirBaseUrl,
+    clientId,
+    clientSecret,
+    redirectUrl,
+  };
+
+  // Redirect to GET /auth/login which will use the session config
+  res.redirect('/auth/login');
 });
 
 // Redirect URI handler. Prompt states redirect URL is http://localhost:8111
@@ -248,35 +291,88 @@ app.get('/', async (req, res) => {
       .send(
         `<h1>Authentication error</h1><p>${String(error)}</p><pre>${String(
           error_description || ''
-        )}</pre><p><a href="/auth/login">Try again</a></p>`
+        )}</pre><p><a href="/">Try again</a></p>`
       );
   }
 
-  // If no code, show a simple home page.
+  // If no code, show configuration form or home page.
   if (!code) {
     const isAuthed = Boolean(req.session.token);
+    const defaultIssuerUrl = req.session.config?.issuerUrl || process.env.MEDPLUM_ISSUER_URL || 'http://localhost:8103';
+    const defaultFhirUrl = req.session.config?.fhirBaseUrl || process.env.MEDPLUM_FHIR_BASE_URL || 'http://localhost:8103/fhir/R4';
+    const defaultClientId = req.session.config?.clientId || process.env.MEDPLUM_CLIENT_ID || '9d49ca0f-16e1-4c85-9f35-e4ad4d695023';
+    const defaultClientSecret = req.session.config?.clientSecret || process.env.MEDPLUM_CLIENT_SECRET || 'e0e1868b887f2cad871a121035a0acf1579823e840b3e7d357bc85d10e726248';
+    const defaultRedirectUrl = req.session.config?.redirectUrl || process.env.MEDPLUM_REDIRECT_URL || MPCLIENT_BASE_URL;
+
     return res.send(`
-      <h1>mpclient</h1>
-      <p>Status: ${isAuthed ? 'Authenticated' : 'Not authenticated'}</p>
-      <h2>Browser</h2>
-      <ul>
-        <li><a href="/auth/login">Login with Medplum</a></li>
-        <li><a href="/auth/logout">Logout</a></li>
-      </ul>
-      <h2>Command Line / API</h2>
-      <ol>
-        <li>First, authenticate in the browser above</li>
-        <li>Then <a href="/auth/token">get your access token</a></li>
-        <li>Use it: <code>curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8111/fhir/R4/...</code></li>
-      </ol>
-      <p>FHIR proxy endpoint: <code>/fhir/R4/*</code></p>
+      <html>
+      <head>
+        <title>mpclient</title>
+        <style>
+          body { font-family: sans-serif; margin: 20px; max-width: 600px; }
+          form { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
+          label { display: block; margin-top: 10px; font-weight: bold; }
+          input { width: 100%; padding: 5px; margin-top: 5px; box-sizing: border-box; }
+          button { margin-top: 15px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+          button:hover { background: #0056b3; }
+          .status { padding: 10px; margin-bottom: 20px; border-radius: 3px; }
+          .status.authenticated { background: #d4edda; color: #155724; }
+          .status.unauthenticated { background: #f8d7da; color: #721c24; }
+          hr { margin: 30px 0; }
+        </style>
+      </head>
+      <body>
+        <h1>mpclient</h1>
+        <div class="status ${isAuthed ? 'authenticated' : 'unauthenticated'}">
+          Status: ${isAuthed ? '✓ Authenticated' : '✗ Not authenticated'}
+        </div>
+
+        ${isAuthed ? `
+          <h2>Authenticated</h2>
+          <ul>
+            <li><a href="/auth/token">Get your access token</a></li>
+            <li><a href="/auth/logout">Logout</a></li>
+          </ul>
+          <p>FHIR proxy endpoint: <code>/fhir/R4/*</code></p>
+          <p>Use with curl: <code>curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8111/fhir/R4/...</code></p>
+        ` : `
+          <h2>Configure Medplum OAuth</h2>
+          <form method="POST" action="/auth/login">
+            <label for="issuerUrl">Medplum Issuer URL:</label>
+            <input type="text" id="issuerUrl" name="issuerUrl" value="${defaultIssuerUrl}" required />
+
+            <label for="fhirBaseUrl">FHIR Base URL:</label>
+            <input type="text" id="fhirBaseUrl" name="fhirBaseUrl" value="${defaultFhirUrl}" required />
+
+            <label for="clientId">Client ID:</label>
+            <input type="text" id="clientId" name="clientId" value="${defaultClientId}" required />
+
+            <label for="clientSecret">Client Secret:</label>
+            <input type="password" id="clientSecret" name="clientSecret" value="${defaultClientSecret}" required />
+
+            <label for="redirectUrl">Redirect URL:</label>
+            <input type="text" id="redirectUrl" name="redirectUrl" value="${defaultRedirectUrl}" required />
+
+            <button type="submit">Login with Medplum</button>
+          </form>
+        `}
+
+        <hr />
+        <h3>Command Line / API</h3>
+        <ol>
+          <li>Configure and authenticate using the form above</li>
+          <li>Then <a href="/auth/token">get your access token</a></li>
+          <li>Use it: <code>curl -H "Authorization: Bearer TOKEN" http://localhost:8111/fhir/R4/...</code></li>
+        </ol>
+      </body>
+      </html>
     `);
   }
 
   if (!req.session.pkce) {
     return res
       .status(400)
-      .send('<h1>Missing PKCE session</h1><p>Start at <a href="/auth/login">/auth/login</a></p>');
+      .send('<h1>Missing PKCE session</h1><p>Start at <a href="/">home</a></p>');
   }
 
   if (state !== req.session.pkce.state) {
@@ -287,6 +383,7 @@ app.get('/', async (req, res) => {
     const tokenResponse = await exchangeCodeForToken({
       code: String(code),
       codeVerifier: req.session.pkce.codeVerifier,
+      config: req.session.config || {},
     });
 
     const now = getNowSeconds();
@@ -305,7 +402,7 @@ app.get('/', async (req, res) => {
     return res
       .status(500)
       .send(
-        `<h1>Token exchange failed</h1><p>${message}</p><pre>${String(details)}</pre><p><a href="/auth/login">Try again</a></p>`
+        `<h1>Token exchange failed</h1><p>${message}</p><pre>${String(details)}</pre><p><a href="/">Try again</a></p>`
       );
   }
 });
@@ -341,8 +438,9 @@ app.use(
   async (req, res) => {
     try {
       const accessToken = await ensureFreshAccessToken(req);
+      const fhirBaseUrl = req.session.config?.fhirBaseUrl || MEDPLUM_FHIR_BASE_URL;
 
-      const base = MEDPLUM_FHIR_BASE_URL.replace(/\/$/, '');
+      const base = fhirBaseUrl.replace(/\/$/, '');
       const targetUrl = new URL(base + req.originalUrl.replace(/^\/fhir\/R4/, ''));
 
       // Preserve query string
