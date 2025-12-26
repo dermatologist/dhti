@@ -338,6 +338,24 @@ services:
       timeout: 5s
       retries: 5
 
+  mpclient:
+    image: beapen/mpclient:1.0
+    ports:
+      - "8111:8111"
+    restart: "unless-stopped"
+    environment:
+      - MEDPLUM_SERVER_URL=http://medplum-server:8103
+      - PORT=8111
+      - MPCLIENT_BASE_URL=http://localhost:8111
+      - MEDPLUM_ISSUER_URL=http://medplum-server:8103
+      - MEDPLUM_FHIR_BASE_URL=http://medplum-server:8103/fhir/R4
+      - MEDPLUM_CLIENT_ID=dhti-mpclient
+      - MEDPLUM_CLIENT_SECRET=secret
+      - MEDPLUM_REDIRECT_URL=http://localhost:8111
+      - SESSION_SECRET=change-me
+    depends_on:
+      - medplum-server
+
 volumes:
   openmrs-data: ~
   openmrs-db: ~

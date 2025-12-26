@@ -69,7 +69,7 @@ export default class Compose extends Command {
     const mcpFhir = ['mcp-fhir', 'fhir', 'postgres-db']
     const mcpx = ['mcpx']
     const docktor = ['mcpx']
-    const medplum = ['medplum-server', 'medplum-app', 'postgres-db', 'redis']
+    const medplum = ['medplum-server', 'medplum-app', 'postgres-db', 'redis', 'mpclient']
 
     const _modules: {[key: string]: string[]} = {
       cqlFhir,
