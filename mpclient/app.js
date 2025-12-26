@@ -137,13 +137,29 @@ async function refreshToken(refreshTokenValue) {
 }
 
 function ensureAuthenticated(req, res, next) {
-  if (!req.session || !req.session.token) {
-    return res.status(401).json({
-      error: 'unauthorized',
-      message: 'Not authenticated. Visit /auth/login in a browser first.',
-    });
+  // Check session-based auth (browser)
+  if (req.session && req.session.token) {
+    return next();
   }
-  return next();
+
+  // Check Bearer token in Authorization header (CLI/API)
+  const authHeader = req.get('authorization') || '';
+  if (authHeader.toLowerCase().startsWith('bearer ')) {
+    const token = authHeader.slice(7).trim();
+    // Store the raw token in a temporary session-like object for this request
+    req.session = req.session || {};
+    req.session.token = {
+      access_token: token,
+      expires_at: Math.floor(Date.now() / 1000) + 3600, // Assume valid for 1 hour
+    };
+    return next();
+  }
+
+  return res.status(401).json({
+    error: 'unauthorized',
+    message:
+      'Not authenticated. Either: (1) visit /auth/login in a browser, or (2) send `Authorization: Bearer <access_token>` header.',
+  });
 }
 
 async function ensureFreshAccessToken(req) {
@@ -242,10 +258,17 @@ app.get('/', async (req, res) => {
     return res.send(`
       <h1>mpclient</h1>
       <p>Status: ${isAuthed ? 'Authenticated' : 'Not authenticated'}</p>
+      <h2>Browser</h2>
       <ul>
         <li><a href="/auth/login">Login with Medplum</a></li>
         <li><a href="/auth/logout">Logout</a></li>
       </ul>
+      <h2>Command Line / API</h2>
+      <ol>
+        <li>First, authenticate in the browser above</li>
+        <li>Then <a href="/auth/token">get your access token</a></li>
+        <li>Use it: <code>curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8111/fhir/R4/...</code></li>
+      </ol>
       <p>FHIR proxy endpoint: <code>/fhir/R4/*</code></p>
     `);
   }
@@ -291,6 +314,22 @@ app.get('/auth/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');
   });
+});
+
+// Get current access token (for CLI use)
+app.get('/auth/token', ensureAuthenticated, async (req, res) => {
+  try {
+    const accessToken = await ensureFreshAccessToken(req);
+    res.json({
+      access_token: accessToken,
+      message: 'Use this token with: curl -H "Authorization: Bearer <token>" http://localhost:8111/fhir/R4/...',
+    });
+  } catch (e) {
+    res.status(401).json({
+      error: 'token_error',
+      message: e && e.message ? e.message : 'Failed to get token',
+    });
+  }
 });
 
 // Proxy all FHIR requests to Medplum, attaching bearer token.
