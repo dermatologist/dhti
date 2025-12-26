@@ -29,7 +29,8 @@ const MPCLIENT_BASE_URL = process.env.MPCLIENT_BASE_URL || `http://localhost:${P
 // Medplum endpoints
 const MEDPLUM_ISSUER_URL = process.env.MEDPLUM_ISSUER_URL || 'http://localhost:8103';
 const AUTHORIZE_URL = `${MEDPLUM_ISSUER_URL.replace(/\/$/, '')}/oauth2/authorize`;
-const TOKEN_URL = `${MEDPLUM_ISSUER_URL.replace(/\/$/, '')}/oauth2/token`;
+const MEDPLUM_TOKEN_URL = process.env.MEDPLUM_TOKEN_URL || 'http://medplum-server:8103/oauth2/token';
+const TOKEN_URL = MEDPLUM_TOKEN_URL;
 
 // FHIR proxy target
 const MEDPLUM_FHIR_BASE_URL = process.env.MEDPLUM_FHIR_BASE_URL || 'http://localhost:8103/fhir/R4';
@@ -85,7 +86,7 @@ function getNowSeconds() {
 async function exchangeCodeForToken({ code, codeVerifier, config }) {
   const clientId = config.clientId || MEDPLUM_CLIENT_ID;
   const clientSecret = config.clientSecret || MEDPLUM_CLIENT_SECRET;
-  const tokenUrl = `${(config.issuerUrl || MEDPLUM_ISSUER_URL).replace(/\/$/, '')}/oauth2/token`;
+  const tokenUrl = config.tokenUrl || MEDPLUM_TOKEN_URL;
   const redirectUrl = config.redirectUrl || MEDPLUM_REDIRECT_URL;
 
   const body = toFormBody({
@@ -118,7 +119,7 @@ async function exchangeCodeForToken({ code, codeVerifier, config }) {
 async function refreshToken(refreshTokenValue, config) {
   const clientId = config.clientId || MEDPLUM_CLIENT_ID;
   const clientSecret = config.clientSecret || MEDPLUM_CLIENT_SECRET;
-  const tokenUrl = `${(config.issuerUrl || MEDPLUM_ISSUER_URL).replace(/\/$/, '')}/oauth2/token`;
+  const tokenUrl = config.tokenUrl || MEDPLUM_TOKEN_URL;
 
   const body = toFormBody({
     grant_type: 'refresh_token',
@@ -261,10 +262,10 @@ app.get('/auth/login', (req, res) => {
 
 // Handle form submission from home page
 app.post('/auth/login', (req, res) => {
-  const { issuerUrl, fhirBaseUrl, clientId, clientSecret, redirectUrl } = req.body;
+  const { issuerUrl, fhirBaseUrl, tokenUrl, clientId, clientSecret, redirectUrl } = req.body;
 
   // Validate inputs
-  if (!issuerUrl || !fhirBaseUrl || !clientId || !clientSecret || !redirectUrl) {
+  if (!issuerUrl || !fhirBaseUrl || !tokenUrl || !clientId || !clientSecret || !redirectUrl) {
     return res.status(400).send('<h1>Missing required fields</h1><p><a href="/">Go back</a></p>');
   }
 
@@ -272,6 +273,7 @@ app.post('/auth/login', (req, res) => {
   req.session.config = {
     issuerUrl,
     fhirBaseUrl,
+    tokenUrl,
     clientId,
     clientSecret,
     redirectUrl,
@@ -300,6 +302,7 @@ app.get('/', async (req, res) => {
     const isAuthed = Boolean(req.session.token);
     const defaultIssuerUrl = req.session.config?.issuerUrl || process.env.MEDPLUM_ISSUER_URL || 'http://localhost:8103';
     const defaultFhirUrl = req.session.config?.fhirBaseUrl || process.env.MEDPLUM_FHIR_BASE_URL || 'http://localhost:8103/fhir/R4';
+    const defaultTokenUrl = req.session.config?.tokenUrl || process.env.MEDPLUM_TOKEN_URL || 'http://medplum-server:8103/oauth2/token';
     const defaultClientId = req.session.config?.clientId || process.env.MEDPLUM_CLIENT_ID || '9d49ca0f-16e1-4c85-9f35-e4ad4d695023';
     const defaultClientSecret = req.session.config?.clientSecret || process.env.MEDPLUM_CLIENT_SECRET || 'e0e1868b887f2cad871a121035a0acf1579823e840b3e7d357bc85d10e726248';
     const defaultRedirectUrl = req.session.config?.redirectUrl || process.env.MEDPLUM_REDIRECT_URL || MPCLIENT_BASE_URL;
@@ -343,6 +346,9 @@ app.get('/', async (req, res) => {
 
             <label for="fhirBaseUrl">FHIR Base URL:</label>
             <input type="text" id="fhirBaseUrl" name="fhirBaseUrl" value="${defaultFhirUrl}" required />
+
+            <label for="tokenUrl">OAuth2 Token URL:</label>
+            <input type="text" id="tokenUrl" name="tokenUrl" value="${defaultTokenUrl}" required />
 
             <label for="clientId">Client ID:</label>
             <input type="text" id="clientId" name="clientId" value="${defaultClientId}" required />
