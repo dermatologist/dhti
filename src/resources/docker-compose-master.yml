@@ -191,6 +191,12 @@ services:
     restart: "unless-stopped"
     volumes:
       - redis-db:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   redis-commander:
     image: rediscommander/redis-commander:latest
@@ -234,9 +240,9 @@ services:
       - "3000:3000"
     # environment:
     #   - MCPX_PORT=9000
-    #   - MCPX_SERVER_URL="http://10.0.0.211:9000"
+    #   - MCPX_SERVER_URL="http://localhost:9000"
     #   - VITE_MCPX_SERVER_PORT=9000
-    #   - VITE_MCPX_SERVER_URL="http://10.0.0.211:9000"
+    #   - VITE_MCPX_SERVER_URL="http://localhost:9000"
     restart: unless-stopped
     volumes:
       - mcpx-config:/lunar/packages/mcpx-server/config
@@ -247,10 +253,8 @@ services:
     image: medplum/medplum-server:latest
     restart: always
     depends_on:
-      postgres-db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - postgres-db
+      - redis
     ports:
       - '8103:8103'
     volumes:
@@ -316,8 +320,7 @@ services:
     image: medplum/medplum-app:latest
     restart: always
     depends_on:
-      medplum-server:
-        condition: service_healthy
+      - medplum-server
     ports:
       - '3103:3000'
     healthcheck:
