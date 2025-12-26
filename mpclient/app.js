@@ -469,7 +469,8 @@ app.use(
       });
 
       const buf = Buffer.from(await upstream.arrayBuffer());
-      res.send(buf);
+      // Use res.end() for raw buffers (res.send() may not handle raw data correctly with express.raw middleware)
+      res.end(buf);
     } catch (e) {
       const message = e && e.message ? e.message : 'Unknown error';
       res.status(502).json({ error: 'bad_gateway', message });
