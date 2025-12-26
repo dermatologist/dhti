@@ -339,7 +339,7 @@ services:
       retries: 5
 
   mpclient:
-    image: beapen/mpclient:13.0
+    image: beapen/mpclient:15.0
     ports:
       - "8111:8111"
     restart: "unless-stopped"
@@ -347,6 +347,8 @@ services:
       - PORT=8111
       - MPCLIENT_BASE_URL=http://localhost:8111
       - MEDPLUM_TOKEN_URL=http://medplum-server:8103/oauth2/token
+      - MEDPLUM_CLIENT_ID=client-id
+      - MEDPLUM_CLIENT_SECRET=secret
     depends_on:
       - medplum-server
 

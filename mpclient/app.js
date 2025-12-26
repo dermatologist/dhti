@@ -31,17 +31,13 @@ const MPCLIENT_BASE_URL = process.env.MPCLIENT_BASE_URL || `http://localhost:${P
 const MEDPLUM_ISSUER_URL = process.env.MEDPLUM_ISSUER_URL || 'http://localhost:8103';
 const AUTHORIZE_URL = `${MEDPLUM_ISSUER_URL.replace(/\/$/, '')}/oauth2/authorize`;
 const MEDPLUM_TOKEN_URL = process.env.MEDPLUM_TOKEN_URL || 'http://medplum-server:8103/oauth2/token';
-const TOKEN_URL = MEDPLUM_TOKEN_URL;
 
 // FHIR proxy target
 const MEDPLUM_FHIR_BASE_URL = process.env.MEDPLUM_FHIR_BASE_URL || 'http://medplum-server:8103/fhir/R4';
 
 // OAuth client settings
-const MEDPLUM_CLIENT_ID =
-  process.env.MEDPLUM_CLIENT_ID || '9d49ca0f-16e1-4c85-9f35-e4ad4d695023';
-const MEDPLUM_CLIENT_SECRET =
-  process.env.MEDPLUM_CLIENT_SECRET ||
-  'e0e1868b887f2cad871a121035a0acf1579823e840b3e7d357bc85d10e726248';
+const MEDPLUM_CLIENT_ID = process.env.MEDPLUM_CLIENT_ID;
+const MEDPLUM_CLIENT_SECRET = process.env.MEDPLUM_CLIENT_SECRET ;
 
 // Prompt states redirect URL is exactly http://localhost:8111
 const MEDPLUM_REDIRECT_URL = process.env.MEDPLUM_REDIRECT_URL || MPCLIENT_BASE_URL;
