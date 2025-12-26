@@ -173,7 +173,7 @@ services:
       - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES:-false}
 
   postgres-db:
-    image: postgres
+    image: postgres:17
     restart: "unless-stopped"
     environment:
       - POSTGRES_USER=postgres
@@ -183,6 +183,12 @@ services:
       - 5432:5432
     volumes:
       - postgres-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redislabs/redisearch:2.8.8
@@ -253,8 +259,10 @@ services:
     image: medplum/medplum-server:latest
     restart: always
     depends_on:
-      - postgres-db
-      - redis
+      postgres-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - '8103:8103'
     volumes:
@@ -319,8 +327,9 @@ services:
   medplum-app:
     image: medplum/medplum-app:latest
     restart: always
-    depends_on:
-      - medplum-server
+    # depends_on:
+    #   medplum-server:
+    #     condition: service_healthy
     ports:
       - '3103:3000'
     healthcheck:
