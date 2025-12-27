@@ -16,7 +16,7 @@ Medplum is a comprehensive FHIR-compliant healthcare data platform that provides
 
 ```bash
 dhti-cli compose add -m medplum
-docker compose up -d
+dhti-cli docker -u
 ```
 
 This will add and configure all Medplum services with their dependencies.
@@ -30,6 +30,15 @@ This will add and configure all Medplum services with their dependencies.
 | **mpclient** | 8111 | `http://localhost:8111/` | OAuth2 proxy for FHIR API access with token management |
 | **postgres-db** | 5432 | (internal) | Primary database for Medplum data |
 | **redis** | 6379 | (internal) | Caching and session management |
+
+
+* Create an account at `http://localhost:3103/` to access the Medplum App.
+* Create a project
+* Add an client application to obtain `MEDPLUM_CLIENT_ID` and `MEDPLUM_CLIENT_SECRET` for mpclient configuration.
+* Update mpclient configuration  ~/dhti/docker-compose.yml` and set the client ID and secret. Restart the mpclient service.
+* Login at `http://localhost:8111/` using the "Login with Medplum" button to authenticate via OAuth2.
+* proxy FHIR API requests through mpclient at `http://localhost:8111/fhir/R4/`
+
 
 ## Service Descriptions
 
