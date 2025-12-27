@@ -62,7 +62,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/arch-1.drawio.svg" />
 </p>
 
-🔥 **Coming soon!:** We are currently working on expanding the DHTI architecture to support traditional machine learning models, such as *EEG sleep stage classification* and *trichogram analysis*, exposing inference pipelines as agentic tools!
+🔥 **Coming soon!:** [We are currently working on](/notes/DOCKTOR.md) expanding the DHTI architecture to support traditional machine learning models, such as *EEG sleep stage classification* and *trichogram analysis*, exposing inference pipelines as agentic tools!
 
 ## ✨ Features
 * **Modular**: Supports installable Gen AI routines and UI elements.
@@ -71,7 +71,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 * **Developer friendly**: Copy working files to running containers for testing.
 * **Dry-run mode**: Preview changes before execution with the `--dry-run` flag.
 * **Dependency Injection**: Dependency injection for models and hyperparameters for configuring elixirs.
-* **Generate synthetic data**: DHTI supports generating synthetic data for testing.
+* **Generate synthetic data**: [DHTI supports generating synthetic data for testing, using synthea.](/notes/SYNTHEA.md)
 * **CQL support**: [CQL for clinical decision support](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html).
 * **FHIR**: Data exchange with FHIR schema.
 * **MCP**: Built in MCP server for pluggable tools.
@@ -124,6 +124,7 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 ## :sparkles: Resources (in Alpha)
 * [cookiecutter for scaffolding elixirs](https://github.com/dermatologist/cookiecutter-uv)
 * [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1)
+* [Medplum integration](/notes/medplum.md)
 
 ## :sunglasses: Coming soon
 
