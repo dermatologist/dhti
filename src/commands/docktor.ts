@@ -6,8 +6,8 @@ import path from 'node:path'
 
 export default class Docktor extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install, remove, restart, list)', required: true}),
     name: Args.string({description: 'Name of the inference pipeline (e.g., skin-cancer-classifier)', required: false}),
+    op: Args.string({description: 'Operation to perform (install, remove, restart, list)', required: true}),
   }
 
   static override description = 'Manage inference pipelines for MCPX'
@@ -26,8 +26,8 @@ export default class Docktor extends Command {
     }),
     environment: Flags.string({
       char: 'e',
-      multiple: true,
       description: 'Environment variables to pass to docker (format: VAR=value)',
+      multiple: true,
     }),
     image: Flags.string({char: 'i', description: 'Docker image for the inference pipeline (required for install)'}),
     'model-path': Flags.string({
@@ -40,22 +40,6 @@ export default class Docktor extends Command {
       default: `${os.homedir()}/dhti`,
       description: 'Working directory for MCPX config',
     }),
-  }
-
-  private async restartMcpxContainer(mcpxConfigPath: string, containerName: string): Promise<void> {
-    try {
-      const {execSync} = await import('node:child_process')
-      execSync(`docker cp ${mcpxConfigPath} ${containerName}:/lunar/packages/mcpx-server/`)
-      this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
-      execSync(`docker restart ${containerName}`)
-      this.log(chalk.green(`Restarted ${containerName} container.`))
-    } catch (err) {
-      this.log(
-        chalk.red(
-          `Failed to copy config or restart container '${containerName}'. Please check Docker status and container name.`,
-        ),
-      )
-    }
   }
 
   public async run(): Promise<void> {
@@ -74,17 +58,19 @@ export default class Docktor extends Command {
       fs.writeFileSync(mcpJsonPath, JSON.stringify({mcpServers: {}}, null, 2))
     }
 
-    let mcpConfig = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'))
+    const mcpConfig = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'))
 
     // Ensure mcpServers exists
     if (!mcpConfig.mcpServers) {
       mcpConfig.mcpServers = {}
     }
 
-    if (args.op === 'install') {
+    switch (args.op) {
+    case 'install': {
       if (!args.name) {
         this.error('Name is required for install operation')
       }
+
       if (!flags.image) {
         this.error('Image is required for install operation')
       }
@@ -108,6 +94,7 @@ export default class Docktor extends Command {
             `Invalid environment variable format. Expected 'NAME=value'. Invalid entries: ${invalidEnvVars.join(', ')}`,
           )
         }
+
         envVars.push(...flags.environment)
       }
 
@@ -118,7 +105,6 @@ export default class Docktor extends Command {
 
       // Add (merge) new server into existing mcpServers
       mcpConfig.mcpServers[args.name] = {
-        command: 'docker',
         args: [
           'run',
           '-i',
@@ -127,6 +113,7 @@ export default class Docktor extends Command {
           ...envVars.flatMap((e) => ['-e', e]),
           flags.image,
         ],
+        command: 'docker',
       }
 
       // Write back the updated config (preserving all other properties and existing servers)
@@ -135,7 +122,11 @@ export default class Docktor extends Command {
 
       // Copy only mcp.json to container and restart
       await this.restartMcpxContainer(mcpxConfigPath, flags.container)
-    } else if (args.op === 'remove') {
+    
+    break;
+    }
+
+    case 'remove': {
       if (!args.name) {
         this.error('Name is required for remove operation')
       }
@@ -149,16 +140,45 @@ export default class Docktor extends Command {
       } else {
         this.log(chalk.yellow(`Inference pipeline '${args.name}' not found.`))
       }
-    } else if (args.op === 'restart') {
+    
+    break;
+    }
+
+    case 'restart': {
       await this.restartMcpxContainer(mcpxConfigPath, flags.container)
-    } else if (args.op === 'list') {
+    
+    break;
+    }
+
+    case 'list': {
       this.log(chalk.blue('Installed Inference Pipelines:'))
       for (const [name, config] of Object.entries(mcpConfig.mcpServers)) {
         const argsList = Array.isArray((config as any).args) ? (config as any).args.join(' ') : ''
         this.log(`- ${name}: ${argsList}`)
       }
-    } else {
+    
+    break;
+    }
+
+    default: {
       this.error(`Unknown operation: ${args.op}`)
+    }
+    }
+  }
+
+  private async restartMcpxContainer(mcpxConfigPath: string, containerName: string): Promise<void> {
+    try {
+      const {execSync} = await import('node:child_process')
+      execSync(`docker cp ${mcpxConfigPath} ${containerName}:/lunar/packages/mcpx-server/`)
+      this.log(chalk.green('Copied mcp.json to container: /lunar/packages/mcpx-server/config/mcp.json'))
+      execSync(`docker restart ${containerName}`)
+      this.log(chalk.green(`Restarted ${containerName} container.`))
+    } catch {
+      this.log(
+        chalk.red(
+          `Failed to copy config or restart container '${containerName}'. Please check Docker status and container name.`,
+        ),
+      )
     }
   }
 }

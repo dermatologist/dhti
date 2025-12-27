@@ -1,7 +1,6 @@
 import {runCommand} from '@oclif/test'
 import {expect} from 'chai'
-import fs from 'node:fs'
-import {promises as fsPromises} from 'node:fs'
+import fs, {promises as fsPromises} from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -13,8 +12,8 @@ describe('docktor', () => {
   // Helper to ensure clean state
   const cleanUp = async () => {
     try {
-      await fsPromises.rm(testWorkdir, {recursive: true, force: true})
-    } catch (error) {
+      await fsPromises.rm(testWorkdir, {force: true, recursive: true})
+    } catch {
       // Directory may not exist, which is fine
     }
   }
@@ -46,7 +45,7 @@ describe('docktor', () => {
   it('lists pipelines', async () => {
     // Manually inject a config to test listing
     await fsPromises.mkdir(mcpxConfigPath, {recursive: true})
-    const config = {mcpServers: {'existing-pipeline': {command: 'docker', args: ['existing-image']}}}
+    const config = {mcpServers: {'existing-pipeline': {args: ['existing-image'], command: 'docker'}}}
     await fsPromises.writeFile(mcpJsonPath, JSON.stringify(config))
 
     const {stdout} = await runCommand(['docktor', 'list', '--workdir', testWorkdir])
@@ -56,7 +55,7 @@ describe('docktor', () => {
   it('removes a pipeline', async () => {
     // Setup initial state
     await fsPromises.mkdir(mcpxConfigPath, {recursive: true})
-    const setupConfig = {mcpServers: {'test-pipeline': {command: 'docker', args: ['test-image']}}}
+    const setupConfig = {mcpServers: {'test-pipeline': {args: ['test-image'], command: 'docker'}}}
     await fsPromises.writeFile(mcpJsonPath, JSON.stringify(setupConfig))
 
     const {stdout} = await runCommand(['docktor', 'remove', 'test-pipeline', '--workdir', testWorkdir])
