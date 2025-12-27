@@ -38,4 +38,4 @@ jobs:
           patch-wording:  'patch,chore,refactor,docs'     # Providing patch-wording will override commits
                                             # defaulting to a patch bump.
           rc-wording:     'RELEASE,alpha'
-          tag-prefix:    'v' #Prefix avoids conflict with git-flow tagging
+          skip-tag:       'true' # Tag creation is handled in another workflow

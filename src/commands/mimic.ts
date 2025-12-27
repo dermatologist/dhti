@@ -14,10 +14,21 @@ export default class Mimic extends Command {
       default: false,
       description: 'Show what changes would be made without actually making them',
     }),
+    token: Flags.string({
+      char: 't',
+      description: 'Bearer token for authentication (optional)',
+    }),
   }
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Mimic)
+
+    // Ensure server URL ends with /$import
+    let serverUrl = args.server
+    if (!serverUrl.endsWith('/$import')) {
+      serverUrl = serverUrl.replace(/\/$/, '') + '/$import'
+    }
+
     const mimic_request = `{
 
   "resourceType": "Parameters",
@@ -153,27 +164,36 @@ export default class Mimic extends Command {
 }`
 
     if (flags['dry-run']) {
-      console.log(chalk.yellow(`[DRY RUN] Would send POST request to: ${args.server}`))
+      console.log(chalk.yellow(`[DRY RUN] Would send POST request to: ${serverUrl}`))
       console.log(chalk.cyan('[DRY RUN] Request headers:'))
       console.log(chalk.green('  Content-Type: application/fhir+json'))
       console.log(chalk.green('  Prefer: respond-async'))
+      if (flags.token) {
+        console.log(chalk.green('  Authorization: Bearer <token>'))
+      }
       console.log(chalk.cyan('[DRY RUN] Request body:'))
       console.log(mimic_request)
       return
     }
 
+    // Build request headers
+    const headers: {[key: string]: string} = {
+      'Content-Type': 'application/fhir+json',
+      Prefer: 'respond-async',
+    }
+    if (flags.token) {
+      headers.Authorization = `Bearer ${flags.token}`
+    }
+
     // send a POST request to the server with the mimic_request body
-    const response = await fetch(args.server, {
+    const response = await fetch(serverUrl, {
       body: mimic_request,
-      headers: {
-        'Content-Type': 'application/fhir+json',
-        Prefer: 'respond-async',
-      },
+      headers,
       method: 'POST',
     })
     if (!response.ok) {
       console.error(`Error: ${response.status} ${response.statusText}`)
-      
+      this.exit(1)
     }
   }
 }
