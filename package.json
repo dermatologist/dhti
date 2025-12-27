@@ -83,7 +83,8 @@
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "echo 'npm run lint'",
     "prepack": "npx oclif manifest && npx oclif readme --readme-path notes/README.md",
-    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\" --exclude \"test/e2e/**/*.test.ts\"",
+    "test-e2e": "mocha --forbid-only \"test/**/*.test.ts\"",
     "readme": "npx oclif readme --readme-path notes/README.md && git add notes/README.md",
     "docs": "typedoc --exclude src/tool.ts --html docs src"
   },
