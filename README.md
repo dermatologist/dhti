@@ -13,7 +13,7 @@
 
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
-#### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI applications within an Electronic Health Record (EHR), facilitating the seamless transition of your experiments to clinical practice.
+### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications within an EHR, facilitating the seamless transition of your experiments to practice!
 👉 [Try it out today!](#try-it-out) and give us a star ⭐️ if you like it!
 
 ### About
@@ -80,12 +80,12 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 * **LLM**: Ollama for self-hosting LLM models.
 
 ## ✨ New
-**MCPX integration** DHTI now includes an [MCP integrator](https://docs.lunar.dev/mcpx/) that allows other MCP servers to be "installed" and exposed seamlessly to DHTI through the MCPX gateway.
-**DOCKTOR module**: A new module, [DOCKTOR](/notes/DOCKTOR.md), support traditional machine learning model packaged as Docker containers, to be used as MCP tools, enabling the deployment of inference pipelines as agent-invokable tools. (in beta)
-**MCP aware agent**: [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template) used in the examples now includes an [MCP aware agent](https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py) that can autodiscover and invoke tools from the MCPX gateway. Install it using `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template -b feature/agent2`.
-**Medplum integration**: [Medplum](https://www.medplum.com/) is now supported as an alternative FHIR server. Read more [here](/notes/medplum.md). This allows you to add FHIR subscriptions for real-time updates and much more.
-**Synthea integration**: You can now generate synthetic FHIR data using [Synthea](https://synthetichealth.github.io/synthea/). Read more [here](/notes/SYNTHEA.md).
-**MIMIC support**: You can now load MIMIC Demo FHIR data [using DHTI in one command](https://nuchange.ca/2024/11/loading-mimic-dataset-onto-a-fhir-server-in-two-easy-steps.html).
+* **MCPX integration**: DHTI now includes an [MCP integrator](https://docs.lunar.dev/mcpx/) that allows other MCP servers to be "installed" and exposed seamlessly to DHTI through the MCPX gateway.
+* **DOCKTOR module**: A new module, [DOCKTOR](/notes/DOCKTOR.md), support traditional machine learning model packaged as Docker containers, to be used as MCP tools, enabling the deployment of inference pipelines as agent-invokable tools. (in beta)
+* **MCP aware agent**: [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template) used in the examples now includes an [MCP aware agent](https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py) that can autodiscover and invoke tools from the MCPX gateway. Install it using `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template -b feature/agent2`.
+* **Medplum integration**: [Medplum](https://www.medplum.com/) is now supported as an alternative FHIR server. Read more [here](/notes/medplum.md). This allows you to add FHIR subscriptions for real-time updates and much more.
+* **Synthea integration**: You can now generate synthetic FHIR data using [Synthea](https://synthetichealth.github.io/synthea/). Read more [here](/notes/SYNTHEA.md).
+* **MIMIC support**: You can now load [MIMIC Demo](https://physionet.org/content/mimic-iv-demo/2.2/) data using DHTI in [one command](https://nuchange.ca/2024/11/loading-mimic-dataset-onto-a-fhir-server-in-two-easy-steps.html).
 
 
 ## 🔧 For Gen AI Developers
