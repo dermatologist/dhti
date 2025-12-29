@@ -2,10 +2,15 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/0.5.0...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.6.0...HEAD)
+
+**Closed issues:**
+
+- Feature request: Create synthea command with subcommands to install synthea, generate synthetic data, upload generated data to a fhir server. [\#99](https://github.com/dermatologist/dhti/issues/99)
 
 **Merged pull requests:**
 
+- Add Synthea command for synthetic FHIR data generation and management [\#100](https://github.com/dermatologist/dhti/pull/100) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/medplum 1 [\#98](https://github.com/dermatologist/dhti/pull/98) ([dermatologist](https://github.com/dermatologist))
 - Antigravity vibecode 1 [\#96](https://github.com/dermatologist/dhti/pull/96) ([dermatologist](https://github.com/dermatologist))
 - chore\(deps\): bump JamesIves/github-pages-deploy-action from 4.7.4 to 4.7.6 [\#94](https://github.com/dermatologist/dhti/pull/94) ([dependabot[bot]](https://github.com/apps/dependabot))
@@ -16,6 +21,10 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [0.6.0](https://github.com/dermatologist/dhti/tree/0.6.0) (2025-12-27)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.5.0...0.6.0)
 
 ## [0.5.0](https://github.com/dermatologist/dhti/tree/0.5.0) (2025-12-24)
 
