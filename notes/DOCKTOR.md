@@ -22,18 +22,43 @@ The `docktor` command manages these inference pipelines, which are packaged as D
 
 ### Adding an Inference Pipeline
 
+Enable Docktor in your DHTI setup:
+
+```bash
+
+dhti-cli compose add -m docktor
+dhti-cli docker -u
+```
+
 To add a new pipeline, use the `docktor install` command:
 
 ```bash
 dhti-cli docktor install my-pipeline --image my-image:latest --model-path ./path/to/models
 
-dhti-cli docktor install my-pipeline --image my-image:latest --model-path ./path/to/models -e DEBUG=true
+dhti-cli docktor install sequential-thinking --image mcp/sequentialthinking --model-path ~/temp -e DEBUG=true
 ```
 
 - `install`: The operation to perform.
 - `my-pipeline`: A unique name for the server.
 - `--image`: The Docker image containing the MCP server.
 - `--model-path`: (Optional) Local path to a directory containing models. This will be mounted to `/model` inside the container.
+
+## MCPX interface is at
+
+- http://localhost:5173
+
+## Connection Details
+
+```
+{
+	"servers": {
+        "mcpx": {
+                "transport": "http",
+                "url": "http://0.0.0.0:9000/mcp",
+        }
+    }
+}
+```
 
 ### Removing an Inference Pipeline
 
@@ -59,31 +84,9 @@ To create a compatible inference pipeline, follow these recommendations:
 2.  **MCP Sdk**: Install the `mcp` python package.
 3.  **Server Logic**: Implement an MCP server that exposes your inference functions as tools.
 4.  **Model Loading**: Load models from the `/model` directory.
-5.  **Entrypoint**: Set the container entrypoint to run your server script.
+5.  **Data Handling**: Data can be obtained from the FHIR server or added as filename statrting with patientId in the /model directory. The input to all mcp tools should include the patientId whenever possible.
+6.  **Entrypoint**: Set the container entrypoint to run your server script.
 
-### Example Dockerfile
+### Examples
 
-```dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY server.py .
-CMD ["python", "server.py"]
-```
-
-### Example Server (server.py)
-
-```python
-from mcp.server.fastmcp import FastMCP
-
-mcp = FastMCP("my-classifier")
-
-@mcp.tool()
-def classify(data: str) -> str:
-    # Your inference logic here
-    return "result"
-
-if __name__ == "__main__":
-    mcp.run()
-```
+* See /docktor directory for complete examples.

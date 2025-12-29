@@ -73,19 +73,19 @@ export default class Compose extends Command {
 
     const _modules: {[key: string]: string[]} = {
       cqlFhir,
+      docktor,
       fhir,
       gateway,
       langfuse,
       langserve,
       mcpFhir,
       mcpx,
-      docktor,
+      medplum,
       neo4j,
       ollama,
       openmrs,
       redis,
       webui,
-      medplum,
     }
 
     try {
