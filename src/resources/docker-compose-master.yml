@@ -12,7 +12,6 @@ services:
       - "80:80"
       - "9001:80"
 
-
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17
     # image: openmrs/openmrs-reference-application-3-frontend:${TAG:-3.0.0-beta.17} # dev3, qa, demo, 3.0.0-beta.18
@@ -59,7 +58,7 @@ services:
     restart: "unless-stopped"
     command: "mysqld --character-set-server=utf8 --collation-server=utf8_general_ci"
     healthcheck:
-      test: "mysql --user=${OMRS_DB_USER:-openmrs} --password=${OMRS_DB_PASSWORD:-openmrs} --execute \"SHOW DATABASES;\""
+      test: 'mysql --user=${OMRS_DB_USER:-openmrs} --password=${OMRS_DB_PASSWORD:-openmrs} --execute "SHOW DATABASES;"'
       interval: 3s
       timeout: 1s
       retries: 5
@@ -78,11 +77,15 @@ services:
       - "8001:8001"
     restart: "unless-stopped"
     environment:
-      - OLLAMA_SERVER_URL==http://ollama:11434
+      - OLLAMA_SERVER_URL=http://ollama:11434
       - OLLAMA_WEBUI=http://ollama-webui:8080
       - LANGFUSE_HOST=http://langfuse:3000
-      - LANGFUSE_PUBLIC_KEY=pk-lf-abcd
-      - LANGFUSE_SECRET_KEY=sk-lf-abcd
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY:-pk-lf-abcd}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY:-sk-lf-abcd}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-google-api-key}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-openai-api-key}
+      - OPENAI_API_BASE=${OPENAI_API_BASE:-https://openrouter.ai/api/v1}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-openrouter-api-key}
 
   ollama:
     image: ollama/ollama:latest
@@ -105,7 +108,7 @@ services:
     ports:
       - 8080:8080
     environment:
-      - '/ollama/api=http://ollama:11434/api'
+      - "/ollama/api=http://ollama:11434/api"
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
@@ -118,19 +121,19 @@ services:
     depends_on:
       - postgres-db
     environment:
-        - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/postgres"
-        - "spring.datasource.username=postgres"
-        - "spring.datasource.password=postgres"
-        - "spring.datasource.driverClassName=org.postgresql.Driver"
-        - "spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect"
-        - "hapi.fhir.fhir_version=R4"
-        - "hapi.fhir.cors.allowed-origins=*"
-        - "hapi.fhir.cors.allowCredentials=true"
-        - "hapi.fhir.bulkdata.enabled=true"
-        - "hapi.fhir.bulk_export_enabled=true"
-        - "hapi.fhir.bulk_import_enabled=true"
-        - "hapi.fhir.enforce_referential_integrity_on_write=false"
-        - "hapi.fhir.enforce_referential_integrity_on_delete=false"
+      - "spring.datasource.url=jdbc:postgresql://postgres-db:5432/postgres"
+      - "spring.datasource.username=postgres"
+      - "spring.datasource.password=postgres"
+      - "spring.datasource.driverClassName=org.postgresql.Driver"
+      - "spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect"
+      - "hapi.fhir.fhir_version=R4"
+      - "hapi.fhir.cors.allowed-origins=*"
+      - "hapi.fhir.cors.allowCredentials=true"
+      - "hapi.fhir.bulkdata.enabled=true"
+      - "hapi.fhir.bulk_export_enabled=true"
+      - "hapi.fhir.bulk_import_enabled=true"
+      - "hapi.fhir.enforce_referential_integrity_on_write=false"
+      - "hapi.fhir.enforce_referential_integrity_on_delete=false"
 
   mcp-fhir:
     image: beapen/fhir-mcp-server:4.0
@@ -264,7 +267,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - '8103:8103'
+      - "8103:8103"
     volumes:
       # Conditionally define a volume for a `medplum.config.json` if one is specified by the MEDPLUM_CONFIG_PATH env var
       - ${MEDPLUM_CONFIG_PATH:-./medplum.config.json}:/usr/src/medplum/packages/server/medplum.config.json
@@ -280,43 +283,43 @@ services:
       "
     environment:
       MEDPLUM_PORT: 8103
-      MEDPLUM_BASE_URL: 'http://localhost:8103/'
-      MEDPLUM_APP_BASE_URL: 'http://localhost:3103/'
-      MEDPLUM_STORAGE_BASE_URL: 'http://localhost:8103/storage/'
+      MEDPLUM_BASE_URL: "http://localhost:8103/"
+      MEDPLUM_APP_BASE_URL: "http://localhost:3103/"
+      MEDPLUM_STORAGE_BASE_URL: "http://localhost:8103/storage/"
 
-      MEDPLUM_DATABASE_HOST: 'postgres-db'
+      MEDPLUM_DATABASE_HOST: "postgres-db"
       MEDPLUM_DATABASE_PORT: 5432
-      MEDPLUM_DATABASE_DBNAME: 'postgres'
-      MEDPLUM_DATABASE_USERNAME: 'postgres'
-      MEDPLUM_DATABASE_PASSWORD: 'postgres'
+      MEDPLUM_DATABASE_DBNAME: "postgres"
+      MEDPLUM_DATABASE_USERNAME: "postgres"
+      MEDPLUM_DATABASE_PASSWORD: "postgres"
 
-      MEDPLUM_REDIS_HOST: 'redis'
+      MEDPLUM_REDIS_HOST: "redis"
       MEDPLUM_REDIS_PORT: 6379
       # MEDPLUM_REDIS_PASSWORD: 'medplum'
 
-      MEDPLUM_BINARY_STORAGE: 'file:./binary/'
+      MEDPLUM_BINARY_STORAGE: "file:./binary/"
       MEDPLUM_SUPPORT_EMAIL: '\"Medplum\" <support@medplum.com>'
-      MEDPLUM_GOOGLE_CLIENT_ID: '397236612778-c0b5tnjv98frbo1tfuuha5vkme3cmq4s.apps.googleusercontent.com'
-      MEDPLUM_GOOGLE_CLIENT_SECRET: ''
-      MEDPLUM_RECAPTCHA_SITE_KEY: '6LfHdsYdAAAAAC0uLnnRrDrhcXnziiUwKd8VtLNq'
-      MEDPLUM_RECAPTCHA_SECRET_KEY: '6LfHdsYdAAAAAH9dN154jbJ3zpQife3xaiTvPChL'
-      MEDPLUM_MAX_JSON_SIZE: '1mb'
-      MEDPLUM_MAX_BATCH_SIZE: '50mb'
-      MEDPLUM_BOT_LAMBDA_ROLE_ARN: ''
-      MEDPLUM_BOT_LAMBDA_LAYER_NAME: 'medplum-bot-layer'
-      MEDPLUM_VM_CONTEXT_BOTS_ENABLED: 'true'
-      MEDPLUM_DEFAULT_BOT_RUNTIME_VERSION: 'vmcontext'
-      MEDPLUM_ALLOWED_ORIGINS: '*'
-      MEDPLUM_INTROSPECTION_ENABLED: 'true'
+      MEDPLUM_GOOGLE_CLIENT_ID: "397236612778-c0b5tnjv98frbo1tfuuha5vkme3cmq4s.apps.googleusercontent.com"
+      MEDPLUM_GOOGLE_CLIENT_SECRET: ""
+      MEDPLUM_RECAPTCHA_SITE_KEY: "6LfHdsYdAAAAAC0uLnnRrDrhcXnziiUwKd8VtLNq"
+      MEDPLUM_RECAPTCHA_SECRET_KEY: "6LfHdsYdAAAAAH9dN154jbJ3zpQife3xaiTvPChL"
+      MEDPLUM_MAX_JSON_SIZE: "1mb"
+      MEDPLUM_MAX_BATCH_SIZE: "50mb"
+      MEDPLUM_BOT_LAMBDA_ROLE_ARN: ""
+      MEDPLUM_BOT_LAMBDA_LAYER_NAME: "medplum-bot-layer"
+      MEDPLUM_VM_CONTEXT_BOTS_ENABLED: "true"
+      MEDPLUM_DEFAULT_BOT_RUNTIME_VERSION: "vmcontext"
+      MEDPLUM_ALLOWED_ORIGINS: "*"
+      MEDPLUM_INTROSPECTION_ENABLED: "true"
       MEDPLUM_SHUTDOWN_TIMEOUT_MILLISECONDS: 30000
 
     healthcheck:
       test:
         # We use Node's fetch for healthcheck because this image doesn't have a curl or wget installed
         [
-          'CMD',
-          'node',
-          '-e',
+          "CMD",
+          "node",
+          "-e",
           'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
         ]
       interval: 30s
@@ -331,9 +334,9 @@ services:
     #   medplum-server:
     #     condition: service_healthy
     ports:
-      - '3103:3000'
+      - "3103:3000"
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3103']
+      test: ["CMD", "curl", "-f", "http://localhost:3103"]
       interval: 10s
       timeout: 5s
       retries: 5

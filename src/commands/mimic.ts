@@ -171,6 +171,7 @@ export default class Mimic extends Command {
       if (flags.token) {
         console.log(chalk.green('  Authorization: Bearer <token>'))
       }
+
       console.log(chalk.cyan('[DRY RUN] Request body:'))
       console.log(mimic_request)
       return
