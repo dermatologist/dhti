@@ -81,7 +81,20 @@ export default class Docker extends Command {
     }
 
     if (flags.gateway || flags.restart) {
+      // Validate that only one restart option is provided
+      if (flags.gateway && flags.restart) {
+        console.error('Error: Cannot use both --gateway and --restart flags at the same time')
+        this.exit(1)
+      }
+
       const containerName = flags.gateway ? 'dhti-gateway-1' : flags.restart
+      
+      // Validate container name to prevent command injection
+      if (containerName && !/^[\w-]+$/.test(containerName)) {
+        console.error('Error: Invalid container name. Container names can only contain letters, numbers, hyphens, and underscores.')
+        this.exit(1)
+      }
+
       const restartCommand = `docker restart ${containerName}`
       
       if (flags['dry-run']) {
