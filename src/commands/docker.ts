@@ -116,7 +116,7 @@ export default class Docker extends Command {
       return
     }
 
-    if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down) {
+    if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down && !flags.gateway && !flags.restart) {
       console.log('Please provide a name for the container to build')
       this.exit(1)
     }
