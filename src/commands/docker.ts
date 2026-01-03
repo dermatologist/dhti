@@ -30,7 +30,9 @@ export default class Docker extends Command {
       default: `${os.homedir()}/dhti/docker-compose.yml`,
       description: 'Full path to the docker compose file to edit or run.',
     }),
+    gateway: Flags.boolean({char: 'g', default: false, description: 'Restart the gateway container'}),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
+    restart: Flags.string({char: 'r', description: 'Restart a specific container by name'}),
     type: Flags.string({char: 't', default: 'elixir', description: 'Type of the service (elixir/conch)'}),
     up: Flags.boolean({char: 'u', default: false, description: 'Run docker-compose up after building'}),
   }
@@ -74,6 +76,29 @@ export default class Docker extends Command {
 
         console.log(`stdout: ${stdout}`)
         console.error(`stderr: ${stderr}`)
+      })
+      return
+    }
+
+    if (flags.gateway || flags.restart) {
+      const containerName = flags.gateway ? 'dhti-gateway-1' : flags.restart
+      const restartCommand = `docker restart ${containerName}`
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute:'))
+        console.log(chalk.cyan(`  ${restartCommand}`))
+        return
+      }
+
+      exec(restartCommand, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`)
+          return
+        }
+
+        console.log(`Successfully restarted container: ${containerName}`)
+        if (stdout) console.log(`stdout: ${stdout}`)
+        if (stderr) console.error(`stderr: ${stderr}`)
       })
       return
     }
