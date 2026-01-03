@@ -30,7 +30,9 @@ export default class Docker extends Command {
       default: `${os.homedir()}/dhti/docker-compose.yml`,
       description: 'Full path to the docker compose file to edit or run.',
     }),
+    gateway: Flags.boolean({char: 'g', default: false, description: 'Restart the gateway container'}),
     name: Flags.string({char: 'n', description: 'Name of the container to build'}),
+    restart: Flags.string({char: 'r', description: 'Restart a specific container by name'}),
     type: Flags.string({char: 't', default: 'elixir', description: 'Type of the service (elixir/conch)'}),
     up: Flags.boolean({char: 'u', default: false, description: 'Run docker-compose up after building'}),
   }
@@ -78,7 +80,43 @@ export default class Docker extends Command {
       return
     }
 
-    if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down) {
+    if (flags.gateway || flags.restart) {
+      // Validate that only one restart option is provided
+      if (flags.gateway && flags.restart) {
+        console.error('Error: Cannot use both --gateway and --restart flags at the same time')
+        this.exit(1)
+      }
+
+      const containerName = flags.gateway ? 'dhti-gateway-1' : flags.restart
+      
+      // Validate container name to prevent command injection
+      if (containerName && !/^[\w-]+$/.test(containerName)) {
+        console.error('Error: Invalid container name. Container names can only contain letters, numbers, hyphens, and underscores.')
+        this.exit(1)
+      }
+
+      const restartCommand = `docker restart ${containerName}`
+      
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute:'))
+        console.log(chalk.cyan(`  ${restartCommand}`))
+        return
+      }
+
+      exec(restartCommand, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`)
+          return
+        }
+
+        console.log(`Successfully restarted container: ${containerName}`)
+        if (stdout) console.log(`stdout: ${stdout}`)
+        if (stderr) console.error(`stderr: ${stderr}`)
+      })
+      return
+    }
+
+    if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down && !flags.gateway && !flags.restart) {
       console.log('Please provide a name for the container to build')
       this.exit(1)
     }
