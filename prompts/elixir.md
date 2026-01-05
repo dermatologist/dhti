@@ -17,8 +17,8 @@ uvx cookiecutter https://github.com/dermatologist/cookiecutter-uv.git
   - **author**: Set to the provided author name (or use a reasonable placeholder if none is given).
   - **email**: Set to the provided email (or use a reasonable placeholder if none is given).
   - **author_github_handle**: Set to the provided GitHub handle (or a reasonable placeholder if none is given).
-  - **project_name**: Generate a concise, meaningful project name that reflects the requested features for this Elixir agent.
-  - **project_slug**: Generate a clean, snake_case slug derived from the project name.
+  - **project_name**: Generate a concise, meaningful project name that reflects the requested features for this Elixir agent. THE NAME MUST START WITH "dhti-elixir-".
+  - **project_slug**: Generate a clean, snake_case slug derived from the project name. THE SLUG MUST START WITH "dhti_elixir_".
   - **project_description**: Generate a detailed project description clearly summarizing:
     - the purpose of the project,
     - the kind of Elixir-related functionality requested,
