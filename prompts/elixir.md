@@ -64,6 +64,7 @@ Interpret this as the high-level functional requirement for the chain. Your impl
   - Reuse naming conventions, configuration style, and initialization patterns where appropriate.
 - **FHIR-based data retrieval:**
   - Retrieve any required data using **FHIR search**.
+  - Read and carefully study FHIR search here: <https://r.jina.ai/https://www.hl7.org/fhir/search.html>
   - Use appropriate FHIR resource types and query parameters based on the needs implied by the &lt;new elixir request here&gt; specification.
   - Implement FHIR interactions in a way that is:
     - Configurable (e.g., via environment variables or settings),
