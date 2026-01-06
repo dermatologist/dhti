@@ -65,6 +65,7 @@ Interpret this as the high-level functional requirement for the chain. Your impl
 - **FHIR-based data retrieval:**
   - Retrieve any required data using **FHIR search**.
   - Read and carefully study FHIR search here: <https://r.jina.ai/https://www.hl7.org/fhir/search.html>
+  - Read how fhir search is implemented in dhti-elixir-base here: <https://github.com/dermatologist/dhti-elixir-base/tree/develop/src/dhti_elixir_base/fhir>. This is available as a dependency in the generated project. Hence you can use fhir search functionality from dhti-elixir-base in your implementation and avoid code duplication.
   - Use appropriate FHIR resource types and query parameters based on the needs implied by the &lt;new elixir request here&gt; specification.
   - Implement FHIR interactions in a way that is:
     - Configurable (e.g., via environment variables or settings),
