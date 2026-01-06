@@ -2,14 +2,15 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/0.6.0...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.7.0...HEAD)
 
-**Closed issues:**
+**Implemented enhancements:**
 
-- Feature request: Create synthea command with subcommands to install synthea, generate synthetic data, upload generated data to a fhir server. [\#99](https://github.com/dermatologist/dhti/issues/99)
+- Feature request: Add a new docker flag to restart the gateway container. [\#101](https://github.com/dermatologist/dhti/issues/101)
 
 **Merged pull requests:**
 
+- Add docker restart flags for gateway and arbitrary containers [\#102](https://github.com/dermatologist/dhti/pull/102) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Add Synthea command for synthetic FHIR data generation and management [\#100](https://github.com/dermatologist/dhti/pull/100) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/medplum 1 [\#98](https://github.com/dermatologist/dhti/pull/98) ([dermatologist](https://github.com/dermatologist))
 - Antigravity vibecode 1 [\#96](https://github.com/dermatologist/dhti/pull/96) ([dermatologist](https://github.com/dermatologist))
@@ -21,6 +22,14 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [0.7.0](https://github.com/dermatologist/dhti/tree/0.7.0) (2025-12-29)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.6.0...0.7.0)
+
+**Closed issues:**
+
+- Feature request: Create synthea command with subcommands to install synthea, generate synthetic data, upload generated data to a fhir server. [\#99](https://github.com/dermatologist/dhti/issues/99)
 
 ## [0.6.0](https://github.com/dermatologist/dhti/tree/0.6.0) (2025-12-27)
 
