@@ -62,6 +62,8 @@ You must follow the **same architectural and stylistic patterns** in the new pro
 
 Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following specification:
 
+The DhtiChain should:
+
 &lt;new elixir request here&gt;
 
 Interpret this as the high-level functional requirement for the chain. Your implementation should:
@@ -90,7 +92,7 @@ Interpret this as the high-level functional requirement for the chain. Your impl
     - Any domain logic surrounding Elixir code analysis, generation, or orchestration.
     - Any interactions with external services (e.g., FHIR, LLMs, tools) as appropriate.
 
-## 4\. Planning: create a TODO list
+## Planning: create a TODO list
 
 Before writing or heavily modifying code, create an **elaborate, structured TODO list** in a notes/todo.md file. This TODO list should:
 
