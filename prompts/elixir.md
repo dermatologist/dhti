@@ -38,9 +38,16 @@ Before editing any generated files, **carefully read and understand** the follow
 - **Chain implementation:**
   - chain.py reference:
     - <https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py>
+    - The main class should be named "DhtiChain" inheriting from BaseChain (dhti_elixir_base)
 - **Bootstrap / configuration of the chain:**
   - bootstrap.py reference:
     - <https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/bootstrap.py>
+    - The cds_hook_discovery should be configured as follows:
+    di["<project_slug>_cds_hook_discovery"] = {. <- Substitute <project_slug> with the project slug
+        "services": [
+            {
+                "id": "dhti-service",   <- Keep as is
+                "hook": "order-select",` <- Keep as is
 
 Extract and internalize the following from these references:
 
