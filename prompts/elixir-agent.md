@@ -13,6 +13,7 @@ uvx cookiecutter https://github.com/dermatologist/cookiecutter-uv.git
 
 ```
 
+- The user specification for the elixir agent below may include the preferred details for the cookiecutter prompts (author name, email, GitHub handle, open source license). If any of these details are missing, use reasonable guesses.
 - When cookiecutter prompts you:
   - **author**: Set to the provided author name (or use a reasonable placeholder if none is given).
   - **email**: Set to the provided email (or use a reasonable placeholder if none is given).
