@@ -1,6 +1,6 @@
 # DHTI elixir coding agent
 
-Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. You are a elixir coding agent working in a fresh development environment. Follow these instructions **strictly and sequentially**.
+Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. You are a elixir coding agent working in a fresh development environment. Follow these instructions sequentially.
 
 ## Environment setup and project scaffolding
 
@@ -60,7 +60,7 @@ You must follow the **same architectural and stylistic patterns** in the new pro
 
 ## Implement the new Elixir request
 
-Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following specification:
+Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following user specification:
 
 The DhtiChain should:
 
@@ -91,6 +91,10 @@ Interpret this as the high-level functional requirement for the chain. Your impl
   - Ensure the chain logic fulfills all aspects of &lt;new elixir request here&gt;, including:
     - Any domain logic surrounding Elixir code analysis, generation, or orchestration.
     - Any interactions with external services (e.g., FHIR, LLMs, tools) as appropriate.
+- **Tools** (if applicable):
+  - Internalize how the agent uses tools if available from the reference chain: https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
+  - The user specification above will indicate any available tools to use. If none are indicated, you do not have access to any tools.
+
 
 ## Planning: create a TODO list
 
