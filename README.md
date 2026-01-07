@@ -13,7 +13,7 @@
 
 - 🚀 *Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs!*
 
-### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications within an EHR, facilitating the seamless transition of your experiments to practice!
+### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications within an EHR, facilitating the seamless transition of your experiments to practice! Moreover, DHTI is a [vibe-coding platform](/prompts/) enforcing architectural constraints!
 👉 [Try it out today!](#try-it-out) and give us a star ⭐️ if you like it!
 
 ### About
