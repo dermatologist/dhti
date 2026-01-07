@@ -65,7 +65,7 @@ Your primary task is to **update the newly created chain.py and bootstrap.py** i
 
 The DhtiChain should:
 
-&lt;new elixir request here&gt;
+&lt;new elixir request here. see elixir-sample-request.md &gt;
 
 Interpret this as the high-level functional requirement for the chain. Your implementation should:
 
