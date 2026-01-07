@@ -63,61 +63,61 @@ DHTI is a platform to rapidly prototype, share, and test GenAI healthcare applic
 ## Patient and encounter data in components
 
 10. **Getting patient and encounter data in components:**
-        - When an ESM is rendered inside a patient context (e.g., patient chart, visit workspace, form workspace), the framework automatically injects context props into your root component.
-        - These props typically include:
-            - `patient` (full patient object)
-            - `patientUuid`
-            - `encounterUuid` (when inside an encounter context)
-            - `visitUuid` (when inside a visit context)
-        - When a route is mounted under a patient or encounter workspace, the framework resolves context from the URL and global store.
-        - You can access them in two ways:
-            - **A. Direct Props (most common):**
-                ```tsx
-                export default function MyComponent({ patientUuid, encounterUuid }) {
-                    return (
-                        <div>
-                            Patient: {patientUuid}
-                            Encounter: {encounterUuid}
-                        </div>
-                    );
-                }
-                ```
-            - **B. Using Framework Hooks:**
-                ```tsx
-                import { usePatient, useVisit, useEncounter } from "@openmrs/esm-framework";
+    - When an ESM is rendered inside a patient context (e.g., patient chart, visit workspace, form workspace), the framework automatically injects context props into your root component.
+    - These props typically include:
+        - `patient` (full patient object)
+        - `patientUuid`
+        - `encounterUuid` (when inside an encounter context)
+        - `visitUuid` (when inside a visit context)
+    - When a route is mounted under a patient or encounter workspace, the framework resolves context from the URL and global store.
+    - You can access them in two ways:
+        - **A. Direct Props (most common):**
+            ```tsx
+            export default function MyComponent({ patientUuid, encounterUuid }) {
+                return (
+                    <div>
+                        Patient: {patientUuid}
+                        Encounter: {encounterUuid}
+                    </div>
+                );
+            }
+            ```
+        - **B. Using Framework Hooks:**
+            ```tsx
+            import { usePatient, useVisit, useEncounter } from "@openmrs/esm-framework";
 
-                const MyComponent = () => {
-                    const patient = usePatient();
-                    const encounter = useEncounter();
+            const MyComponent = () => {
+                const patient = usePatient();
+                const encounter = useEncounter();
 
-                    console.log(patient?.uuid);
-                    console.log(encounter?.uuid);
+                console.log(patient?.uuid);
+                console.log(encounter?.uuid);
 
-                    return <div>...</div>;
-                };
-                ```
+                return <div>...</div>;
+            };
+            ```
 
 ## GenAI outputs
 
 11. **Getting GenAI outputs:**
-        - Use the `src/hooks/useDhti.ts` to call the DHTI service and get GenAI outputs. Read the code and comments in the file to understand how to use it. You need to provide the DHTI service name. If the user has not provided it above, ask for it using a prompt.
+    - Use the `src/hooks/useDhti.ts` to call the DHTI service and get GenAI outputs. Read the code and comments in the file to understand how to use it. You need to provide the DHTI service name. If the user has not provided it above, ask for it using a prompt.
 
 ## Implementation
 
 12. **Implement the feature:**
-        - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: <https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview>. Test your code frequently to ensure it works as expected. Start with the renamed `root.component.tsx` file and build out from there. Please note that you may have components not included in the root component, but used in extensions or pages.
+    - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: <https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview>. Test your code frequently to ensure it works as expected. Start with the renamed `root.component.tsx` file and build out from there. Please note that you may have components not included in the root component, but used in extensions or pages.
 
 ## Testing
 
 13. **Write tests:**
-        - Write unit and integration tests for your components and logic. Use the testing framework set up in the template. Ensure good test coverage to catch potential issues early.
+    - Write unit and integration tests for your components and logic. Use the testing framework set up in the template. Ensure good test coverage to catch potential issues early.
 
 ## Documentation
 
 14. **Update documentation:**
-        - Update the `README.md` with details about your microfrontend, including its purpose, setup instructions, and usage. Document any configuration options in `config-schema.ts`. Extended notes and future plans can go in the `notes/` directory.
+    - Update the `README.md` with details about your microfrontend, including its purpose, setup instructions, and usage. Document any configuration options in `config-schema.ts`. Extended notes and future plans can go in the `notes/` directory.
 
 ## Final review and cleanup
 
 15. **Final review and cleanup:**
-        - Review your code for any unused imports, variables, or commented-out code. Ensure your code follows consistent styling and conventions. Run the application to do a final test of all features and ensure everything works as expected.
+    - Review your code for any unused imports, variables, or commented-out code. Ensure your code follows consistent styling and conventions. Run the application to do a final test of all features and ensure everything works as expected.
