@@ -5,6 +5,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
+
+// Helper function to escape shell arguments
+function escapeShellArg(arg: string): string {
+  return `'${arg.replaceAll("'", "'\\''")}'`
+}
 export default class Conch extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
@@ -196,12 +201,28 @@ export default class Conch extends Command {
       let checkoutCommand: string
 
       if (flags.subdirectory === 'none') {
-        cloneCommand = `git clone ${flags.git} ${flags.workdir}/conch/${flags.name}`
-        checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`
+        cloneCommand = `git clone ${escapeShellArg(flags.git)} ${escapeShellArg(`${flags.workdir}/conch/${flags.name}`)}`
+        checkoutCommand = `cd ${escapeShellArg(`${flags.workdir}/conch/${flags.name}`)} && git checkout ${escapeShellArg(flags.branch)}`
       } else {
-        // Use sparse checkout for subdirectory
-        cloneCommand = `mkdir -p ${flags.workdir}/conch/${flags.name} && cd ${flags.workdir}/conch/${flags.name} && git init && git remote add origin ${flags.git} && git config core.sparseCheckout true && echo "${flags.subdirectory}/*" >> .git/info/sparse-checkout && git fetch --depth=1 origin ${flags.branch} && git checkout ${flags.branch} && mv ${flags.subdirectory}/* . && rm -rf ${flags.subdirectory}`
-        checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && echo "Sparse checkout complete"`
+        // Use sparse checkout for subdirectory - broken into steps for readability and security
+        const targetDir = `${flags.workdir}/conch/${flags.name}`
+        const escapedDir = escapeShellArg(targetDir)
+        const escapedGit = escapeShellArg(flags.git)
+        const escapedBranch = escapeShellArg(flags.branch)
+        const escapedSubdir = escapeShellArg(flags.subdirectory)
+
+        // Build sparse checkout command with proper escaping
+        const initCommand = `mkdir -p ${escapedDir} && cd ${escapedDir} && git init`
+        const remoteCommand = `git remote add origin ${escapedGit}`
+        const sparseCommand = `git config core.sparseCheckout true`
+        const patternCommand = `echo ${escapeShellArg(`${flags.subdirectory}/*`)} >> .git/info/sparse-checkout`
+        const fetchCommand = `git fetch --depth=1 origin ${escapedBranch}`
+        const checkoutCmd = `git checkout ${escapedBranch}`
+        const moveCommand = `shopt -s dotglob && mv ${escapeShellArg(`${flags.subdirectory}/*`)} . 2>/dev/null || true`
+        const cleanupCommand = `rm -rf ${escapedSubdir}`
+
+        cloneCommand = `${initCommand} && ${remoteCommand} && ${sparseCommand} && ${patternCommand} && ${fetchCommand} && ${checkoutCmd} && ${moveCommand} && ${cleanupCommand}`
+        checkoutCommand = `cd ${escapedDir} && echo "Sparse checkout complete"`
       }
 
       if (flags['dry-run']) {
