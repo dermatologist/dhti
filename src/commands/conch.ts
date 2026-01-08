@@ -10,6 +10,7 @@ import {fileURLToPath} from 'node:url'
 function escapeShellArg(arg: string): string {
   return `'${arg.replaceAll("'", "'\\''")}'`
 }
+
 export default class Conch extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
@@ -215,10 +216,12 @@ export default class Conch extends Command {
         const initCommand = `mkdir -p ${escapedDir} && cd ${escapedDir} && git init`
         const remoteCommand = `git remote add origin ${escapedGit}`
         const sparseCommand = `git config core.sparseCheckout true`
-        const patternCommand = `echo ${escapeShellArg(`${flags.subdirectory}/*`)} >> .git/info/sparse-checkout`
+        // Don't escape the glob pattern itself, only the subdirectory name
+        const patternCommand = `echo ${escapedSubdir}/'*' >> .git/info/sparse-checkout`
         const fetchCommand = `git fetch --depth=1 origin ${escapedBranch}`
         const checkoutCmd = `git checkout ${escapedBranch}`
-        const moveCommand = `shopt -s dotglob && mv ${escapeShellArg(`${flags.subdirectory}/*`)} . 2>/dev/null || true`
+        // Use bash's dotglob to include hidden files, and handle the case when no files exist
+        const moveCommand = `bash -c "shopt -s dotglob; if [ -d ${escapedSubdir} ]; then mv ${escapedSubdir}/* . 2>/dev/null || true; fi"`
         const cleanupCommand = `rm -rf ${escapedSubdir}`
 
         cloneCommand = `${initCommand} && ${remoteCommand} && ${sparseCommand} && ${patternCommand} && ${fetchCommand} && ${checkoutCmd} && ${moveCommand} && ${cleanupCommand}`
