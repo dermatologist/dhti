@@ -34,6 +34,11 @@ export default class Conch extends Command {
     }),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: '1.0.0', description: 'Version of the conch'}),
+    subdirectory: Flags.string({
+      char: 's',
+      default: 'none',
+      description: 'Subdirectory in the repository to install from (for monorepos)',
+    }),
     workdir: Flags.string({
       char: 'w',
       default: `${os.homedir()}/dhti`,
@@ -187,13 +192,27 @@ export default class Conch extends Command {
     }
 
     if (flags.git !== 'none') {
-      const cloneCommand = `git clone ${flags.git} ${flags.workdir}/conch/${flags.name}`
-      const checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`
-      
+      let cloneCommand: string
+      let checkoutCommand: string
+
+      if (flags.subdirectory === 'none') {
+        cloneCommand = `git clone ${flags.git} ${flags.workdir}/conch/${flags.name}`
+        checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`
+      } else {
+        // Use sparse checkout for subdirectory
+        cloneCommand = `mkdir -p ${flags.workdir}/conch/${flags.name} && cd ${flags.workdir}/conch/${flags.name} && git init && git remote add origin ${flags.git} && git config core.sparseCheckout true && echo "${flags.subdirectory}/*" >> .git/info/sparse-checkout && git fetch --depth=1 origin ${flags.branch} && git checkout ${flags.branch} && mv ${flags.subdirectory}/* . && rm -rf ${flags.subdirectory}`
+        checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && echo "Sparse checkout complete"`
+      }
+
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute git commands:'))
-        console.log(chalk.cyan(`  ${cloneCommand}`))
-        console.log(chalk.cyan(`  ${checkoutCommand}`))
+        if (flags.subdirectory === 'none') {
+          console.log(chalk.cyan(`  ${cloneCommand}`))
+          console.log(chalk.cyan(`  ${checkoutCommand}`))
+        } else {
+          console.log(chalk.cyan(`  Sparse checkout: ${flags.subdirectory} from ${flags.git}`))
+        }
+
         rewrite()
         return
       }
@@ -205,7 +224,7 @@ export default class Conch extends Command {
           return
         }
 
-        // Checkout the branch
+        // Checkout the branch (or confirm sparse checkout)
         exec(checkoutCommand, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
