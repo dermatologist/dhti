@@ -70,4 +70,13 @@ describe('elixir', () => {
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('path =')
   })
+
+  it('rejects elixir install with non-existent local directory', async () => {
+    try {
+      await runCommand(['elixir', 'install', '-n', 'test-elixir', '-l', '/non/existent/path'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Local directory does not exist')
+    }
+  })
 })

@@ -281,6 +281,21 @@ export default class Conch extends Command {
     // If flags.local is not none, copy the local directory to the conch directory
     if (flags.local !== 'none' && args.op !== 'dev') {
       const absolutePath = path.isAbsolute(flags.local) ? flags.local : path.resolve(process.cwd(), flags.local)
+      
+      // Validate that the path exists and is a directory (skip validation in dry-run mode)
+      if (!flags['dry-run']) {
+        if (!fs.existsSync(absolutePath)) {
+          console.error(chalk.red(`Error: Local directory does not exist: ${absolutePath}`))
+          this.exit(1)
+        }
+        
+        const stats = fs.statSync(absolutePath)
+        if (!stats.isDirectory()) {
+          console.error(chalk.red(`Error: Path is not a directory: ${absolutePath}`))
+          this.exit(1)
+        }
+      }
+      
       if (flags['dry-run']) {
         console.log(chalk.yellow(`[DRY RUN] Would copy ${absolutePath} to ${flags.workdir}/conch/${flags.name}`))
         rewrite()
