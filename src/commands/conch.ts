@@ -38,6 +38,7 @@ export default class Conch extends Command {
       default: 'openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17',
       description: 'Base image to use for the conch',
     }),
+    local: Flags.string({char: 'l', default: 'none', description: 'Local directory to install from'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: '1.0.0', description: 'Version of the conch'}),
     subdirectory: Flags.string({
@@ -273,6 +274,18 @@ export default class Conch extends Command {
         rewrite()
       } else {
         fs.cpSync(flags.dev, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
+        rewrite()
+      }
+    }
+
+    // If flags.local is not none, copy the local directory to the conch directory
+    if (flags.local !== 'none' && args.op !== 'dev') {
+      const absolutePath = path.isAbsolute(flags.local) ? flags.local : path.resolve(process.cwd(), flags.local)
+      if (flags['dry-run']) {
+        console.log(chalk.yellow(`[DRY RUN] Would copy ${absolutePath} to ${flags.workdir}/conch/${flags.name}`))
+        rewrite()
+      } else {
+        fs.cpSync(absolutePath, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
         rewrite()
       }
     }

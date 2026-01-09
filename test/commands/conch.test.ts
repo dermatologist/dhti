@@ -42,4 +42,32 @@ describe('conch', () => {
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.not.contain('Sparse checkout')
   })
+
+  it('runs conch cmd with --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-l',
+      '/path/to/local/conch',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would copy /path/to/local/conch')
+  })
+
+  it('runs conch cmd with relative --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-l',
+      './local-conch',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would copy')
+  })
 })
