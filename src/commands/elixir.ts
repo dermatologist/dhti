@@ -34,6 +34,11 @@ export default class Elixir extends Command {
       description: 'PyPi package to install. Ex: dhti-elixir-base = ">=0.1.0"',
     }),
     repoVersion: Flags.string({char: 'v', default: '0.1.0', description: 'Version of the elixir'}),
+    subdirectory: Flags.string({
+      char: 's',
+      default: 'none',
+      description: 'Subdirectory in the repository to install from (for monorepos)',
+    }),
     whl: Flags.string({char: 'e', default: 'none', description: 'Whl file to install'}),
     workdir: Flags.string({
       char: 'w',
@@ -140,7 +145,10 @@ export default class Elixir extends Command {
     }
 
     if (flags.git !== 'none') {
-      lineToAdd = `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+      lineToAdd =
+        flags.subdirectory === 'none'
+          ? `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}" }`
+          : `${flags.name} = { git = "${flags.git}", branch = "${flags.branch}", subdirectory = "${flags.subdirectory}" }`
     }
 
     if (flags.pypi !== 'none') {

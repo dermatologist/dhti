@@ -5,6 +5,12 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
+
+// Helper function to escape shell arguments
+function escapeShellArg(arg: string): string {
+  return `'${arg.replaceAll("'", "'\\''")}'`
+}
+
 export default class Conch extends Command {
   static override args = {
     op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
@@ -34,6 +40,11 @@ export default class Conch extends Command {
     }),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     repoVersion: Flags.string({char: 'v', default: '1.0.0', description: 'Version of the conch'}),
+    subdirectory: Flags.string({
+      char: 's',
+      default: 'none',
+      description: 'Subdirectory in the repository to install from (for monorepos)',
+    }),
     workdir: Flags.string({
       char: 'w',
       default: `${os.homedir()}/dhti`,
@@ -187,13 +198,45 @@ export default class Conch extends Command {
     }
 
     if (flags.git !== 'none') {
-      const cloneCommand = `git clone ${flags.git} ${flags.workdir}/conch/${flags.name}`
-      const checkoutCommand = `cd ${flags.workdir}/conch/${flags.name} && git checkout ${flags.branch}`
-      
+      let cloneCommand: string
+      let checkoutCommand: string
+
+      if (flags.subdirectory === 'none') {
+        cloneCommand = `git clone ${escapeShellArg(flags.git)} ${escapeShellArg(`${flags.workdir}/conch/${flags.name}`)}`
+        checkoutCommand = `cd ${escapeShellArg(`${flags.workdir}/conch/${flags.name}`)} && git checkout ${escapeShellArg(flags.branch)}`
+      } else {
+        // Use sparse checkout for subdirectory - broken into steps for readability and security
+        const targetDir = `${flags.workdir}/conch/${flags.name}`
+        const escapedDir = escapeShellArg(targetDir)
+        const escapedGit = escapeShellArg(flags.git)
+        const escapedBranch = escapeShellArg(flags.branch)
+        const escapedSubdir = escapeShellArg(flags.subdirectory)
+
+        // Build sparse checkout command with proper escaping
+        const initCommand = `mkdir -p ${escapedDir} && cd ${escapedDir} && git init`
+        const remoteCommand = `git remote add origin ${escapedGit}`
+        const sparseCommand = `git config core.sparseCheckout true`
+        // Don't escape the glob pattern itself, only the subdirectory name
+        const patternCommand = `echo ${escapedSubdir}/'*' >> .git/info/sparse-checkout`
+        const fetchCommand = `git fetch --depth=1 origin ${escapedBranch}`
+        const checkoutCmd = `git checkout ${escapedBranch}`
+        // Use bash's dotglob to include hidden files, and handle the case when no files exist
+        const moveCommand = `bash -c "shopt -s dotglob; if [ -d ${escapedSubdir} ]; then mv ${escapedSubdir}/* . 2>/dev/null || true; fi"`
+        const cleanupCommand = `rm -rf ${escapedSubdir}`
+
+        cloneCommand = `${initCommand} && ${remoteCommand} && ${sparseCommand} && ${patternCommand} && ${fetchCommand} && ${checkoutCmd} && ${moveCommand} && ${cleanupCommand}`
+        checkoutCommand = `cd ${escapedDir} && echo "Sparse checkout complete"`
+      }
+
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute git commands:'))
-        console.log(chalk.cyan(`  ${cloneCommand}`))
-        console.log(chalk.cyan(`  ${checkoutCommand}`))
+        if (flags.subdirectory === 'none') {
+          console.log(chalk.cyan(`  ${cloneCommand}`))
+          console.log(chalk.cyan(`  ${checkoutCommand}`))
+        } else {
+          console.log(chalk.cyan(`  Sparse checkout: ${flags.subdirectory} from ${flags.git}`))
+        }
+
         rewrite()
         return
       }
@@ -205,7 +248,7 @@ export default class Conch extends Command {
           return
         }
 
-        // Checkout the branch
+        // Checkout the branch (or confirm sparse checkout)
         exec(checkoutCommand, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)

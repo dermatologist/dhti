@@ -68,6 +68,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 * **Easy to use**: Can be installed in a few minutes.
 * **Developer friendly**: Copy working files to running containers for testing.
 * **Dry-run mode**: Preview changes before execution with the `--dry-run` flag.
+* **Monorepo support**: Install elixirs and conches from subdirectories in GitHub repositories with the `-s` flag.
 * **Dependency Injection**: Dependency injection for models and hyperparameters for configuring elixirs.
 * **Generate synthetic data**: [DHTI supports generating synthetic data for testing, using synthea.](/notes/SYNTHEA.md)
 * **CQL support**: [CQL for clinical decision support](https://nuchange.ca/2025/06/v-llm-in-the-loop-cql-execution-with-unstructured-data-and-fhir-terminology-support.html).
