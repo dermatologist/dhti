@@ -68,6 +68,7 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 * **Easy to use**: Can be installed in a few minutes.
 * **Developer friendly**: Copy working files to running containers for testing.
 * **Dry-run mode**: Preview changes before execution with the `--dry-run` flag.
+* **Local directory installation**: Install elixirs and conches from local directories using the `-l` flag.
 * **Monorepo support**: Install elixirs and conches from subdirectories in GitHub repositories with the `-s` flag.
 * **Dependency Injection**: Dependency injection for models and hyperparameters for configuring elixirs.
 * **Generate synthetic data**: [DHTI supports generating synthetic data for testing, using synthea.](/notes/SYNTHEA.md)
@@ -81,6 +82,8 @@ The essence of DHTI is *modularity* with an emphasis on *configuration!* It is n
 * **LLM**: Ollama for self-hosting LLM models.
 
 ## ✨ New
+* **Local directory installation**: Install elixirs and conches from local directories using the new `-l` flag, enabling seamless integration with locally generated projects.
+* **start-dhti skill**: New AI agent skill that orchestrates complete DHTI application development - from generating elixirs and conches to starting a fully functional DHTI server.
 * **MCPX integration**: DHTI now includes an [MCP integrator](https://docs.lunar.dev/mcpx/) that allows other MCP servers to be "installed" and exposed seamlessly to DHTI through the MCPX gateway.
 * **DOCKTOR module**: A new module, [DOCKTOR](/notes/DOCKTOR.md), support traditional machine learning model packaged as Docker containers, to be used as MCP tools, enabling the deployment of inference pipelines as agent-invokable tools. (in beta)
 * **MCP aware agent**: [dhti-elixir-template](https://github.com/dermatologist/dhti-elixir-template) used in the examples now includes an [MCP aware agent](https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py) that can autodiscover and invoke tools from the MCPX gateway. Install it using `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template -b feature/agent2`.
@@ -149,11 +152,11 @@ Tools to fine-tune language models for the stack are on our roadmap. We encourag
 
 * `npx dhti-cli compose add -m openmrs -m langserve` to add OpenMRS and Langserve elixirs to your docker-compose.yml at ~/dhti. Other available modules: `ollama, langfuse, cqlFhir, redis, neo4j and mcpFhir`. You can read the newly created docker-compose by: `npx dhti-cli compose read`
 
-* `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template` to install a sample elixir from github. *(Optional)* You may configure the LLM and hyperparameters in `~/dhti/elixir/app/bootstrap.py`. You can install multiple elixirs.
+* `npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n dhti-elixir-template` to install a sample elixir from github. *(Optional)* You may configure the LLM and hyperparameters in `~/dhti/elixir/app/bootstrap.py`. You can install multiple elixirs. Alternatively, use `-l <local-directory>` to install from a local directory.
 
 * `npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir` to build a docker image for the elixir.
 
-* `npx dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template` to install a simple OpenMRS ESM module (conch)from github. You can install multiple conches.
+* `npx dhti-cli conch install -g https://github.com/dermatologist/openmrs-esm-dhti-template.git -n openmrs-esm-dhti-template` to install a simple OpenMRS ESM module (conch)from github. You can install multiple conches. Alternatively, use `-l <local-directory>` to install from a local directory.
 
 * `npx dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch` to build a docker image for the conches.
 
