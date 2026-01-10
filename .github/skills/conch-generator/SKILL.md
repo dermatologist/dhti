@@ -21,7 +21,7 @@ Use this skill when you need to:
 
 ### Environment Setup and Project Scaffolding
 
-1. **Clone the template to the mentioned working directory. If working directory is not specified, create a new directory for the microfrontend at ~/dhti/packages/conchs/.**
+1. **Clone the template to the mentioned working directory. If working directory is not specified, create a new directory for the microfrontend at ~/dhti/packages/conch/.**
    ```bash
    npx degit dermatologist/openmrs-esm-dhti-template <<working_directory>>/openmrs-esm-dhti-<<name>>
    ```

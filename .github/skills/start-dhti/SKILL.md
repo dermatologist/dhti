@@ -2,13 +2,13 @@
 
 ## Description
 
-This skill enables AI agents to orchestrate the complete DHTI development workflow: generating elixirs, creating conches, and starting a fully functional DHTI server with both components installed. This skill combines the capabilities of the elixir-generator and conch-generator skills with the new local directory installation feature to provide an end-to-end development experience.
+This skill enables AI agents to orchestrate the  DHTI development workflow: installing elixirs and conches, and starting a fully functional DHTI server with all components installed.
 
 ## When to Use This Skill
 
 Use this skill when you need to:
 - Create a complete DHTI application from scratch with both backend (elixir) and frontend (conch) components
-- Generate and install elixirs and conches created by other skills
+- Install elixirs and conches created by other skills
 - Set up a fully functional DHTI development server for testing and prototyping
 - Rapidly prototype GenAI healthcare applications with both backend and frontend components
 
@@ -36,55 +36,17 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
    - If not already installed globally: `npm install -g dhti-cli`
    - Or use via npx: `npx dhti-cli help`
 
-### Phase 2: Generate Elixir (Backend)
 
-3. **Invoke the elixir-generator skill:**
-   - Use the elixir-generator skill to create a new DHTI elixir based on the requirements below
-   - The elixir should be created in a dedicated directory (e.g., `./generated-elixir/`)
-   - Note the absolute path to the generated elixir directory for later installation
-
-**Elixir Requirements:**
-<!-- Replace this section with the actual elixir requirements -->
-[Specify the elixir functionality, FHIR resources needed, clinical logic, etc.]
-<!-- End Elixir Requirements -->
-
-**Expected Output:**
-- A fully functional elixir project in a dedicated directory
-- Project name starting with `dhti-elixir-`
-- Project slug starting with `dhti_elixir_`
-- All tests passing
-- README.md with usage instructions
-
-### Phase 3: Generate Conch (Frontend)
-
-4. **Invoke the conch-generator skill:**
-   - Use the conch-generator skill to create a new OpenMRS conch based on the requirements below
-   - The conch should be created in a dedicated directory (e.g., `./generated-conch/`)
-   - Note the absolute path to the generated conch directory for later installation
-
-**Conch Requirements:**
-<!-- Replace this section with the actual conch requirements -->
-[Specify the UI components, patient context, DHTI service integration, etc.]
-<!-- End Conch Requirements -->
-
-**Expected Output:**
-- A fully functional OpenMRS ESM module in a dedicated directory
-- Project name starting with `openmrs-esm-dhti-`
-- All tests passing
-- README.md with usage instructions
-- Proper route and extension configuration
-
-### Phase 4: Set Up DHTI Infrastructure
+### Phase 2: Set Up DHTI Infrastructure
 
 5. **Create Docker Compose Configuration:**
    ```bash
    npx dhti-cli compose add -m openmrs -m langserve
    ```
-   
+
    This creates a Docker Compose configuration with:
    - OpenMRS (EMR)
    - LangServe (GenAI backend)
-   - FHIR server (HAPI)
    - Other necessary infrastructure
 
    Optionally add additional modules as needed:
@@ -100,70 +62,67 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
    npx dhti-cli compose read
    ```
 
-### Phase 5: Install Elixir from Local Directory
+### Phase 3: Install Elixir from Local Directory (If Applicable)
 
 7. **Install the Generated Elixir:**
-   - Use the new `-l` flag to install the elixir from the local directory
-   - Replace `<elixir-path>` with the absolute path to the generated elixir directory
-   - Replace `<elixir-name>` with the elixir's project slug (starting with `dhti-elixir-`)
-   
+   - Use the new `-l` flag to install the elixir from the local directory specified in the original user prompt.
+   - Use -n flag with the elixir's project name (starting with `dhti-elixir-`)
+
    ```bash
    npx dhti-cli elixir install -l <elixir-path> -n <elixir-name>
    ```
-   
+
    Example:
    ```bash
-   npx dhti-cli elixir install -l /home/user/projects/generated-elixir -n dhti-elixir-glycemic
+   npx dhti-cli elixir install -l /home/user/dhti/packages/elixir/dhti-elixir-glycemic -n dhti-elixir-glycemic
    ```
 
 8. **Build Elixir Docker Image:**
    ```bash
-   npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir
+   npx dhti-cli docker -n dhti/genai-test:1.0 -t elixir
    ```
-   
-   Replace `yourdockerhandle` with your Docker Hub username or registry name.
 
-### Phase 6: Install Conch from Local Directory
+   Replace `dhti` with your Docker Hub username or registry name if available from the original user prompt.
+
+### Phase 4: Install Conch from Local Directory (If Applicable)
 
 9. **Install the Generated Conch:**
-   - Use the new `-l` flag to install the conch from the local directory
-   - Replace `<conch-path>` with the absolute path to the generated conch directory
-   - Replace `<conch-name>` with the conch's project name (starting with `openmrs-esm-dhti-`)
-   
+   - Use the new `-l` flag to install the conch from the local directory specified in the original user prompt.
+   - Use -n flag with the conch's project name (starting with `openmrs-esm-dhti-`)
+
    ```bash
    npx dhti-cli conch install -l <conch-path> -n <conch-name>
    ```
-   
+
    Example:
    ```bash
-   npx dhti-cli conch install -l /home/user/projects/generated-conch -n openmrs-esm-dhti-glycemic
+   npx dhti-cli conch install -l /home/user/dhti/packages/conch/openmrs-esm-dhti-glycemic -n openmrs-esm-dhti-glycemic
    ```
 
 10. **Build Conch Docker Image:**
     ```bash
-    npx dhti-cli docker -n yourdockerhandle/conch-test:1.0 -t conch
+    npx dhti-cli docker -n dhti/conch-test:1.0 -t conch
     ```
+      Replace `dhti` with your Docker Hub username or registry name if available from the original user prompt.
 
-### Phase 7: Start DHTI Server
+### Phase 5: Start DHTI Server
 
 11. **Start All Services:**
     ```bash
     npx dhti-cli docker -u
     ```
-    
+
     This command starts all Docker containers defined in the compose file. Services typically include:
     - OpenMRS on `http://localhost/openmrs`
     - LangServe backend
-    - FHIR server
-    - Generated elixir
-    - Generated conch
+
 
 12. **Wait for Services to Initialize:**
     - Wait 2-3 minutes for all services to fully start
     - OpenMRS initialization can take time on first startup
     - Monitor logs: `docker compose logs -f`
 
-### Phase 8: Verify and Test
+### Phase 6: Verify and Test
 
 13. **Access OpenMRS:**
     - Navigate to `http://localhost/openmrs/spa/home`
@@ -209,17 +168,17 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 ### Development Mode (Optional)
 
 19. **Hot Reload During Development:**
-    
+
     For Elixir development:
     ```bash
     npx dhti-cli elixir dev -d <elixir-path> -n <elixir-name>
     ```
-    
+
     For Conch development:
     ```bash
     npx dhti-cli conch dev -d <conch-path> -n <conch-name>
     ```
-    
+
     These commands copy updated files to running containers and restart them.
 
 ## Dry-Run Mode
@@ -275,8 +234,6 @@ Common issues and solutions:
 
 ## Notes
 
-- This skill orchestrates multiple other skills (elixir-generator, conch-generator)
-- The local directory installation feature (`-l` flag) is essential for this workflow
 - Always use dry-run mode first to verify commands
 - Generated projects can be version controlled and shared
 - Docker images can be pushed to registries for deployment

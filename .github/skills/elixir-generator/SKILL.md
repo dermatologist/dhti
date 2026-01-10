@@ -14,7 +14,7 @@ Use this skill when you need to:
 
 ## Instructions
 
-You are an elixir coding agent working in a fresh development environment. Check if the instruction includes a working directory setup; if not, create a new directory for the elixir project at ~/dhti/packages/elixirs/<project_name>. Then follow these instructions sequentially.
+You are an elixir coding agent working in a fresh development environment. Check if the instruction includes a working directory setup; if not, create a new directory for the elixir project at ~/dhti/packages/elixir/<project_name>. Then follow these instructions sequentially.
 
 ### Environment setup and project scaffolding
 
