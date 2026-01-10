@@ -1,6 +1,6 @@
 # OpenMRS Conch Agent Skill
 
-This skill helps you generate a new OpenMRS ESM microfrontend (conch) from this template. Use this skill when you need to create a new DHTI-enabled microfrontend that integrates with the OpenMRS 3.x ecosystem.
+This skill helps you generate a new OpenMRS ESM microfrontend (DHTI conch) from this template. Use this skill when you need to create a new DHTI-enabled microfrontend that integrates with the OpenMRS 3.x ecosystem.
 
 ## Skill Purpose
 
@@ -21,9 +21,9 @@ Use this skill when you need to:
 
 ### Environment Setup and Project Scaffolding
 
-1. **Clone the template to the empty working directory:**
+1. **Clone the template to the mentioned working directory. If working directory is not specified, create a new directory for the microfrontend at ~/dhti/packages/conchs/.**
    ```bash
-   npx degit dermatologist/openmrs-esm-dhti-template openmrs-esm-dhti-<name>
+   npx degit dermatologist/openmrs-esm-dhti-template <<working_directory>>/openmrs-esm-dhti-<<name>>
    ```
 
 2. **Install the dependencies:**
@@ -31,12 +31,10 @@ Use this skill when you need to:
    npm install
    ```
 
-3. **Read and internalize the GenAI feature request below:**
-
-   <!-- Feature Request Start -->
-   <!-- Please replace this section with the actual feature request. see examples/conch-sample-request.md -->
-   [Please replace this section with the actual feature request. See examples/conch-sample-request.md]
-   <!-- Feature Request End -->
+3. **Read and internalize the original user feature request:**
+   - Understand the clinical functionality needed.
+   - Identify the UI components, extensions, workflows, and pages required.
+   - Note any specific DHTI service integration needs.
 
 4. **Decide on a simple but unique name** starting with `openmrs-esm-dhti-` for your microfrontend. This name will be used for the project directory, GitHub repository, and npm package. Ensure that the name is not already in use by checking the OpenMRS microfrontends list and npm registry.
 
@@ -44,10 +42,10 @@ Use this skill when you need to:
 
 5. **Adapt the code:**
    - Find and replace all instances of "template" with the name of your microfrontend (what comes after `openmrs-esm-dhti-`).
-   - In the rest of this document `<name>` refers to what comes after `openmrs-esm-dhti-` in your microfrontend's name.
+   - In the rest of this document `<<name>>` refers to what comes after `openmrs-esm-dhti-` in your microfrontend's name.
    - Update `index.ts` as below:
-     - Change the `moduleName` to `@openmrs/esm-<name>`.
-     - Change the `featureName` from `dhti-template` to `dhti-<name>`.
+     - Set the value of `moduleName` variable to `@openmrs/esm-<<name>>`.
+     - Set the value of `featureName` variable from `dhti-template` to `dhti-<<name>>`.
    - Rename the `root.*` family of files to have the name of your first page.
    - Delete the contents of the objects in `config-schema.ts`. Start filling them back in once you have a clear idea what will need to be configured.
    - Delete the `dhti` directory, and the contents of renamed `root.component.tsx` if you don't need them.
@@ -121,7 +119,7 @@ Use this skill when you need to:
 ### Implementation
 
 12. **Implement the feature:**
-    - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: <https://o3-docs.openmrs.org/docs/frontend-modules/overview>. Test your code frequently to ensure it works as expected. Start with the renamed `root.component.tsx` file and build out from there. Please note that you may have components not included in the root component, but used in extensions or pages.
+    - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview. Test your code frequently to ensure it works as expected. Start with the renamed `root.component.tsx` file and build out from there. Please note that you may have components not included in the root component, but used in extensions or pages.
 
 ### Testing
 
