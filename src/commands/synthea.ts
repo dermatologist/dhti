@@ -17,11 +17,11 @@ interface SyntheaFlags {
   age?: string
   city?: string
   covid19?: boolean
-   
+  // eslint-disable-next-line camelcase
   covid19_10k?: boolean
-   
+  // eslint-disable-next-line camelcase
   covid19_csv?: boolean
-   
+  // eslint-disable-next-line camelcase
   covid19_csv_10k?: boolean
   'dry-run': boolean
   endpoint: string
@@ -29,11 +29,11 @@ interface SyntheaFlags {
   population: number
   seed?: string
   state?: string
-   
+  // eslint-disable-next-line camelcase
   synthea_sample_data_csv_latest?: boolean
-   
+  // eslint-disable-next-line camelcase
   synthea_sample_data_fhir_latest?: boolean
-   
+  // eslint-disable-next-line camelcase
   synthea_sample_data_fhir_stu3_latest?: boolean
   token?: string
   workdir: string
@@ -41,7 +41,7 @@ interface SyntheaFlags {
 
 /**
  * Synthea command for managing synthetic FHIR data generation
- * 
+ *
  * This command provides subcommands to:
  * - install: Download and install Synthea JAR file
  * - generate: Generate synthetic FHIR data using Synthea
@@ -250,9 +250,7 @@ export default class Synthea extends Command {
       rmSync(dataDir, {force: true, recursive: true})
       console.log(chalk.green(`✓ Deleted: ${dataDir}`))
     } catch (error) {
-      this.error(
-        `Failed to delete directory: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      this.error(`Failed to delete directory: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -266,7 +264,7 @@ export default class Synthea extends Command {
     const outputDir = join(flags.workdir, 'synthea_data')
 
     // Map of dataset flags to download URLs
-     
+    // eslint-disable-next-line camelcase
     const datasets: {[key: string]: {file: string; url: string}} = {
       covid19: {
         file: 'covid19.zip',
@@ -346,7 +344,7 @@ export default class Synthea extends Command {
 
     // Download and extract each selected dataset
     // Note: Sequential processing is intentional to avoid overwhelming the server
-     
+    // eslint-disable-next-line no-await-in-loop
     for (const datasetKey of selectedDatasets) {
       const dataset = datasets[datasetKey]
       const downloadPath = join(tmpDir, dataset.file)
@@ -394,9 +392,7 @@ export default class Synthea extends Command {
         console.log(chalk.green(`✓ Extracted to ${outputDir}`))
       } catch (error) {
         console.log(
-          chalk.red(
-            `✗ Failed to download ${datasetKey}: ${error instanceof Error ? error.message : String(error)}`,
-          ),
+          chalk.red(`✗ Failed to download ${datasetKey}: ${error instanceof Error ? error.message : String(error)}`),
         )
       }
     }
@@ -431,11 +427,7 @@ export default class Synthea extends Command {
 
     // Check if JAR exists
     if (!existsSync(jarPath)) {
-      console.log(
-        chalk.red(
-          `✗ Synthea JAR not found at: ${jarPath}\nRun 'dhti-cli synthea install' first.`,
-        ),
-      )
+      console.log(chalk.red(`✗ Synthea JAR not found at: ${jarPath}\nRun 'dhti-cli synthea install' first.`))
       this.exit(1)
     }
 
@@ -481,9 +473,7 @@ export default class Synthea extends Command {
         console.log(chalk.white(`FHIR files location: ${fhirDir}`))
       }
     } catch (error) {
-      this.error(
-        `Failed to generate synthetic data: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      this.error(`Failed to generate synthetic data: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -568,9 +558,7 @@ export default class Synthea extends Command {
       fileStream.end()
       console.log('\n' + chalk.green(`✓ Downloaded synthea-with-dependencies.jar to ${jarPath}`))
     } catch (error) {
-      this.error(
-        `Failed to download Synthea JAR: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      this.error(`Failed to download Synthea JAR: ${error instanceof Error ? error.message : String(error)}`)
     }
 
     // Display usage instructions
@@ -611,11 +599,7 @@ export default class Synthea extends Command {
 
     // Check if FHIR directory exists
     if (!existsSync(fhirDir)) {
-      console.log(
-        chalk.red(
-          `✗ FHIR data directory not found: ${fhirDir}\nRun 'dhti-cli synthea generate' first.`,
-        ),
-      )
+      console.log(chalk.red(`✗ FHIR data directory not found: ${fhirDir}\nRun 'dhti-cli synthea generate' first.`))
       this.exit(1)
     }
 
@@ -642,7 +626,7 @@ export default class Synthea extends Command {
 
     // Upload each file
     // Note: Sequential processing is intentional to maintain order and avoid overwhelming server
-     
+    // eslint-disable-next-line no-await-in-loop
     for (const [index, file] of files.entries()) {
       const filePath = join(fhirDir, file)
       console.log(chalk.gray(`[${index + 1}/${files.length}] Uploading ${file}...`))
@@ -672,19 +656,11 @@ export default class Synthea extends Command {
           console.log(chalk.green(`  ✓ Uploaded ${file}`))
         } else {
           failCount++
-          console.log(
-            chalk.red(
-              `  ✗ Failed to upload ${file}: ${response.status} ${response.statusText}`,
-            ),
-          )
+          console.log(chalk.red(`  ✗ Failed to upload ${file}: ${response.status} ${response.statusText}`))
         }
       } catch (error) {
         failCount++
-        console.log(
-          chalk.red(
-            `  ✗ Error uploading ${file}: ${error instanceof Error ? error.message : String(error)}`,
-          ),
-        )
+        console.log(chalk.red(`  ✗ Error uploading ${file}: ${error instanceof Error ? error.message : String(error)}`))
       }
     }
 
