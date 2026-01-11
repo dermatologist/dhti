@@ -52,9 +52,16 @@ Before editing any generated files, **carefully read and understand** the follow
   - chain.py reference:
     - https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
     - The main class should be named "DhtiChain" inheriting from BaseChain ( from package dhti_elixir_base)
+    - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["<project_slug>_main_llm"] and di["<project_slug>_function_llm"] respectively. Substitute <project_slug> with the project slug. The default prompt should also be injected as di["<project_slug>_prompt"]. Additional hyperparameters can be injected as needed.
+    - Plan how the problem can be solved using LangChain constructs (chains, agents, tools, callbacks, etc.) following the patterns in the reference chain.py.
 - **Bootstrap / configuration of the chain:**
   - bootstrap.py reference:
     - https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/bootstrap.py
+    - This file is responsible for setting up dependency injection (DI) for the chain, including:
+      - Configuring the main LLM and function calling LLM (if applicable).
+      - Setting up prompts and any additional tools or services.
+      - Configuring FHIR endpoints and any other external services.
+    - Add default FakeChatLLM configuration for both main_llm and function_llm if not specified in the user request.
     - The cds_hook_discovery should be configured as follows:
 
 ```python
