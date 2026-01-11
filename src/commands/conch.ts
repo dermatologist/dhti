@@ -121,7 +121,7 @@ export default class Conch extends Command {
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
         console.log(chalk.cyan(`  cd ${targetDir}`))
-        console.log(chalk.cyan(`  npx openmrs develop`))
+        console.log(chalk.cyan(`  corepack enable & yarn & yarn start`))
         return
       }
 
@@ -136,8 +136,8 @@ export default class Conch extends Command {
         console.log(chalk.blue(`Starting OpenMRS development server in ${targetDir}...`))
         console.log(chalk.yellow('Press Ctrl-C to stop\n'))
 
-        // Spawn npx openmrs develop with stdio inheritance to show output and allow Ctrl-C
-        const child = spawn('npx', ['openmrs', 'develop'], {
+        // Spawn corepack enable & yarn & yarn start with stdio inheritance to show output and allow Ctrl-C
+        const child = spawn('corepack enable & yarn & yarn start', {
           cwd: targetDir,
           shell: true,
           stdio: 'inherit',
