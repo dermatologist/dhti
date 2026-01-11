@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.openmrs.org/routes.schema.json",
+  "backendDependencies": {
+    "fhir2": "^2.0.0",
+    "webservices.rest": "^2.2.0"
+  },
+  "extensions": [
+    {
+      "component": "DhtiTemplateLeftPanelLink",
+      "name": "dhti-template-home-left-panel-link",
+      "slot": "homepage-dashboard-slot",
+      "meta": {
+        "name": "dhti-template",
+        "title": "DHTI Template",
+        "slot": "dhti-template-app-slot"
+      }
+    },
+    {
+      "component": "root",
+      "name": "dhti-template-root",
+      "slot": "dhti-template-app-slot"
+    }
+  ]
+}
