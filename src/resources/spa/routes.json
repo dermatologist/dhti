@@ -8,7 +8,7 @@
     {
       "component": "glycemic",
       "name": "dhti-glycemic-widget",
-      "slot": "patient-banner-bottom-slot",
+      "slot": "patient-chart-summary-dashboard-slot",
       "meta": {
         "columnSpan": 4
       }
