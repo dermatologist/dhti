@@ -38,6 +38,10 @@ export default class Conch extends Command {
       description: 'GitHub repository to install (for install operation)',
     }),
     name: Flags.string({char: 'n', description: 'Name of the conch'}),
+    sources: Flags.string({
+      char: 's',
+      description: 'Additional sources to include when starting (e.g., packages/esm-chatbot-agent)',
+    }),
     workdir: Flags.string({
       char: 'w',
       default: `${os.homedir()}/dhti`,
@@ -136,8 +140,14 @@ export default class Conch extends Command {
         console.log(chalk.blue(`Starting OpenMRS development server in ${targetDir}...`))
         console.log(chalk.yellow('Press Ctrl-C to stop\n'))
 
+        // Build the start command with sources flag if provided
+        let startCommand = 'corepack enable & yarn & yarn start'
+        if (flags.sources) {
+          startCommand += ` --sources '${flags.sources}'`
+        }
+
         // Spawn corepack enable & yarn & yarn start with stdio inheritance to show output and allow Ctrl-C
-        const child = spawn('corepack enable & yarn & yarn start', {
+        const child = spawn(startCommand, {
           cwd: targetDir,
           shell: true,
           stdio: 'inherit',
