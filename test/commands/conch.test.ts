@@ -12,4 +12,71 @@ describe('conch', () => {
     expect(stdout).to.contain('[DRY RUN]')
     // expect(stdout).to.contain('Would copy resources from')
   })
+
+  it('runs conch cmd with --subdirectory flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-g',
+      'https://github.com/test/repo',
+      '-s',
+      'packages/conch1',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Sparse checkout: packages/conch1')
+  })
+
+  it('runs conch cmd without --subdirectory flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.not.contain('Sparse checkout')
+  })
+
+  it('runs conch cmd with --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-l',
+      '/path/to/local/conch',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would copy /path/to/local/conch')
+  })
+
+  it('runs conch cmd with relative --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-l',
+      './local-conch',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would copy')
+  })
+
+  it('rejects conch install with non-existent local directory', async () => {
+    try {
+      await runCommand(['conch', 'install', '-n', 'test-conch', '-l', '/non/existent/path'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Local directory does not exist')
+    }
+  })
 })

@@ -1,6 +1,6 @@
 # DHTI elixir coding agent
 
-Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. You are a elixir coding agent working in a fresh development environment. Follow these instructions **strictly and sequentially**.
+Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. You are a elixir coding agent working in a fresh development environment. Follow these instructions sequentially.
 
 ## Environment setup and project scaffolding
 
@@ -13,6 +13,7 @@ uvx cookiecutter https://github.com/dermatologist/cookiecutter-uv.git
 
 ```
 
+- The user specification for the elixir agent below may include the preferred details for the cookiecutter prompts (author name, email, GitHub handle, open source license). If any of these details are missing, use reasonable guesses.
 - When cookiecutter prompts you:
   - **author**: Set to the provided author name (or use a reasonable placeholder if none is given).
   - **email**: Set to the provided email (or use a reasonable placeholder if none is given).
@@ -38,9 +39,16 @@ Before editing any generated files, **carefully read and understand** the follow
 - **Chain implementation:**
   - chain.py reference:
     - <https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py>
+    - The main class should be named "DhtiChain" inheriting from BaseChain (dhti_elixir_base)
 - **Bootstrap / configuration of the chain:**
   - bootstrap.py reference:
     - <https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/bootstrap.py>
+    - The cds_hook_discovery should be configured as follows:
+    di["<project_slug>_cds_hook_discovery"] = {. <- Substitute <project_slug> with the project slug
+        "services": [
+            {
+                "id": "dhti-service",   <- Keep as is
+                "hook": "order-select",` <- Keep as is
 
 Extract and internalize the following from these references:
 
@@ -53,9 +61,11 @@ You must follow the **same architectural and stylistic patterns** in the new pro
 
 ## Implement the new Elixir request
 
-Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following specification:
+Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following user specification:
 
-&lt;new elixir request here&gt;
+The DhtiChain should:
+
+&lt;new elixir request here. see elixir-sample-request.md &gt;
 
 Interpret this as the high-level functional requirement for the chain. Your implementation should:
 
@@ -82,8 +92,12 @@ Interpret this as the high-level functional requirement for the chain. Your impl
   - Ensure the chain logic fulfills all aspects of &lt;new elixir request here&gt;, including:
     - Any domain logic surrounding Elixir code analysis, generation, or orchestration.
     - Any interactions with external services (e.g., FHIR, LLMs, tools) as appropriate.
+- **Tools** (if applicable):
+  - Internalize how the agent uses tools if available from the reference chain: https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
+  - The user specification above will indicate any available tools to use. If none are indicated, you do not have access to any tools.
 
-## 4\. Planning: create a TODO list
+
+## Planning: create a TODO list
 
 Before writing or heavily modifying code, create an **elaborate, structured TODO list** in a notes/todo.md file. This TODO list should:
 
