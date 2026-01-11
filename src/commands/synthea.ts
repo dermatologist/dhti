@@ -17,11 +17,11 @@ interface SyntheaFlags {
   age?: string
   city?: string
   covid19?: boolean
-  // eslint-disable-next-line camelcase
+   
   covid19_10k?: boolean
-  // eslint-disable-next-line camelcase
+   
   covid19_csv?: boolean
-  // eslint-disable-next-line camelcase
+   
   covid19_csv_10k?: boolean
   'dry-run': boolean
   endpoint: string
@@ -29,11 +29,11 @@ interface SyntheaFlags {
   population: number
   seed?: string
   state?: string
-  // eslint-disable-next-line camelcase
+   
   synthea_sample_data_csv_latest?: boolean
-  // eslint-disable-next-line camelcase
+   
   synthea_sample_data_fhir_latest?: boolean
-  // eslint-disable-next-line camelcase
+   
   synthea_sample_data_fhir_stu3_latest?: boolean
   token?: string
   workdir: string
@@ -266,7 +266,7 @@ export default class Synthea extends Command {
     const outputDir = join(flags.workdir, 'synthea_data')
 
     // Map of dataset flags to download URLs
-    // eslint-disable-next-line camelcase
+     
     const datasets: {[key: string]: {file: string; url: string}} = {
       covid19: {
         file: 'covid19.zip',
@@ -346,7 +346,7 @@ export default class Synthea extends Command {
 
     // Download and extract each selected dataset
     // Note: Sequential processing is intentional to avoid overwhelming the server
-    // eslint-disable-next-line no-await-in-loop
+     
     for (const datasetKey of selectedDatasets) {
       const dataset = datasets[datasetKey]
       const downloadPath = join(tmpDir, dataset.file)
@@ -642,7 +642,7 @@ export default class Synthea extends Command {
 
     // Upload each file
     // Note: Sequential processing is intentional to maintain order and avoid overwhelming server
-    // eslint-disable-next-line no-await-in-loop
+     
     for (const [index, file] of files.entries()) {
       const filePath = join(fhirDir, file)
       console.log(chalk.gray(`[${index + 1}/${files.length}] Uploading ${file}...`))

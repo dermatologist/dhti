@@ -1,55 +1,36 @@
 import {Args, Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
-import {exec} from 'node:child_process'
+import {exec,spawn} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
+import {promisify} from 'node:util'
 
-// Helper function to escape shell arguments
-function escapeShellArg(arg: string): string {
-  return `'${arg.replaceAll("'", "'\\''")}'`
-}
+const execAsync = promisify(exec)
 
 export default class Conch extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
+    op: Args.string({description: 'Operation to perform (init or start)'}),
   }
 
-  static override description = 'Install or uninstall conchs to create a Docker image'
+  static override description = 'Initialize or start OpenMRS frontend development using npx openmrs develop'
 
-  static override examples = ['<%= config.bin %> <%= command.id %>']
+  static override examples = [
+    '<%= config.bin %> <%= command.id %> init -n my-app -w ~/projects',
+    '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects',
+  ]
 
   static override flags = {
-    branch: Flags.string({char: 'b', default: 'develop', description: 'Branch to install from'}),
-    container: Flags.string({
-      char: 'c',
-      default: 'dhti-frontend-1',
-      description: 'Name of the container to copy the conch to while in dev mode',
-    }),
-    dev: Flags.string({char: 'd', default: 'none', description: 'Dev folder to install'}),
     'dry-run': Flags.boolean({
       default: false,
       description: 'Show what changes would be made without actually making them',
     }),
-    git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
-    image: Flags.string({
-      char: 'i',
-      default: 'openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17',
-      description: 'Base image to use for the conch',
-    }),
-    local: Flags.string({char: 'l', default: 'none', description: 'Local directory to install from'}),
-    name: Flags.string({char: 'n', description: 'Name of the elixir'}),
-    repoVersion: Flags.string({char: 'v', default: '1.0.0', description: 'Version of the conch'}),
-    subdirectory: Flags.string({
-      char: 's',
-      default: 'none',
-      description: 'Subdirectory in the repository to install from (for monorepos)',
-    }),
+    name: Flags.string({char: 'n', description: 'Name of the conch'}),
     workdir: Flags.string({
       char: 'w',
       default: `${os.homedir()}/dhti`,
-      description: 'Working directory to install the conch',
+      description: 'Working directory for the conch',
     }),
   }
 
@@ -61,248 +42,125 @@ export default class Conch extends Command {
     const __dirname = path.dirname(__filename)
     const RESOURCES_DIR = path.resolve(__dirname, '../resources')
 
-    if (!flags.name) {
-      console.log('Please provide a name for the conch')
-      this.exit(1)
-    }
+    if (args.op === 'init') {
+      // Validate required flags
+      if (!flags.workdir) {
+        console.error(chalk.red('Error: workdir flag is required for init operation'))
+        this.exit(1)
+      }
 
-    // if arg is dev then copy to docker as below
-    // docker cp ../../openmrs-esm-genai/dist/. dhti-frontend-1:/usr/share/nginx/html/openmrs-esm-genai-1.0.0
-    // docker restart dhti-frontend-1
-    if (args.op === 'dev') {
-      const buildCommand = `cd ${flags.dev} && yarn build && docker cp dist/. ${flags.container}:/usr/share/nginx/html/${flags.name}-${flags.repoVersion}`
-      const restartCommand = `docker restart ${flags.container}`
-      
+      if (!flags.name) {
+        console.error(chalk.red('Error: name flag is required for init operation'))
+        this.exit(1)
+      }
+
+      const targetDir = path.join(flags.workdir, flags.name)
+
       if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would execute commands:'))
-        console.log(chalk.cyan(`  ${buildCommand}`))
-        console.log(chalk.cyan(`  ${restartCommand}`))
+        console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
+        console.log(chalk.cyan(`  npx degit openmrs/openmrs-esm-template-app ${targetDir}`))
+        console.log(chalk.cyan(`  Copy resources from ${RESOURCES_DIR}/spa to ${targetDir}/src`))
         return
       }
 
-      console.log(buildCommand)
       try {
-        exec(buildCommand, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`)
-            return
-          }
+        // Run npx degit to clone the template
+        console.log(chalk.blue(`Initializing OpenMRS app template in ${targetDir}...`))
+        const degitCommand = `npx degit openmrs/openmrs-esm-template-app ${targetDir}`
+        await execAsync(degitCommand)
+        console.log(chalk.green('✓ Template cloned successfully'))
 
-          console.log(`stdout: ${stdout}`)
-          console.error(`stderr: ${stderr}`)
-        })
-        exec(restartCommand, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`)
-            return
-          }
+        // Copy resources from spa directory to target/src
+        const spaResourcesDir = path.join(RESOURCES_DIR, 'spa')
+        const targetSrcDir = path.join(targetDir, 'src')
 
-          console.log(`stdout: ${stdout}`)
-          console.error(`stderr: ${stderr}`)
-        })
+        if (fs.existsSync(spaResourcesDir)) {
+          console.log(chalk.blue('Copying resources to src directory...'))
+          fs.cpSync(spaResourcesDir, targetSrcDir, {recursive: true})
+          console.log(chalk.green('✓ Resources copied successfully'))
+        } else {
+          console.log(chalk.yellow(`Warning: Resources directory not found at ${spaResourcesDir}`))
+        }
+
+        console.log(chalk.green(`\n✓ Initialization complete! Your app is ready at ${targetDir}`))
+        console.log(chalk.blue(`\nTo start development, run:`))
+        console.log(chalk.cyan(`  dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`))
       } catch (error) {
-        console.log('Error copying conch to container', error)
+        console.error(chalk.red('Error during initialization:'), error)
+        this.exit(1)
       }
 
       return
     }
 
-    // Create a directory to install the elixir
-    if (!fs.existsSync(`${flags.workdir}/conch`)) {
-      if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${flags.workdir}/conch`))
-      } else {
-        fs.mkdirSync(`${flags.workdir}/conch`)
+    if (args.op === 'start') {
+      // Validate required flags
+      if (!flags.workdir) {
+        console.error(chalk.red('Error: workdir flag is required for start operation'))
+        this.exit(1)
       }
-    }
 
-    if (flags['dry-run']) {
-      console.log(chalk.yellow(`[DRY RUN] Would copy resources from ${RESOURCES_DIR}/spa to ${flags.workdir}/conch`))
-    } else {
-      fs.cpSync(path.join(RESOURCES_DIR, 'spa'), `${flags.workdir}/conch`, {recursive: true})
-    }
+      if (!flags.name) {
+        console.error(chalk.red('Error: name flag is required for start operation'))
+        this.exit(1)
+      }
 
-    // Rewrite files
+      const targetDir = path.join(flags.workdir, flags.name)
 
-    const rewrite = () => {
-      flags.name = flags.name ?? 'openmrs-esm-genai'
-      
       if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would update configuration files:'))
-        console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/importmap.json`))
-        if (args.op === 'install') {
-          console.log(chalk.green(`    Add import: ${flags.name.replace('openmrs-', '@openmrs/')} -> ./${flags.name}-${flags.repoVersion}/${flags.name}.js`))
-        }
-
-        if (args.op === 'uninstall') {
-          console.log(chalk.green(`    Remove import: ${flags.name.replace('openmrs-', '@openmrs/')}`))
-        }
-
-        console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/spa-assemble-config.json`))
-        if (args.op === 'install') {
-          console.log(chalk.green(`    Add module: ${flags.name.replace('openmrs-', '@openmrs/')} = ${flags.repoVersion}`))
-        }
-
-        if (args.op === 'uninstall') {
-          console.log(chalk.green(`    Remove module: ${flags.name.replace('openmrs-', '@openmrs/')}`))
-        }
-
-        console.log(chalk.cyan(`  - ${flags.workdir}/conch/Dockerfile`))
-        console.log(chalk.green(`    Update with conch=${flags.name}, version=${flags.repoVersion}, image=${flags.image}`))
-        console.log(chalk.cyan(`  - ${flags.workdir}/conch/def/routes.registry.json`))
-        if (args.op === 'install') {
-          console.log(chalk.green(`    Add routes for ${flags.name.replace('openmrs-', '@openmrs/')}`))
-        }
-
-        if (args.op === 'uninstall') {
-          console.log(chalk.green(`    Remove routes for ${flags.name.replace('openmrs-', '@openmrs/')}`))
-        }
-
+        console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
+        console.log(chalk.cyan(`  cd ${targetDir}`))
+        console.log(chalk.cyan(`  npx openmrs develop`))
         return
       }
 
-      // Read and process importmap.json
-      const importmap = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/importmap.json`, 'utf8'))
-      if (args.op === 'install')
-        importmap.imports[
-          flags.name.replace('openmrs-', '@openmrs/')
-        ] = `./${flags.name}-${flags.repoVersion}/${flags.name}.js`
-      if (args.op === 'uninstall') delete importmap.imports[flags.name.replace('openmrs-', '@openmrs/')]
-      fs.writeFileSync(`${flags.workdir}/conch/def/importmap.json`, JSON.stringify(importmap, null, 2))
-
-      // Read and process spa-assemble-config.json
-      const spaAssembleConfig = JSON.parse(
-        fs.readFileSync(`${flags.workdir}/conch/def/spa-assemble-config.json`, 'utf8'),
-      )
-      if (args.op === 'install')
-        spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')] = `${flags.repoVersion}`
-      if (args.op === 'uninstall') delete spaAssembleConfig.frontendModules[flags.name.replace('openmrs-', '@openmrs/')]
-      fs.writeFileSync(
-        `${flags.workdir}/conch/def/spa-assemble-config.json`,
-        JSON.stringify(spaAssembleConfig, null, 2),
-      )
-
-      // Read and process Dockerfile
-      let dockerfile = fs.readFileSync(`${flags.workdir}/conch/Dockerfile`, 'utf8')
-      dockerfile = dockerfile
-        .replaceAll('conch', flags.name)
-        .replaceAll('version', flags.repoVersion)
-        .replaceAll('server-image', flags.image)
-      fs.writeFileSync(`${flags.workdir}/conch/Dockerfile`, dockerfile)
-      // Read routes.json
-      const routes = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/${flags.name}/src/routes.json`, 'utf8'))
-      // Add to routes.registry.json
-      const registry = JSON.parse(fs.readFileSync(`${flags.workdir}/conch/def/routes.registry.json`, 'utf8'))
-      if (args.op === 'install') registry[flags.name.replace('openmrs-', '@openmrs/')] = routes
-      if (args.op === 'uninstall') delete registry[flags.name.replace('openmrs-', '@openmrs/')]
-      fs.writeFileSync(`${flags.workdir}/conch/def/routes.registry.json`, JSON.stringify(registry, null, 2))
-    }
-
-    if (flags.git !== 'none') {
-      let cloneCommand: string
-      let checkoutCommand: string
-
-      if (flags.subdirectory === 'none') {
-        cloneCommand = `git clone ${escapeShellArg(flags.git)} ${escapeShellArg(`${flags.workdir}/conch/${flags.name}`)}`
-        checkoutCommand = `cd ${escapeShellArg(`${flags.workdir}/conch/${flags.name}`)} && git checkout ${escapeShellArg(flags.branch)}`
-      } else {
-        // Use sparse checkout for subdirectory - broken into steps for readability and security
-        const targetDir = `${flags.workdir}/conch/${flags.name}`
-        const escapedDir = escapeShellArg(targetDir)
-        const escapedGit = escapeShellArg(flags.git)
-        const escapedBranch = escapeShellArg(flags.branch)
-        const escapedSubdir = escapeShellArg(flags.subdirectory)
-
-        // Build sparse checkout command with proper escaping
-        const initCommand = `mkdir -p ${escapedDir} && cd ${escapedDir} && git init`
-        const remoteCommand = `git remote add origin ${escapedGit}`
-        const sparseCommand = `git config core.sparseCheckout true`
-        // Don't escape the glob pattern itself, only the subdirectory name
-        const patternCommand = `echo ${escapedSubdir}/'*' >> .git/info/sparse-checkout`
-        const fetchCommand = `git fetch --depth=1 origin ${escapedBranch}`
-        const checkoutCmd = `git checkout ${escapedBranch}`
-        // Use bash's dotglob to include hidden files, and handle the case when no files exist
-        const moveCommand = `bash -c "shopt -s dotglob; if [ -d ${escapedSubdir} ]; then mv ${escapedSubdir}/* . 2>/dev/null || true; fi"`
-        const cleanupCommand = `rm -rf ${escapedSubdir}`
-
-        cloneCommand = `${initCommand} && ${remoteCommand} && ${sparseCommand} && ${patternCommand} && ${fetchCommand} && ${checkoutCmd} && ${moveCommand} && ${cleanupCommand}`
-        checkoutCommand = `cd ${escapedDir} && echo "Sparse checkout complete"`
+      // Check if directory exists (not in dry-run mode)
+      if (!fs.existsSync(targetDir)) {
+        console.error(chalk.red(`Error: Directory does not exist: ${targetDir}`))
+        console.log(chalk.yellow(`Run 'dhti-cli conch init -n ${flags.name} -w ${flags.workdir}' first`))
+        this.exit(1)
       }
 
-      if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would execute git commands:'))
-        if (flags.subdirectory === 'none') {
-          console.log(chalk.cyan(`  ${cloneCommand}`))
-          console.log(chalk.cyan(`  ${checkoutCommand}`))
-        } else {
-          console.log(chalk.cyan(`  Sparse checkout: ${flags.subdirectory} from ${flags.git}`))
-        }
+      try {
+        console.log(chalk.blue(`Starting OpenMRS development server in ${targetDir}...`))
+        console.log(chalk.yellow('Press Ctrl-C to stop\n'))
 
-        rewrite()
-        return
-      }
-
-      // git clone the repository
-      exec(cloneCommand, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`)
-          return
-        }
-
-        // Checkout the branch (or confirm sparse checkout)
-        exec(checkoutCommand, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${error}`)
-            return
-          }
-
-          rewrite()
-
-          console.log(`stdout: ${stdout}`)
-          console.error(`stderr: ${stderr}`)
+        // Spawn npx openmrs develop with stdio inheritance to show output and allow Ctrl-C
+        const child = spawn('npx', ['openmrs', 'develop'], {
+          cwd: targetDir,
+          shell: true,
+          stdio: 'inherit',
         })
 
-        console.log(`stdout: ${stdout}`)
-        console.error(`stderr: ${stderr}`)
-      })
+        // Handle process exit
+        child.on('exit', (code) => {
+          if (code === 0) {
+            console.log(chalk.green('\n✓ Development server stopped'))
+          } else if (code !== null) {
+            console.log(chalk.yellow(`\nDevelopment server exited with code ${code}`))
+          }
+        })
+
+        // Handle errors
+        child.on('error', (error) => {
+          console.error(chalk.red('Error starting development server:'), error)
+          this.exit(1)
+        })
+
+        // Wait for the child process to complete
+        await new Promise<void>((resolve) => {
+          child.on('close', () => resolve())
+        })
+      } catch (error) {
+        console.error(chalk.red('Error during start:'), error)
+        this.exit(1)
+      }
+
+      return
     }
 
-    // If flags.dev is not none, copy the dev folder to the conch directory
-    if (flags.dev !== 'none' && args.op !== 'dev') {
-      if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would copy ${flags.dev} to ${flags.workdir}/conch/${flags.name}`))
-        rewrite()
-      } else {
-        fs.cpSync(flags.dev, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
-        rewrite()
-      }
-    }
-
-    // If flags.local is not none, copy the local directory to the conch directory
-    if (flags.local !== 'none' && args.op !== 'dev') {
-      const absolutePath = path.isAbsolute(flags.local) ? flags.local : path.resolve(process.cwd(), flags.local)
-      
-      // Validate that the path exists and is a directory (skip validation in dry-run mode)
-      if (!flags['dry-run']) {
-        if (!fs.existsSync(absolutePath)) {
-          console.error(chalk.red(`Error: Local directory does not exist: ${absolutePath}`))
-          this.exit(1)
-        }
-        
-        const stats = fs.statSync(absolutePath)
-        if (!stats.isDirectory()) {
-          console.error(chalk.red(`Error: Path is not a directory: ${absolutePath}`))
-          this.exit(1)
-        }
-      }
-      
-      if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would copy ${absolutePath} to ${flags.workdir}/conch/${flags.name}`))
-        rewrite()
-      } else {
-        fs.cpSync(absolutePath, `${flags.workdir}/conch/${flags.name}`, {recursive: true})
-        rewrite()
-      }
-    }
+    // If no valid operation is provided
+    console.error(chalk.red('Error: Invalid operation. Use "init" or "start"'))
+    this.exit(1)
   }
 }
