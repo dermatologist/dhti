@@ -2,14 +2,18 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/0.7.0...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.7.1...HEAD)
 
-**Implemented enhancements:**
+**Closed issues:**
 
-- Feature request: Add a new docker flag to restart the gateway container. [\#101](https://github.com/dermatologist/dhti/issues/101)
+- Feature request: Add install from directory feature and skill [\#106](https://github.com/dermatologist/dhti/issues/106)
+- Feature request: Install elixir and conch from a subdirectory in the GitHub repository. [\#104](https://github.com/dermatologist/dhti/issues/104)
 
 **Merged pull requests:**
 
+- Add local directory installation and start-dhti orchestration skill [\#107](https://github.com/dermatologist/dhti/pull/107) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Add subdirectory installation support for monorepo packages [\#105](https://github.com/dermatologist/dhti/pull/105) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Feature/prompt 1 [\#103](https://github.com/dermatologist/dhti/pull/103) ([dermatologist](https://github.com/dermatologist))
 - Add docker restart flags for gateway and arbitrary containers [\#102](https://github.com/dermatologist/dhti/pull/102) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Add Synthea command for synthetic FHIR data generation and management [\#100](https://github.com/dermatologist/dhti/pull/100) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/medplum 1 [\#98](https://github.com/dermatologist/dhti/pull/98) ([dermatologist](https://github.com/dermatologist))
@@ -22,6 +26,14 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [0.7.1](https://github.com/dermatologist/dhti/tree/0.7.1) (2026-01-06)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.7.0...0.7.1)
+
+**Implemented enhancements:**
+
+- Feature request: Add a new docker flag to restart the gateway container. [\#101](https://github.com/dermatologist/dhti/issues/101)
 
 ## [0.7.0](https://github.com/dermatologist/dhti/tree/0.7.0) (2025-12-29)
 
