@@ -11,20 +11,31 @@ const execAsync = promisify(exec)
 
 export default class Conch extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (init or start)'}),
+    op: Args.string({description: 'Operation to perform (init, install, or start)'}),
   }
 
-  static override description = 'Initialize or start OpenMRS frontend development using npx openmrs develop'
+  static override description = 'Initialize, install, or start OpenMRS frontend development'
 
   static override examples = [
+    '<%= config.bin %> <%= command.id %> install -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> init -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects',
   ]
 
   static override flags = {
+    branch: Flags.string({
+      char: 'b',
+      default: 'develop',
+      description: 'Branch to install from (for install operation)',
+    }),
     'dry-run': Flags.boolean({
       default: false,
       description: 'Show what changes would be made without actually making them',
+    }),
+    git: Flags.string({
+      char: 'g',
+      default: 'dermatologist/openmrs-esm-dhti-template',
+      description: 'GitHub repository to install (for install operation)',
     }),
     name: Flags.string({char: 'n', description: 'Name of the conch'}),
     workdir: Flags.string({
@@ -159,8 +170,45 @@ export default class Conch extends Command {
       return
     }
 
+    if (args.op === 'install') {
+      // Validate required flags
+      if (!flags.workdir) {
+        console.error(chalk.red('Error: workdir flag is required for install operation'))
+        this.exit(1)
+      }
+
+      if (!flags.name) {
+        console.error(chalk.red('Error: name flag is required for install operation'))
+        this.exit(1)
+      }
+
+      const targetDir = path.join(flags.workdir, flags.name)
+      const degitSource = `${flags.git}#${flags.branch}`
+
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute install operation:'))
+        console.log(chalk.cyan(`  npx degit ${degitSource} ${targetDir}`))
+        return
+      }
+
+      try {
+        console.log(chalk.blue(`Installing from ${degitSource} to ${targetDir}...`))
+        const degitCommand = `npx degit ${degitSource} ${targetDir}`
+        await execAsync(degitCommand)
+        console.log(chalk.green('✓ Repository cloned successfully'))
+        console.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
+        console.log(chalk.blue(`\nTo start development, run:`))
+        console.log(chalk.cyan(`  dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`))
+      } catch (error) {
+        console.error(chalk.red('Error during installation:'), error)
+        this.exit(1)
+      }
+
+      return
+    }
+
     // If no valid operation is provided
-    console.error(chalk.red('Error: Invalid operation. Use "init" or "start"'))
+    console.error(chalk.red('Error: Invalid operation. Use "install", "init", or "start"'))
     this.exit(1)
   }
 }
