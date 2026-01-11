@@ -27,6 +27,7 @@ export default class Elixir extends Command {
       description: 'Show what changes would be made without actually making them',
     }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
+    local: Flags.string({char: 'l', default: 'none', description: 'Local directory to install from'}),
     name: Flags.string({char: 'n', description: 'Name of the elixir'}),
     pypi: Flags.string({
       char: 'p',
@@ -153,6 +154,27 @@ export default class Elixir extends Command {
 
     if (flags.pypi !== 'none') {
       lineToAdd = flags.pypi
+    }
+
+    if (flags.local !== 'none') {
+      // Use path for local directory installation
+      const absolutePath = path.isAbsolute(flags.local) ? flags.local : path.resolve(process.cwd(), flags.local)
+      
+      // Validate that the path exists and is a directory (skip validation in dry-run mode)
+      if (!flags['dry-run']) {
+        if (!fs.existsSync(absolutePath)) {
+          console.error(chalk.red(`Error: Local directory does not exist: ${absolutePath}`))
+          this.exit(1)
+        }
+        
+        const stats = fs.statSync(absolutePath)
+        if (!stats.isDirectory()) {
+          console.error(chalk.red(`Error: Path is not a directory: ${absolutePath}`))
+          this.exit(1)
+        }
+      }
+      
+      lineToAdd = `${flags.name} = { path = "${absolutePath}" }`
     }
 
     if (!flags['dry-run']) {

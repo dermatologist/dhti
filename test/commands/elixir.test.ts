@@ -42,4 +42,41 @@ describe('elixir', () => {
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.not.contain('subdirectory')
   })
+
+  it('runs elixir cmd with --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'test-elixir',
+      '-l',
+      '/path/to/local/elixir',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('path = "/path/to/local/elixir"')
+  })
+
+  it('runs elixir cmd with relative --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'test-elixir',
+      '-l',
+      './local-elixir',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('path =')
+  })
+
+  it('rejects elixir install with non-existent local directory', async () => {
+    try {
+      await runCommand(['elixir', 'install', '-n', 'test-elixir', '-l', '/non/existent/path'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Local directory does not exist')
+    }
+  })
 })

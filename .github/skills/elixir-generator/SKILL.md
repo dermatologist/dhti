@@ -2,7 +2,7 @@
 
 ## Description
 
-This skill enables AI agents to generate new DHTI elixir projects from this template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
+This skill enables AI agents to generate new DHTI elixir projects from a cookiecutter template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
 
 ## When to Use This Skill
 
@@ -14,11 +14,11 @@ Use this skill when you need to:
 
 ## Instructions
 
-You are an elixir coding agent working in a fresh development environment. Follow these instructions sequentially.
+You are an elixir coding agent working in a fresh development environment. Check if the instruction includes a working directory setup; if not, create a new directory for the elixir project at ~/dhti/packages/elixir/<project_name>. Then follow these instructions sequentially.
 
 ### Environment setup and project scaffolding
 
-* Install `uv` in the dev environment (if not already installed).
+* Check for uv in the dev environment.  Install `uv` in the dev environment if not already installed.
 * In the project root, run:
 
 ```bash
@@ -32,7 +32,7 @@ uvx cookiecutter https://github.com/dermatologist/cookiecutter-uv.git
   - **author_github_handle**: Set to the provided GitHub handle (or a reasonable placeholder if none is given).
   - **project_name**: Generate a concise, meaningful project name that reflects the requested features for this Elixir agent. THE NAME MUST START WITH "dhti-elixir-".
   - **project_slug**: Generate a clean, snake_case slug derived from the project name. THE SLUG MUST START WITH "dhti_elixir_".
-  - **project_description**: Generate a detailed project description clearly summarizing:
+  - **project_description**: Generate a very brief project description clearly summarizing:
     - the purpose of the project,
     - the kind of Elixir-related functionality requested,
     - the intended clinical / FHIR context (if implied by the request below).
@@ -51,12 +51,19 @@ Before editing any generated files, **carefully read and understand** the follow
 - **Chain implementation:**
   - chain.py reference:
     - https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
-    - The main class should be named "DhtiChain" inheriting from BaseChain (dhti_elixir_base)
+    - The main class should be named "DhtiChain" inheriting from BaseChain ( from package dhti_elixir_base)
+    - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["<project_slug>_main_llm"] and di["<project_slug>_function_llm"] respectively. Substitute <project_slug> with the project slug. The default prompt should also be injected as di["<project_slug>_prompt"]. Additional hyperparameters can be injected as needed.
+    - Plan how the problem can be solved using LangChain constructs (chains, agents, tools, callbacks, etc.) following the patterns in the reference chain.py.
 - **Bootstrap / configuration of the chain:**
   - bootstrap.py reference:
     - https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/bootstrap.py
+    - This file is responsible for setting up dependency injection (DI) for the chain, including:
+      - Configuring the main LLM and function calling LLM (if applicable).
+      - Setting up prompts and any additional tools or services.
+      - Configuring FHIR endpoints and any other external services.
+    - Add default FakeChatLLM configuration for both main_llm and function_llm if not specified in the user request.
     - The cds_hook_discovery should be configured as follows:
-    
+
 ```python
 di["<project_slug>_cds_hook_discovery"] = {  # <- Substitute <project_slug> with the project slug
     "services": [
@@ -81,24 +88,21 @@ You must follow the **same architectural and stylistic patterns** in the new pro
 
 Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following user specification:
 
-The DhtiChain should:
+The DhtiChain should implement the functionality described in the original user request for the elixir.
 
-**<new elixir request here>**
-
-Interpret this as the high-level functional requirement for the chain. Your implementation should:
+Interpret below as the high-level functional requirement for the chain. Your implementation should:
 
 - **Align with the reference pattern:**
   - Mirror the structure, abstractions, and flow used in the reference chain.py and bootstrap.py.
   - Reuse naming conventions, configuration style, and initialization patterns where appropriate.
 - **FHIR-based data retrieval:**
   - Retrieve any required data using **FHIR search**.
-  - Read and carefully study FHIR search here: https://www.hl7.org/fhir/search.html
+  - Read and carefully study FHIR search here: https://r.jina.ai/https://www.hl7.org/fhir/search.html
   - Read how fhir search is implemented in dhti-elixir-base here: https://github.com/dermatologist/dhti-elixir-base/tree/develop/src/dhti_elixir_base/fhir. This is available as a dependency in the generated project. Hence you can use fhir search functionality from dhti-elixir-base in your implementation and avoid code duplication.
-  - Use appropriate FHIR resource types and query parameters based on the needs implied by the **<new elixir request here>** specification.
+  - Use appropriate FHIR resource types and query parameters based on the needs implied by the original user specification.
   - Implement FHIR interactions in a way that is:
     - Configurable (e.g., via environment variables or settings),
     - Robust (handles typical error conditions),
-    - Consistent with the reference template's practices (if defined there).
 - **Dependencies and package usage:**
   - Prefer existing dependencies and standard library where possible.
   - Only introduce **additional Python packages** when clearly necessary.
@@ -107,12 +111,12 @@ Interpret this as the high-level functional requirement for the chain. Your impl
     - Ensure compatibility with the existing project structure (e.g., version constraints if needed).
 - **Chain behavior:**
   - Define the chain's inputs, outputs, and key steps clearly.
-  - Ensure the chain logic fulfills all aspects of **<new elixir request here>**, including:
+  - Ensure the chain logic fulfills all aspects of user request, including:
     - Any domain logic surrounding Elixir code analysis, generation, or orchestration.
     - Any interactions with external services (e.g., FHIR, LLMs, tools) as appropriate.
 - **Tools** (if applicable):
   - Internalize how the agent uses tools if available from the reference chain: https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
-  - The user specification above will indicate any available tools to use. If none are indicated, you do not have access to any tools.
+  - The original user specification will indicate any available tools to use. If none are indicated, you do not have access to any tools.
 
 ### Planning: create a TODO list
 
@@ -160,14 +164,14 @@ Use clear, actionable items that you can check off logically as you progress.
   - Are deterministic,
   - Avoid real external network calls when possible (use mocking or fixtures),
   - Use clear, descriptive test names.
-- Run the test suite (e.g., via uv or the project's recommended test command) and ensure all tests pass.
+- Run the test suite via uv and ensure all tests pass.
 
 ### Documentation
 
 - **Update README.md** to reflect the new functionality:
   - Add or update sections describing:
     - The purpose and scope of the project.
-    - The behavior of the chain and what **<new elixir request here>** means in practice.
+    - The behavior of the chain and what it means in practice.
     - How to configure FHIR endpoints and any relevant environment variables.
     - How to run the chain, including command examples.
     - How to run tests.
@@ -184,7 +188,7 @@ Perform a **final pass** over the project to ensure:
   - No obvious dead code, unused variables, or leftover debug prints.
   - Type hints are used where appropriate (if consistent with the template).
 - **Functionality:**
-  - The chain runs end-to-end for at least one realistic scenario implied by **<new elixir request here>**.
+  - The chain runs end-to-end for the scenario implied by the original user specification.
   - FHIR calls behave as expected (or are mockable in tests).
   - Configuration is documented and works as described.
 - **Project integrity:**

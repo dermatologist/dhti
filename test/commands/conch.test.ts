@@ -42,4 +42,41 @@ describe('conch', () => {
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.not.contain('Sparse checkout')
   })
+
+  it('runs conch cmd with --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-l',
+      '/path/to/local/conch',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would copy /path/to/local/conch')
+  })
+
+  it('runs conch cmd with relative --local flag and --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-l',
+      './local-conch',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would copy')
+  })
+
+  it('rejects conch install with non-existent local directory', async () => {
+    try {
+      await runCommand(['conch', 'install', '-n', 'test-conch', '-l', '/non/existent/path'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Local directory does not exist')
+    }
+  })
 })

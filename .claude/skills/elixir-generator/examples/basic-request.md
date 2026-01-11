@@ -52,54 +52,10 @@ GitHub Handle: clinicalai
 ```
 Please create a DHTI elixir that:
 - Analyzes lab results for kidney function (creatinine, GFR, BUN)
-- Uses clinical guidelines from https://www.kidney.org/professionals/guidelines
+- Uses clinical guidelines from https://r.jina.ai/https://www.kidney.org/professionals/guidelines
 - Provides stage-based recommendations for chronic kidney disease
 - The project slug is dhti_elixir_renal and project name is dhti-elixir-renal
 
 License: MIT
 ```
 
-## Key Components to Specify
-
-1. **Functionality**: What the elixir should do
-2. **Data Sources**: Which FHIR resources to query (Observation, MedicationRequest, etc.)
-3. **Knowledgebase**: External references or guidelines to incorporate
-4. **Output**: Expected format of recommendations or alerts
-5. **Project Naming**: Consistent naming (dhti-elixir-* / dhti_elixir_*)
-
-## FHIR Resources Commonly Used
-
-- **Observation**: Lab results, vital signs, clinical measurements
-- **MedicationRequest**: Medication orders and prescriptions
-- **Condition**: Diagnoses and health conditions
-- **Patient**: Patient demographics
-- **Encounter**: Hospital visits and interactions
-- **Procedure**: Medical procedures performed
-- **DiagnosticReport**: Imaging and diagnostic test reports
-
-## Tips for Writing Requests
-
-1. **Be Specific**: Clearly state what clinical problem you're solving
-2. **Name FHIR Resources**: Mention which FHIR resource types you need
-3. **Time Ranges**: Specify if you need historical data (e.g., "last 6 months")
-4. **Thresholds**: Include any clinical thresholds or decision points
-5. **References**: Link to clinical guidelines or knowledge sources
-6. **Naming**: Always specify the project name and slug following the pattern
-
-## What Happens Next
-
-Once you provide your request, the agent will:
-
-1. Set up the development environment with `uv`
-2. Run cookiecutter to scaffold the project
-3. Study reference implementations
-4. Implement your requested functionality
-5. Create tests for the implementation
-6. Document the elixir in README
-7. Ensure FHIR integration works correctly
-
-The generated elixir will be ready to install into DHTI using:
-
-```bash
-npx dhti-cli elixir install -g <your-repo-url> -n <project-slug> -b main
-```

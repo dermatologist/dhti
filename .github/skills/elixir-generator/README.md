@@ -7,7 +7,6 @@ This directory contains an AI agent skill for automatically generating DHTI elix
 - **SKILL.md**: The main skill definition that guides AI agents through the elixir generation process
 - **examples/**: Directory containing example requests and use cases
   - **basic-request.md**: General guidance and simple examples
-  - **glycemic-example.md**: Detailed example for a glycemic monitoring elixir
 
 ## How It Works
 
@@ -33,7 +32,7 @@ To use this skill with an AI agent:
 ## Example Request
 
 ```
-Please create a DHTI elixir that monitors blood glucose and HbA1c levels 
+Please create a DHTI elixir that monitors blood glucose and HbA1c levels
 for diabetes patients over the last 6 months and provides clinical recommendations.
 Project name: dhti-elixir-glycemic
 Project slug: dhti_elixir_glycemic
