@@ -99,7 +99,11 @@ export default class Conch extends Command {
 
         console.log(chalk.green(`\n✓ Initialization complete! Your app is ready at ${targetDir}`))
         console.log(chalk.blue(`\nTo start development, run:`))
-        console.log(chalk.cyan(`  dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`))
+        let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
+        if (flags.sources) {
+          startCmd += ` -s '${flags.sources}'`
+        }
+        console.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
         console.error(chalk.red('Error during initialization:'), error)
         this.exit(1)
@@ -125,7 +129,11 @@ export default class Conch extends Command {
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
         console.log(chalk.cyan(`  cd ${targetDir}`))
-        console.log(chalk.cyan(`  corepack enable & yarn & yarn start`))
+        let dryRunCommand = 'corepack enable & yarn & yarn start'
+        if (flags.sources) {
+          dryRunCommand += ` --sources '${flags.sources}'`
+        }
+        console.log(chalk.cyan(`  ${dryRunCommand}`))
         return
       }
 
@@ -192,6 +200,14 @@ export default class Conch extends Command {
         this.exit(1)
       }
 
+      // Warn if sources flag is used with install (not applicable)
+      if (flags.sources) {
+        console.warn(
+          chalk.yellow('Warning: --sources flag is not applicable for install operation. It will be ignored.'),
+        )
+        console.warn(chalk.yellow('Use --sources with the start operation instead.'))
+      }
+
       const targetDir = path.join(flags.workdir, flags.name)
       const degitSource = `${flags.git}#${flags.branch}`
 
@@ -208,7 +224,11 @@ export default class Conch extends Command {
         console.log(chalk.green('✓ Repository cloned successfully'))
         console.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
         console.log(chalk.blue(`\nTo start development, run:`))
-        console.log(chalk.cyan(`  dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`))
+        let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
+        if (flags.sources) {
+          startCmd += ` -s '${flags.sources}'`
+        }
+        console.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
         console.error(chalk.red('Error during installation:'), error)
         this.exit(1)
