@@ -129,7 +129,7 @@ export default class Conch extends Command {
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
         console.log(chalk.cyan(`  cd ${targetDir}`))
-        let dryRunCommand = 'corepack enable & yarn & yarn start'
+        let dryRunCommand = 'corepack enable && yarn install && yarn start'
         if (flags.sources) {
           dryRunCommand += ` --sources '${flags.sources}'`
         }
@@ -149,12 +149,12 @@ export default class Conch extends Command {
         console.log(chalk.yellow('Press Ctrl-C to stop\n'))
 
         // Build the start command with sources flag if provided
-        let startCommand = 'corepack enable & yarn & yarn start'
+        let startCommand = 'corepack enable && yarn install && yarn start'
         if (flags.sources) {
           startCommand += ` --sources '${flags.sources}'`
         }
 
-        // Spawn corepack enable & yarn & yarn start with stdio inheritance to show output and allow Ctrl-C
+        // Spawn corepack enable && yarn install && yarn start with stdio inheritance to show output and allow Ctrl-C
         const child = spawn(startCommand, {
           cwd: targetDir,
           shell: true,
