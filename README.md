@@ -25,12 +25,10 @@ Imagine you need to instantly determine whether a patient qualifies for a clinic
 #### How? (Technical):
 Generative AI features are built as [LangServe Apps](https://python.langchain.com/docs/langserve/) (elixirs). All backend data exchange is done through the **FHIR API** (a base class provides all these features) and displayed using CDS-Hooks. dhti-cli simplifies this process by providing a CLI that includes managing a Docker Compose with all additional components, such as [Ollama](https://ollama.com/) for **local LLM hosting**. LLM and hyperparameters are **injected at runtime** and can be easily swapped. In essence, dhti decouples GenAI modules from the rest of the system.
 
-You can test the elixir using a real EMR system, [OpenMRS](https://openmrs.org/), that communicates with the elixir using **CDS-Hooks** or use any other CDS-Hooks compatible EMR system. You can also use the [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) without an EMR (ensure both are using same FHIR endpoint).
-
-🚀 dhti-cli is a CLI tool for quick prototyping and testing of elixirs and conches. You can create a new docker-compose with required modules, start/stop services, install Elixirs and conchs, create Docker images for them, and more. This helps to test new ideas and share them with others quickly.
+🚀 You can test the elixir using a real EMR system, [OpenMRS](https://openmrs.org/), that communicates with the elixir using **CDS-Hooks** or use any other CDS-Hooks compatible EMR system. You can also use the [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) without an EMR (ensure both are using same FHIR endpoint).
 
 #### How? (Non-technical/Clinical):
-DHTI comes with batteries ([skills](/.github/skills/)) included. You just describe your problem in simple terms using [prompts](/prompts/e2e-sample.md) using an agentic platform like [AntiGravity](https://antigravity.google/), vscode or Clause, and DHTI will generate the required GenAI and UI components (elixirs and conches) for you. You can then test them in a real EMR (OpenMRS) with synthetic data. Once tested, you can transition them to the production team for deployment. Because everything is built on open standards, that handoff (often called the **valley of death**) becomes smooth and predictable.
+DHTI comes with batteries ([skills](/.github/skills/)) included to [prompt](/prompts/e2e-sample.md) an agentic platform like [AntiGravity](https://antigravity.google/), vscode or Clause, to generate the required GenAI and UI components (elixirs and conches) for you! You can then test them in a real EMR (OpenMRS) with synthetic data. Once tested, you can transition them to the production team for deployment. Because everything is built on open standards, that handoff (often called the **valley of death**) becomes smooth and predictable.
 
 #### Examples
 * [Elixirs](https://github.com/dermatologist/dhti-elixir)
@@ -38,7 +36,7 @@ DHTI comes with batteries ([skills](/.github/skills/)) included. You just descri
 
 ## Try it out
 
-* You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop new elixirs. You can use any LLM supported by [LangChain](https://python.langchain.com/docs/get_started/installation/) in your elixirs. The sample elixir used below picks up google, openai or openrouter models if the respective API keys are set in environment variables. Otherwise it defaults to a mock LLM. You can also use [Ollama](https://ollama.com/) for local LLM hosting. Read more [here](/notes/setup-ollama.md).
+* You only need [Node.js](https://nodejs.org/) and [Docker](https://www.docker.com/) installed to run this project. Optionally, you can install [Python](https://www.python.org/) if you want to develop / vibe-code new elixirs. You can use any LLM supported by [LangChain](https://python.langchain.com/docs/get_started/installation/) in your elixirs. The sample elixir used below picks up google, openai or openrouter models if the respective API keys are set in environment variables. Otherwise it defaults to a mock LLM. You can also use [Ollama](https://ollama.com/) for local LLM hosting. Read more [here](/notes/setup-ollama.md).
 
 👉  **If you are in a hurry, just clone this repo and run `./demo.sh` from a terminal (Linux or MacOS) in the root folder to try out the demo.** Windows users can use WSL. This script runs all the commands below. Skip to 💥 Start conch in OpenMRS, and once done, use `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
