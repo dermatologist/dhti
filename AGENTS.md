@@ -97,4 +97,4 @@
 	- AGENTS.md, LICENSE, README.md, package.json, tsconfig.json, typedoc.json, bin/, docs/, gateway/, notes/, src/, test/
 
 **For more details:**
-	- See `README.md`, `notes/README.md`, and command help (`dhti-cli help`).
+	- See `README.md`. You may refer to the notes/ directory, but ignore files starting with OLD.
