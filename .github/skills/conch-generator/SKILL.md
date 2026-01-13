@@ -6,8 +6,7 @@ This skill helps you generate a new OpenMRS ESM microfrontend (DHTI conch) from 
 
 DHTI is a platform to rapidly prototype, share, and test GenAI healthcare applications within an EHR. This skill guides you through:
 - Setting up a development environment
-- Scaffolding a new microfrontend project
-- Implementing GenAI-powered features based on requirements
+- Scaffolding a new microfrontend project for GenAI powered backend services
 
 ## When to Use This Skill
 
@@ -21,45 +20,48 @@ Use this skill when you need to:
 
 ### Environment Setup and Project Scaffolding
 
-1. **Clone the template to the mentioned working directory. If working directory is not specified, create a new directory for the microfrontend at ~/dhti/packages/conch/.**
+1. **Install and link the DHTI cli, if you are not already in the dhti repository**:**
    ```bash
-   npx degit dermatologist/openmrs-esm-dhti-template <<working_directory>>/openmrs-esm-dhti-<<name>>
-   ```
+    git clone https://github.com/dermatologist/dhti
+    cd dhti
+    ```
 
-2. **Install the dependencies:**
+2. **Install and Link** the DHTI cli:**
    ```bash
-   npm install
+    npm install
+    npm link
    ```
 
 3. **Read and internalize the original user feature request:**
    - Understand the clinical functionality needed.
    - Identify the UI components, extensions, workflows, and pages required.
-   - Note any specific DHTI service integration needs.
+   - Note specific DHTI service name that needs to be used.
 
-4. **Decide on a simple but unique name** starting with `openmrs-esm-dhti-` for your microfrontend. This name will be used for the project directory, GitHub repository, and npm package. Ensure that the name is not already in use by checking the OpenMRS microfrontends list and npm registry.
+4. **Decide on a simple but unique name** for your microfrontend. (e.g., glycemic, heart-rate, skin-tone etc.). IN THE INSTRUCTIONS BELOW, REPLACE `<<name>>` WITH YOUR CHOSEN NAME.
 
-### Code Adaptation and Initial Cleanup
-
-5. **Adapt the code:**
-   - Find and replace all instances of "template" with the name of your microfrontend (what comes after `openmrs-esm-dhti-`).
-   - In the rest of this document `<<name>>` refers to what comes after `openmrs-esm-dhti-` in your microfrontend's name.
-   - Update `index.ts` as below:
+5. **Scaffold a new microfrontend project** using the DHTI cli:
+   ```bash
+   dhti-cli conch init -w workspace -n esm-dhti-<<name>>
+   ```
+6. **Adapt the code:**
+   - The above command creates a new directory at `workspace/workspace/openmrs-esm-dhti` with the monorepo.
+   - In the packages/ directory of the monorepo, find your newly created microfrontend `esm-dhti-<<name>>`. THIS IS WHERE YOU WILL DO YOUR DEVELOPMENT.
+    - Update `index.ts` as below:
      - Set the value of `moduleName` variable to `@openmrs/esm-<<name>>`.
-     - Set the value of `featureName` variable from `dhti-template` to `dhti-<<name>>`.
-   - Rename the `root.*` family of files to have the name of your first page.
-   - Delete the contents of the objects in `config-schema.ts`. Start filling them back in once you have a clear idea what will need to be configured.
-   - Delete the `dhti` directory, and the contents of renamed `root.component.tsx` if you don't need them.
-   - **DO NOT** delete `src/hooks` and `src/models` as they contain useful shared code.
-   - Delete the contents of `translations/en.json`.
-   - Delete the contents of this README and write a short explanation of what you intend to build. Links to planning or design documents can be very helpful.
+     - Set the value of `featureName` variable to `dhti-<<name>>`.
+   - Rename the `root.*` family of files to have the name of your first page (If applicable).
+   - Update the contents of the objects in `config-schema.ts`. Start filling them back in once you have a clear idea what will need to be configured.
+   - Update the contents of `translations/en.json`.
+   - Update the contents of this README and write a short explanation of what you intend to build. Links to planning or design documents can be very helpful.
 
 ### Planning and Notes
 
-6. **Write detailed notes** on what you plan to implement, how you plan to implement it, and any questions or uncertainties you have. This will help guide your development process. Use the `notes/` directory for this purpose.
+6. **Write detailed notes** on what you plan to implement, how you plan to implement it, and any questions or uncertainties you have. This will help guide your development process. Use the `workspace/openmrs-esm-dhti/notes/` directory for this purpose.
 
 7. **Plan UI components, extensions, workflows, and pages:**
+    - Read and internalize https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview to understand how OpenMRS frontend modules work.
    - Read through the user requirements above again and plan the UI components, extensions, workflows, and pages you will need to implement the feature.
-   - Write down a list of these components and their responsibilities in `notes/plan.md` for future reference.
+   - Write down a list of these components and their responsibilities in `workspace/openmrs-esm-dhti/notes/plan.md` for future reference.
 
 ### Routing and Extension Setup
 
@@ -72,7 +74,7 @@ Use this skill when you need to:
      - **Translation Support:** An `importTranslation` constant is used to tell the app shell where to find translation files, enabling internationalization.
      - Lifecycle functions may be synchronous (`getSyncLifecycle`) or asynchronous (`getAsyncLifecycle`) depending on whether the component requires async operations like data fetching.
 
-9. **Reference the component names in your `src/routes.json` file** to define routes or extensions. Read how the extension system works in OpenMRS micro-frontend: <https://o3-docs.openmrs.org/docs/extension-system>. Update `src/routes.json` accordingly.
+9. **Reference the component names in your `src/routes.json` file** to define routes or extensions. Read `notes/slots.md` to understand available extension slots. Update `src/routes.json` accordingly.
 
 ### Patient and Encounter Data in Components
 
@@ -114,12 +116,13 @@ Use this skill when you need to:
 ### GenAI Outputs
 
 11. **Getting GenAI outputs:**
-    - Use the `src/hooks/useDhti.ts` to call the DHTI service and get GenAI outputs. Read the code and comments in the file to understand how to use it. You need to provide the DHTI service name. If the user has not provided it above, ask for it using a prompt.
+    - Use the `useDhti` route from the monorepo (esm-dhti-utils) to call the DHTI service and get GenAI outputs. You need to update the DHTI service route (dhtiRoute) in the config-schema.ts file. If the user has not provided it above, ask for it using a prompt.
+    If the user has only provided the DHTI service name, construct the full route as follows: http://localhost:8001/langserve/dhti_elixir_<service-name>/cds-services/dhti-service. Otherwise use the default value as 'http://localhost:8001/langserve/dhti_elixir_schat/cds-services/dhti-service'
 
 ### Implementation
 
 12. **Implement the feature:**
-    - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview. Test your code frequently to ensure it works as expected. Start with the renamed `root.component.tsx` file and build out from there. Please note that you may have components not included in the root component, but used in extensions or pages.
+    - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview. Test your code frequently to ensure it works as expected.
 
 ### Testing
 
@@ -129,7 +132,7 @@ Use this skill when you need to:
 ### Documentation
 
 14. **Update documentation:**
-    - Update the `README.md` with details about your microfrontend, including its purpose, setup instructions, and usage. Document any configuration options in `config-schema.ts`. Extended notes and future plans can go in the `notes/` directory.
+    - Update the `README.md` with details about your microfrontend, including its purpose, setup instructions, and usage. Document any configuration options in `config-schema.ts`. Extended notes and future plans can go in the `workspace/openmrs-esm-dhti/notes/` directory.
 
 ### Final Review and Cleanup
 
