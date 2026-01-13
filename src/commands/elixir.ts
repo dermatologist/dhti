@@ -72,7 +72,7 @@ export default class Elixir extends Command {
         this.exit(1)
       }
 
-      const targetDir = flags.workdir
+      const targetDir = path.join(flags.workdir, 'dhti-elixir')
 
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))

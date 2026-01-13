@@ -11,6 +11,7 @@ describe('elixir', () => {
     const {stdout} = await runCommand(['elixir', 'init', '-n', 'test-elixir', '-w', '/tmp/test-workdir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('npx degit dermatologist/dhti-elixir')
+    expect(stdout).to.contain('/tmp/test-workdir/dhti-elixir')
     expect(stdout).to.contain('Copy')
     expect(stdout).to.contain('packages/simple_chat')
     expect(stdout).to.contain('packages/test-elixir')

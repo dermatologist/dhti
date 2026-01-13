@@ -58,7 +58,7 @@ export default class Conch extends Command {
         this.exit(1)
       }
 
-      const targetDir = flags.workdir
+      const targetDir = path.join(flags.workdir, 'openmrs-esm-dhti')
 
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))

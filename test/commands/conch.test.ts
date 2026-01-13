@@ -15,6 +15,7 @@ describe('conch', () => {
     const {stdout} = await runCommand(['conch', 'init', '-w', '/tmp/test-workdir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('npx degit dermatologist/openmrs-esm-dhti')
+    expect(stdout).to.contain('/tmp/test-workdir/openmrs-esm-dhti')
     expect(stdout).to.contain('Copy')
     expect(stdout).to.contain('packages/esm-starter-app')
   })
