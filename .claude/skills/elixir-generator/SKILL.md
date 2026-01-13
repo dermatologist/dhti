@@ -18,29 +18,17 @@ You are an elixir coding agent working in a fresh development environment.
 
 ### Environment Setup and Project Scaffolding
 
-1. **Install and link the DHTI cli, if you are not already in the dhti repository**:**
-   ```bash
-    git clone https://github.com/dermatologist/dhti
-    cd dhti
-    ```
-
-2. **Install and Link** the DHTI cli:**
-   ```bash
-    npm install
-    npm link
-   ```
-
-3. **Read and internalize the original user feature request:**
+* **Read and internalize the original user feature request:**
    - Understand the clinical functionality needed.
 
-4. **Decide on a simple but unique name** for your backend. (e.g., glycemic, heart_rate, skin_tone etc.). IN THE INSTRUCTIONS BELOW, REPLACE `<<name>>` WITH YOUR CHOSEN NAME.
+* **Decide on a simple but unique name** for your backend. (e.g., glycemic, heart_rate, skin_tone etc.). IN THE INSTRUCTIONS BELOW, REPLACE `<<name>>` WITH YOUR CHOSEN NAME.
 
-5. **Scaffold a new microfrontend project** using the DHTI cli:
+* **Scaffold a new microfrontend project** using the DHTI cli:
    ```bash
-   dhti-cli elixir init -w workspace -n <<name>>
+   npx dhti-cli elixir init -w workspace -n <<name>>
    ```
 
-6. **Study the reference implementation. carefully read and understand** the following reference files, paying attention to patterns, structure, and responsibilities:
+* **Study the reference implementation. carefully read and understand** the following reference files, paying attention to patterns, structure, and responsibilities:
 
 - **Implementation:**
   - chain.py:
@@ -114,15 +102,15 @@ Interpret below as the high-level functional requirement for the chain. Your imp
 
 Before writing or heavily modifying code, create an **elaborate, structured TODO list** in a notes/todo.md file. This TODO list should:
 
-- Break the work into small, concrete tasks.
-- Cover:
-  - **Environment & setup** (if anything beyond cookiecutter defaults is needed),
-  - **Chain design** (inputs/outputs, internal steps, FHIR interactions),
-  - **Implementation tasks** for chain.py and bootstrap.py,
-  - **Dependency updates** (if new packages are needed),
-  - **Unit testing** tasks,
-  - **Documentation updates** (README),
-  - **Validation and final checks**.
+* Break the work into small, concrete tasks.
+* Cover:
+  * **Environment & setup** (if anything beyond cookiecutter defaults is needed),
+  * **Chain design** (inputs/outputs, internal steps, FHIR interactions),
+  * **Implementation tasks** for chain.py and bootstrap.py,
+  * **Dependency updates** (if new packages are needed),
+  * **Unit testing** tasks,
+  * **Documentation updates** (README),
+  * **Validation and final checks**.
 
 Use clear, actionable items that you can check off logically as you progress.
 
