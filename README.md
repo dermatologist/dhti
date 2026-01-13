@@ -28,7 +28,7 @@ Generative AI features are built as [LangServe Apps](https://python.langchain.co
 🚀 You can test the elixir using a real EMR system, [OpenMRS](https://openmrs.org/), that communicates with the elixir using **CDS-Hooks** or use any other CDS-Hooks compatible EMR system. You can also use the [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) without an EMR (ensure both are using same FHIR endpoint).
 
 #### How? (Non-technical/Clinical):
-DHTI comes with batteries ([skills](/.github/skills/)) included to [prompt](/prompts/e2e-sample.md) an agentic platform like [AntiGravity](https://antigravity.google/), vscode or Clause, to generate the required GenAI and UI components (elixirs and conches) for you! You can then test them in a real EMR (OpenMRS) with synthetic data. Once tested, you can transition them to the production team for deployment. Because everything is built on open standards, that handoff (often called the **valley of death**) becomes smooth and predictable.
+DHTI comes with batteries ([skills](/.github/skills/)) included to [prompt](/.github/skills/start-dhti/examples/e2e-sample.md) an agentic platform like [AntiGravity](https://antigravity.google/), vscode or Clause, to generate the required GenAI and UI components (elixirs and conches) for you! You can then test them in a real EMR (OpenMRS) with synthetic data. Once tested, you can transition them to the production team for deployment. Because everything is built on open standards, that handoff (often called the **valley of death**) becomes smooth and predictable.
 
 #### Examples
 * [Elixirs](https://github.com/dermatologist/dhti-elixir)
