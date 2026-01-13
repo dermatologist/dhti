@@ -39,7 +39,7 @@ describe('conch', () => {
   it('runs conch start cmd with --dry-run flag', async () => {
     const {stdout} = await runCommand(['conch', 'start', '-n', 'test-conch', '-w', '/tmp/test-workdir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('npx openmrs develop')
+    expect(stdout).to.contain('yarn start')
   })
 
   it('runs conch start cmd without name flag', async () => {
