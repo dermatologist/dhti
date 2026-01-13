@@ -4,10 +4,13 @@ import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import {promisify} from 'node:util'
 import {fileURLToPath} from 'node:url'
+
+const execAsync = promisify(exec)
 export default class Elixir extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
+    op: Args.string({description: 'Operation to perform (init, install, uninstall or dev)'}),
   }
 
   static override description = 'Install or uninstall elixirs to create a Docker image'
@@ -56,6 +59,59 @@ export default class Elixir extends Command {
     const __dirname = path.dirname(__filename)
     const RESOURCES_DIR = path.resolve(__dirname, '../resources')
 
+    // Handle init operation
+    if (args.op === 'init') {
+      // Validate required flags
+      if (!flags.workdir) {
+        console.error(chalk.red('Error: workdir flag is required for init operation'))
+        this.exit(1)
+      }
+
+      if (!flags.name) {
+        console.error(chalk.red('Error: name flag is required for init operation'))
+        this.exit(1)
+      }
+
+      const targetDir = flags.workdir
+
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
+        console.log(chalk.cyan(`  npx degit dermatologist/dhti-elixir ${targetDir}`))
+        console.log(chalk.cyan(`  Copy ${targetDir}/packages/simple_chat to ${targetDir}/packages/${flags.name}`))
+        return
+      }
+
+      try {
+        // Run npx degit to clone the dhti-elixir template
+        console.log(chalk.blue(`Initializing DHTI elixir template in ${targetDir}...`))
+        const degitCommand = `npx degit dermatologist/dhti-elixir ${targetDir}`
+        await execAsync(degitCommand)
+        console.log(chalk.green('✓ DHTI elixir template cloned successfully'))
+
+        // Copy packages/simple_chat subdirectory to packages/<name>
+        const simpleChatSource = path.join(targetDir, 'packages', 'simple_chat')
+        const targetPackageDir = path.join(targetDir, 'packages', flags.name)
+
+        if (fs.existsSync(simpleChatSource)) {
+          console.log(chalk.blue(`Copying simple_chat to packages/${flags.name}...`))
+          fs.cpSync(simpleChatSource, targetPackageDir, {recursive: true})
+          console.log(chalk.green(`✓ simple_chat copied to packages/${flags.name}`))
+        } else {
+          console.log(chalk.yellow(`Warning: simple_chat not found at ${simpleChatSource}`))
+        }
+
+        console.log(chalk.green(`\n✓ Initialization complete! Your elixir workspace is ready at ${targetDir}`))
+        console.log(chalk.blue(`\nNext steps:`))
+        console.log(chalk.cyan(`  1. cd ${targetDir}`))
+        console.log(chalk.cyan(`  2. Follow the README.md for development instructions`))
+      } catch (error) {
+        console.error(chalk.red('Error during initialization:'), error)
+        this.exit(1)
+      }
+
+      return
+    }
+
     if (!flags.name) {
       console.log('Please provide a name for the elixir')
       this.exit(1)
@@ -68,7 +124,7 @@ export default class Elixir extends Command {
     if (args.op === 'dev') {
       const devCommand = `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`
       const restartCommand = `docker restart ${flags.container}`
-      
+
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute commands:'))
         console.log(chalk.cyan(`  ${devCommand}`))
@@ -129,7 +185,9 @@ export default class Elixir extends Command {
       }
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`))
+        console.log(
+          chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`),
+        )
         console.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify boostrap.py file if needed'))
       } else {
         fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
@@ -159,21 +217,21 @@ export default class Elixir extends Command {
     if (flags.local !== 'none') {
       // Use path for local directory installation
       const absolutePath = path.isAbsolute(flags.local) ? flags.local : path.resolve(process.cwd(), flags.local)
-      
+
       // Validate that the path exists and is a directory (skip validation in dry-run mode)
       if (!flags['dry-run']) {
         if (!fs.existsSync(absolutePath)) {
           console.error(chalk.red(`Error: Local directory does not exist: ${absolutePath}`))
           this.exit(1)
         }
-        
+
         const stats = fs.statSync(absolutePath)
         if (!stats.isDirectory()) {
           console.error(chalk.red(`Error: Path is not a directory: ${absolutePath}`))
           this.exit(1)
         }
       }
-      
+
       lineToAdd = `${flags.name} = { path = "${absolutePath}" }`
     }
 
@@ -201,11 +259,17 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
     }
 
     const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
-    const newLangfuseRoute = flags['dry-run'] ? '' : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
+    const newLangfuseRoute = flags['dry-run']
+      ? ''
+      : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
     const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
-    const newNormalRoute = flags['dry-run'] ? '' : newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+    const newNormalRoute = flags['dry-run']
+      ? ''
+      : newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
-    const finalRoute = flags['dry-run'] ? '' : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+    const finalRoute = flags['dry-run']
+      ? ''
+      : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
 
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
