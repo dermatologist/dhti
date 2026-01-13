@@ -12,24 +12,16 @@ describe('conch', () => {
   })
 
   it('runs conch init cmd with --dry-run flag', async () => {
-    const {stdout} = await runCommand(['conch', 'init', '-n', 'test-conch', '-w', '/tmp/test-workdir', '--dry-run'])
+    const {stdout} = await runCommand(['conch', 'init', '-w', '/tmp/test-workdir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('npx degit openmrs/openmrs-esm-template-app')
-    expect(stdout).to.contain('Copy resources from')
-  })
-
-  it('runs conch init cmd without name flag', async () => {
-    try {
-      await runCommand(['conch', 'init', '-w', '/tmp/test-workdir'])
-    } catch (error: unknown) {
-      const err = error as {message?: string}
-      expect(err.message).to.contain('name flag is required')
-    }
+    expect(stdout).to.contain('npx degit dermatologist/openmrs-esm-dhti')
+    expect(stdout).to.contain('Copy')
+    expect(stdout).to.contain('packages/esm-starter-app')
   })
 
   it('runs conch init cmd without workdir flag', async () => {
     try {
-      await runCommand(['conch', 'init', '-n', 'test-conch', '-w', ''])
+      await runCommand(['conch', 'init', '-w', ''])
     } catch (error: unknown) {
       const err = error as {message?: string}
       expect(err.message).to.contain('workdir flag is required')

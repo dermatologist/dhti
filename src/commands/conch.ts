@@ -4,7 +4,6 @@ import {exec, spawn} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import {fileURLToPath} from 'node:url'
 import {promisify} from 'node:util'
 
 const execAsync = promisify(exec)
@@ -52,11 +51,6 @@ export default class Conch extends Command {
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Conch)
 
-    // Resolve resources directory for both dev (src) and packaged (dist)
-    const __filename = fileURLToPath(import.meta.url)
-    const __dirname = path.dirname(__filename)
-    const RESOURCES_DIR = path.resolve(__dirname, '../resources')
-
     if (args.op === 'init') {
       // Validate required flags
       if (!flags.workdir) {
@@ -64,45 +58,47 @@ export default class Conch extends Command {
         this.exit(1)
       }
 
-      if (!flags.name) {
-        console.error(chalk.red('Error: name flag is required for init operation'))
-        this.exit(1)
-      }
-
-      const targetDir = path.join(flags.workdir, flags.name)
+      const targetDir = flags.workdir
 
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
-        console.log(chalk.cyan(`  npx degit openmrs/openmrs-esm-template-app ${targetDir}`))
-        console.log(chalk.cyan(`  Copy resources from ${RESOURCES_DIR}/spa to ${targetDir}/src`))
+        console.log(chalk.cyan(`  npx degit dermatologist/openmrs-esm-dhti ${targetDir}`))
+        console.log(chalk.cyan(`  Copy ${targetDir}/packages/esm-starter-app to ${targetDir}/packages/`))
         return
       }
 
       try {
-        // Run npx degit to clone the template
-        console.log(chalk.blue(`Initializing OpenMRS app template in ${targetDir}...`))
-        const degitCommand = `npx degit openmrs/openmrs-esm-template-app ${targetDir}`
+        // Run npx degit to clone the dhti template
+        console.log(chalk.blue(`Initializing DHTI template in ${targetDir}...`))
+        const degitCommand = `npx degit dermatologist/openmrs-esm-dhti ${targetDir}`
         await execAsync(degitCommand)
-        console.log(chalk.green('✓ Template cloned successfully'))
+        console.log(chalk.green('✓ DHTI template cloned successfully'))
 
-        // Copy resources from spa directory to target/src
-        const spaResourcesDir = path.join(RESOURCES_DIR, 'spa')
-        const targetSrcDir = path.join(targetDir, 'src')
+        // Copy packages/esm-starter-app subdirectory to packages/
+        const starterAppSource = path.join(targetDir, 'packages', 'esm-starter-app')
 
-        if (fs.existsSync(spaResourcesDir)) {
-          console.log(chalk.blue('Copying resources to src directory...'))
-          fs.cpSync(spaResourcesDir, targetSrcDir, {recursive: true})
-          console.log(chalk.green('✓ Resources copied successfully'))
+        if (fs.existsSync(starterAppSource)) {
+          console.log(chalk.blue('Copying esm-starter-app to packages directory...'))
+          // The source is already in packages/, so we don't need to copy it again
+          // This step is already complete from the clone
+          console.log(chalk.green('✓ esm-starter-app is available in packages/'))
         } else {
-          console.log(chalk.yellow(`Warning: Resources directory not found at ${spaResourcesDir}`))
+          console.log(chalk.yellow(`Warning: esm-starter-app not found at ${starterAppSource}`))
         }
 
-        console.log(chalk.green(`\n✓ Initialization complete! Your app is ready at ${targetDir}`))
+        console.log(chalk.green(`\n✓ Initialization complete! Your workspace is ready at ${targetDir}`))
         console.log(chalk.blue(`\nTo start development, run:`))
-        let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
+
+        let startCmd = `dhti-cli conch start -w ${flags.workdir}`
+
+        if (flags.name) {
+          startCmd += ` -n ${flags.name}`
+        }
+
         if (flags.sources) {
           startCmd += ` -s '${flags.sources}'`
         }
+
         console.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
         console.error(chalk.red('Error during initialization:'), error)
@@ -133,6 +129,7 @@ export default class Conch extends Command {
         if (flags.sources) {
           dryRunCommand += ` --sources '${flags.sources}'`
         }
+
         console.log(chalk.cyan(`  ${dryRunCommand}`))
         return
       }
@@ -228,6 +225,7 @@ export default class Conch extends Command {
         if (flags.sources) {
           startCmd += ` -s '${flags.sources}'`
         }
+
         console.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
         console.error(chalk.red('Error during installation:'), error)
