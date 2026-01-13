@@ -58,12 +58,17 @@ export default class Conch extends Command {
         this.exit(1)
       }
 
+      if (!flags.name) {
+        console.error(chalk.red('Error: name flag is required for init operation'))
+        this.exit(1)
+      }
+
       const targetDir = path.join(flags.workdir, 'openmrs-esm-dhti')
 
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
         console.log(chalk.cyan(`  npx degit dermatologist/openmrs-esm-dhti ${targetDir}`))
-        console.log(chalk.cyan(`  Copy ${targetDir}/packages/esm-starter-app to ${targetDir}/packages/`))
+        console.log(chalk.cyan(`  Copy ${targetDir}/packages/esm-starter-app to ${targetDir}/packages/${flags.name}`))
         return
       }
 
@@ -74,14 +79,14 @@ export default class Conch extends Command {
         await execAsync(degitCommand)
         console.log(chalk.green('✓ DHTI template cloned successfully'))
 
-        // Copy packages/esm-starter-app subdirectory to packages/
+        // Copy packages/esm-starter-app subdirectory to packages/<name>
         const starterAppSource = path.join(targetDir, 'packages', 'esm-starter-app')
+        const targetPackageDir = path.join(targetDir, 'packages', flags.name)
 
         if (fs.existsSync(starterAppSource)) {
-          console.log(chalk.blue('Copying esm-starter-app to packages directory...'))
-          // The source is already in packages/, so we don't need to copy it again
-          // This step is already complete from the clone
-          console.log(chalk.green('✓ esm-starter-app is available in packages/'))
+          console.log(chalk.blue(`Copying esm-starter-app to packages/${flags.name}...`))
+          fs.cpSync(starterAppSource, targetPackageDir, {recursive: true})
+          console.log(chalk.green(`✓ esm-starter-app copied to packages/${flags.name}`))
         } else {
           console.log(chalk.yellow(`Warning: esm-starter-app not found at ${starterAppSource}`))
         }
@@ -89,15 +94,7 @@ export default class Conch extends Command {
         console.log(chalk.green(`\n✓ Initialization complete! Your workspace is ready at ${targetDir}`))
         console.log(chalk.blue(`\nTo start development, run:`))
 
-        let startCmd = `dhti-cli conch start -w ${flags.workdir}`
-
-        if (flags.name) {
-          startCmd += ` -n ${flags.name}`
-        }
-
-        if (flags.sources) {
-          startCmd += ` -s '${flags.sources}'`
-        }
+        const startCmd = `dhti-cli conch start -w ${flags.workdir} -n ${flags.name}`
 
         console.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
