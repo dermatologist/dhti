@@ -13,7 +13,7 @@ describe('elixir', () => {
     expect(stdout).to.contain('npx degit dermatologist/dhti-elixir')
     expect(stdout).to.contain('/tmp/test-workdir/dhti-elixir')
     expect(stdout).to.contain('Copy')
-    expect(stdout).to.contain('packages/simple_chat')
+    expect(stdout).to.contain('packages/starter')
     expect(stdout).to.contain('packages/test-elixir')
   })
 
