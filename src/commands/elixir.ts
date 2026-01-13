@@ -77,7 +77,7 @@ export default class Elixir extends Command {
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
         console.log(chalk.cyan(`  npx degit dermatologist/dhti-elixir ${targetDir}`))
-        console.log(chalk.cyan(`  Copy ${targetDir}/packages/simple_chat to ${targetDir}/packages/${flags.name}`))
+        console.log(chalk.cyan(`  Copy ${targetDir}/packages/starter to ${targetDir}/packages/${flags.name}`))
         return
       }
 
@@ -88,16 +88,16 @@ export default class Elixir extends Command {
         await execAsync(degitCommand)
         console.log(chalk.green('✓ DHTI elixir template cloned successfully'))
 
-        // Copy packages/simple_chat subdirectory to packages/<name>
-        const simpleChatSource = path.join(targetDir, 'packages', 'simple_chat')
+        // Copy packages/starter subdirectory to packages/<name>
+        const simpleChatSource = path.join(targetDir, 'packages', 'starter')
         const targetPackageDir = path.join(targetDir, 'packages', flags.name)
 
         if (fs.existsSync(simpleChatSource)) {
-          console.log(chalk.blue(`Copying simple_chat to packages/${flags.name}...`))
+          console.log(chalk.blue(`Copying starter to packages/${flags.name}...`))
           fs.cpSync(simpleChatSource, targetPackageDir, {recursive: true})
-          console.log(chalk.green(`✓ simple_chat copied to packages/${flags.name}`))
+          console.log(chalk.green(`✓ starter copied to packages/${flags.name}`))
         } else {
-          console.log(chalk.yellow(`Warning: simple_chat not found at ${simpleChatSource}`))
+          console.log(chalk.yellow(`Warning: starter not found at ${simpleChatSource}`))
         }
 
         console.log(chalk.green(`\n✓ Initialization complete! Your elixir workspace is ready at ${targetDir}`))
