@@ -1,5 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
+// eslint-disable-next-line import/default
+import yaml from 'js-yaml'
 import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
@@ -139,33 +141,47 @@ export default class Elixir extends Command {
       const sandboxDir = path.join(flags.workdir, 'cds-hooks-sandbox')
 
       if (flags['dry-run']) {
+        const directoryExists = fs.existsSync(sandboxDir)
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
-        console.log(chalk.cyan(`  npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`))
-        console.log(chalk.cyan(`  cd ${sandboxDir}`))
-        console.log(chalk.cyan(`  yarn install`))
+        if (directoryExists) {
+          console.log(chalk.cyan(`  [SKIP] Directory already exists: ${sandboxDir}`))
+        } else {
+          console.log(chalk.cyan(`  npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`))
+          console.log(chalk.cyan(`  cd ${sandboxDir}`))
+          console.log(chalk.cyan(`  yarn install`))
+        }
+
         console.log(chalk.cyan(`  yarn dhti ${elixirUrl} ${flags.fhir}`))
-        console.log(chalk.cyan(`  docker update --env FHIR_BASE_URL=${flags.fhir} ${flags.container}`))
+        console.log(chalk.cyan(`  Update docker-compose.yml FHIR_BASE_URL=${flags.fhir}`))
         console.log(chalk.cyan(`  docker restart ${flags.container}`))
         console.log(chalk.cyan(`  yarn dev`))
         return
       }
 
       try {
-        // Clone the cds-hooks-sandbox repository
-        console.log(chalk.blue(`Cloning CDS Hooks Sandbox to ${sandboxDir}...`))
-        const degitCommand = `npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`
-        await execAsync(degitCommand)
-        console.log(chalk.green('✓ CDS Hooks Sandbox cloned successfully'))
+        // Check if the directory already exists
+        const directoryExists = fs.existsSync(sandboxDir)
 
-        // Install dependencies
-        console.log(chalk.blue('Installing dependencies...'))
-        const installCommand = `cd ${sandboxDir} && yarn install`
-        const {stderr: installError} = await execAsync(installCommand)
-        if (installError && !installError.includes('warning')) {
-          console.error(chalk.yellow(`Installation warnings: ${installError}`))
+        if (directoryExists) {
+          console.log(chalk.blue(`Using existing CDS Hooks Sandbox at ${sandboxDir}...`))
+          console.log(chalk.green('✓ Skipped clone and install (directory already exists)'))
+        } else {
+          // Clone the cds-hooks-sandbox repository
+          console.log(chalk.blue(`Cloning CDS Hooks Sandbox to ${sandboxDir}...`))
+          const degitCommand = `npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`
+          await execAsync(degitCommand)
+          console.log(chalk.green('✓ CDS Hooks Sandbox cloned successfully'))
+
+          // Install dependencies
+          console.log(chalk.blue('Installing dependencies...'))
+          const installCommand = `cd ${sandboxDir} && yarn install`
+          const {stderr: installError} = await execAsync(installCommand)
+          if (installError && !installError.includes('warning')) {
+            console.error(chalk.yellow(`Installation warnings: ${installError}`))
+          }
+
+          console.log(chalk.green('✓ Dependencies installed successfully'))
         }
-
-        console.log(chalk.green('✓ Dependencies installed successfully'))
 
         // Configure dhti endpoints
         console.log(chalk.blue('Configuring DHTI endpoints...'))
@@ -180,20 +196,60 @@ export default class Elixir extends Command {
         // Configure Docker container with FHIR_BASE_URL environment variable
         console.log(chalk.blue('Setting up Docker container environment...'))
         try {
-          // Set the FHIR_BASE_URL environment variable on the Docker container
-          const updateEnvCommand = `docker update --env FHIR_BASE_URL=${flags.fhir} ${flags.container}`
-          await execAsync(updateEnvCommand)
-          console.log(chalk.green(`✓ Docker container environment variable FHIR_BASE_URL set to ${flags.fhir}`))
+          // Update the docker-compose.yml file with the new FHIR_BASE_URL
+          const dockerComposeFile = path.join(flags.workdir, 'docker-compose.yml')
+          if (fs.existsSync(dockerComposeFile)) {
+            const composeContent = fs.readFileSync(dockerComposeFile, 'utf8')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const compose = yaml.load(composeContent) as Record<string, any>
 
-          // Restart the container to apply environment changes
-          const restartCommand = `docker restart ${flags.container}`
-          await execAsync(restartCommand)
-          console.log(chalk.green(`✓ Docker container ${flags.container} restarted successfully`))
+            if (compose.services && compose.services.langserve) {
+              if (!compose.services.langserve.environment) {
+                compose.services.langserve.environment = []
+              }
+
+              // Update or add the FHIR_BASE_URL environment variable
+              const envArray = compose.services.langserve.environment
+              const fhirIndex = envArray.findIndex((env: string | Record<string, string>) => {
+                if (typeof env === 'string') {
+                  return env.startsWith('FHIR_BASE_URL=')
+                }
+
+                return typeof env === 'object' && env !== null && 'FHIR_BASE_URL' in env
+              })
+
+              if (fhirIndex >= 0) {
+                // Update existing environment variable
+                const existingEnv = envArray[fhirIndex]
+                if (typeof existingEnv === 'string') {
+                  envArray[fhirIndex] = `FHIR_BASE_URL=${flags.fhir}`
+                } else if (typeof existingEnv === 'object' && existingEnv !== null) {
+                  existingEnv.FHIR_BASE_URL = flags.fhir
+                }
+              } else {
+                // Add new environment variable
+                envArray.push(`FHIR_BASE_URL=${flags.fhir}`)
+              }
+
+              const updatedCompose = yaml.dump(compose)
+              fs.writeFileSync(dockerComposeFile, updatedCompose)
+              console.log(chalk.green(`✓ docker-compose.yml updated with FHIR_BASE_URL=${flags.fhir}`))
+            } else {
+              console.warn(chalk.yellow('⚠ Warning: langserve service not found in docker-compose.yml'))
+            }
+          } else {
+            console.warn(chalk.yellow(`⚠ Warning: docker-compose.yml not found at ${dockerComposeFile}`))
+          }
+
+          // Restart the container to apply the new environment variables
+          const upCommand = `docker compose up -d` // Docker Compose is smart enough to re-create only the services where the configuration, including environment variables, has changed
+          await execAsync(upCommand, {cwd: flags.workdir})
+          console.log(chalk.green(`✓ Docker container ${flags.container} restarted (compose up -d) successfully`))
         } catch (error: unknown) {
           const err = error as {message?: string}
           if (err.message?.includes('No such container')) {
             console.warn(
-              chalk.yellow(`⚠ Warning: Docker container ${flags.container} not found. Skipping container setup.`),
+              chalk.yellow(`⚠ Warning: Docker container ${flags.container} not found. Skipping container restart.`),
             )
           } else {
             console.error(chalk.red(`Error setting up Docker container: ${err.message}`))
@@ -203,10 +259,22 @@ export default class Elixir extends Command {
 
         // Start the development server
         console.log(chalk.blue('Starting development server...'))
-        console.log(chalk.cyan('Run this command to start the dev server:'))
-        console.log(chalk.green(`cd ${sandboxDir} && yarn dev`))
-        console.log(chalk.cyan('Or use:'))
-        console.log(chalk.green(`dhti-cli elixir start -w ${flags.workdir}`))
+        const {spawn} = await import('node:child_process')
+        const devCommand = `yarn dhti ${elixirUrl} ${flags.fhir} && yarn dev`
+        try {
+          const child = spawn(devCommand, {cwd: sandboxDir, shell: true, stdio: 'inherit'})
+          await new Promise((resolve, reject) => {
+            child.on('exit', (code) => {
+              if (code === 0) resolve(undefined)
+              else reject(new Error(`Dev server exited with code ${code}`))
+            })
+            child.on('error', reject)
+          })
+        } catch (error: unknown) {
+          const err = error as {message?: string}
+          console.error(chalk.red('Error starting development server:'), err.message)
+          this.exit(1)
+        }
       } catch (error) {
         console.error(chalk.red('Error during start operation:'), error)
         this.exit(1)

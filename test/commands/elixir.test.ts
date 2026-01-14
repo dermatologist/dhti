@@ -155,7 +155,8 @@ describe('elixir', () => {
   it('runs elixir start cmd with --dry-run showing Docker setup commands', async () => {
     const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '-n', 'my-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('docker update --env FHIR_BASE_URL=http://hapi.fhir.org/baseR4 dhti-langserve-1')
+    expect(stdout).to.contain('Update docker-compose.yml')
+    expect(stdout).to.contain('FHIR_BASE_URL=http://hapi.fhir.org/baseR4')
     expect(stdout).to.contain('docker restart dhti-langserve-1')
   })
 
@@ -174,7 +175,8 @@ describe('elixir', () => {
       '--dry-run',
     ])
     expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('docker update --env FHIR_BASE_URL=http://custom-fhir:8080/R4 custom-container')
+    expect(stdout).to.contain('Update docker-compose.yml')
+    expect(stdout).to.contain('FHIR_BASE_URL=http://custom-fhir:8080/R4')
     expect(stdout).to.contain('docker restart custom-container')
   })
 })
