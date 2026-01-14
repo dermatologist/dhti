@@ -33,6 +33,7 @@ DHTI comes with batteries ([skills](/.github/skills/)) included to [prompt](/.gi
 #### Examples
 * [Elixirs](https://github.com/dermatologist/dhti-elixir)
 * [OpenMRS Conches / UI](https://github.com/dermatologist/openmrs-esm-dhti)
+* [CDS Hooks Sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox)
 
 ## Try it out
 
@@ -54,7 +55,13 @@ DHTI comes with batteries ([skills](/.github/skills/)) included to [prompt](/.gi
 
 * `npx dhti-cli docker -u` to start all the docker images in your docker-compose.yml.
 
-💥  Start conch in OpenMRS and test the new elixir
+✌️  Decide where to test the new elixir: OpenMRS a full EHR system, or CDS-Hooks sandbox for a lightweight testing without an EHR.
+
+💥  Test elixir in a  CDS-Hooks sandbox.
+
+* `npx dhti-cli conch start -n dhti-elixir-schat` and navigate to the Application URL displayed in the console. (Uses hapi.fhir.org).
+
+💥  Test elixir in OpenMRS.
 
 * `npx dhti-cli conch install -g dermatologist/openmrs-esm-dhti -s packages/esm-chatbot-agent -n esm-chatbot-agent` to install a sample chatbot conch from github.
     - *(Optional)* Alternatively, use `-l <local-directory>` to install from a local directory.
