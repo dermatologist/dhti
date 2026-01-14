@@ -151,4 +151,30 @@ describe('elixir', () => {
       expect(err.message).to.contain('Either --elixir or --name flag must be provided')
     }
   })
+
+  it('runs elixir start cmd with --dry-run showing Docker setup commands', async () => {
+    const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '-n', 'my-elixir', '--dry-run'])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('docker update --env FHIR_BASE_URL=http://hapi.fhir.org/baseR4 dhti-langserve-1')
+    expect(stdout).to.contain('docker restart dhti-langserve-1')
+  })
+
+  it('runs elixir start cmd with custom container and FHIR endpoint shown in dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'start',
+      '-w',
+      '/tmp/test-workdir',
+      '-n',
+      'my-elixir',
+      '-c',
+      'custom-container',
+      '--fhir',
+      'http://custom-fhir:8080/R4',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('docker update --env FHIR_BASE_URL=http://custom-fhir:8080/R4 custom-container')
+    expect(stdout).to.contain('docker restart custom-container')
+  })
 })

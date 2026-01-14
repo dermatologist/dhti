@@ -144,6 +144,8 @@ export default class Elixir extends Command {
         console.log(chalk.cyan(`  cd ${sandboxDir}`))
         console.log(chalk.cyan(`  yarn install`))
         console.log(chalk.cyan(`  yarn dhti ${elixirUrl} ${flags.fhir}`))
+        console.log(chalk.cyan(`  docker update --env FHIR_BASE_URL=${flags.fhir} ${flags.container}`))
+        console.log(chalk.cyan(`  docker restart ${flags.container}`))
         console.log(chalk.cyan(`  yarn dev`))
         return
       }
@@ -174,6 +176,30 @@ export default class Elixir extends Command {
         }
 
         console.log(chalk.green('✓ DHTI endpoints configured successfully'))
+
+        // Configure Docker container with FHIR_BASE_URL environment variable
+        console.log(chalk.blue('Setting up Docker container environment...'))
+        try {
+          // Set the FHIR_BASE_URL environment variable on the Docker container
+          const updateEnvCommand = `docker update --env FHIR_BASE_URL=${flags.fhir} ${flags.container}`
+          await execAsync(updateEnvCommand)
+          console.log(chalk.green(`✓ Docker container environment variable FHIR_BASE_URL set to ${flags.fhir}`))
+
+          // Restart the container to apply environment changes
+          const restartCommand = `docker restart ${flags.container}`
+          await execAsync(restartCommand)
+          console.log(chalk.green(`✓ Docker container ${flags.container} restarted successfully`))
+        } catch (error: unknown) {
+          const err = error as {message?: string}
+          if (err.message?.includes('No such container')) {
+            console.warn(
+              chalk.yellow(`⚠ Warning: Docker container ${flags.container} not found. Skipping container setup.`),
+            )
+          } else {
+            console.error(chalk.red(`Error setting up Docker container: ${err.message}`))
+            this.exit(1)
+          }
+        }
 
         // Start the development server
         console.log(chalk.blue('Starting development server...'))

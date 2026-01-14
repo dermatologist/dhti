@@ -28,6 +28,10 @@ dhti-cli elixir start [options]
 - `-f, --fhir <url>`: FHIR endpoint URL
   - Default: `http://hapi.fhir.org/baseR4`
 
+- `-c, --container <name>`: Docker container name for setting the FHIR_BASE_URL environment variable
+  - Default: `dhti-langserve-1`
+  - The container will be updated with `FHIR_BASE_URL` environment variable and restarted
+
 - `--dry-run`: Show what changes would be made without executing them
 
 ## Examples
@@ -66,6 +70,16 @@ dhti-cli elixir start \
   --fhir http://my-fhir-server/R4
 ```
 
+### Custom Docker container for FHIR configuration
+```bash
+dhti-cli elixir start \
+  -n my-elixir \
+  -c my-custom-container \
+  --fhir http://my-fhir-server/R4
+```
+
+This will set the FHIR_BASE_URL environment variable on the `my-custom-container` Docker container and restart it.
+
 ### Dry run to preview changes
 ```bash
 dhti-cli elixir start -n my-elixir --dry-run
@@ -78,4 +92,33 @@ dhti-cli elixir start -n my-elixir --dry-run
 3. **Clones** the CDS Hooks Sandbox repository to `{workdir}/cds-hooks-sandbox`
 4. **Installs** dependencies using `yarn install`
 5. **Configures** the DHTI endpoints with `yarn dhti <elixir> <fhir>`
-6. **Provides** the command to start the development server
+6. **Sets up** Docker container environment:
+   - Sets `FHIR_BASE_URL` environment variable on the container using `docker update`
+
+## After Setup
+
+Once the setup is complete, you can start the development server with:
+
+```bash
+cd ~/dhti/cds-hooks-sandbox
+yarn dev
+```
+
+The sandbox will be available at `http://localhost:3000` (default Yarn dev port).
+
+## Docker Environment Variables
+
+The `start` operation sets the `FHIR_BASE_URL` environment variable on the specified Docker container to enable communication with your FHIR server. This is done using:
+
+```bash
+docker update --env FHIR_BASE_URL=<fhir_url> <container_name>
+docker restart <container_name>
+```
+
+The container must be running or have been run before. If the container doesn't exist, a warning will be displayed, but the operation will continue.
+
+## Related Commands
+
+- `dhti-cli elixir init` - Initialize a new elixir workspace
+- `dhti-cli elixir install` - Install/add an elixir to the Docker setup
+- `dhti-cli compose add` - Add modules to Docker Compose configuration
