@@ -31,7 +31,6 @@ export default class Elixir extends Command {
     }),
     elixir: Flags.string({
       char: 'e',
-      default: 'http://localhost:8001/langserve/dhti_elixir_schat/cds-services',
       description: 'Elixir endpoint URL',
     }),
     fhir: Flags.string({
@@ -124,6 +123,19 @@ export default class Elixir extends Command {
 
     // Handle start operation
     if (args.op === 'start') {
+      // Determine the elixir endpoint URL
+      let elixirUrl = flags.elixir
+      if (!elixirUrl) {
+        // If --elixir is not provided, construct it from --name
+        if (!flags.name) {
+          console.error(chalk.red('Error: Either --elixir or --name flag must be provided for start operation'))
+          this.exit(1)
+        }
+
+        const nameWithUnderscores = flags.name.replaceAll('-', '_')
+        elixirUrl = `http://localhost:8001/langserve/${nameWithUnderscores}/cds-services`
+      }
+
       const sandboxDir = path.join(flags.workdir, 'cds-hooks-sandbox')
 
       if (flags['dry-run']) {
@@ -131,7 +143,7 @@ export default class Elixir extends Command {
         console.log(chalk.cyan(`  npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`))
         console.log(chalk.cyan(`  cd ${sandboxDir}`))
         console.log(chalk.cyan(`  yarn install`))
-        console.log(chalk.cyan(`  yarn dhti ${flags.elixir} ${flags.fhir}`))
+        console.log(chalk.cyan(`  yarn dhti ${elixirUrl} ${flags.fhir}`))
         console.log(chalk.cyan(`  yarn dev`))
         return
       }
@@ -155,7 +167,7 @@ export default class Elixir extends Command {
 
         // Configure dhti endpoints
         console.log(chalk.blue('Configuring DHTI endpoints...'))
-        const dhtiCommand = `cd ${sandboxDir} && yarn dhti ${flags.elixir} ${flags.fhir}`
+        const dhtiCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${flags.fhir}`
         const {stderr: dhtiError} = await execAsync(dhtiCommand)
         if (dhtiError && !dhtiError.includes('warning')) {
           console.error(chalk.yellow(`Configuration warnings: ${dhtiError}`))

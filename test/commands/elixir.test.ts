@@ -100,14 +100,15 @@ describe('elixir', () => {
     }
   })
 
-  it('runs elixir start cmd with --dry-run flag', async () => {
-    const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '--dry-run'])
+  it('runs elixir start cmd with --dry-run flag and --name flag', async () => {
+    const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '-n', 'my-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('npx degit dermatologist/cds-hooks-sandbox')
     expect(stdout).to.contain('/tmp/test-workdir/cds-hooks-sandbox')
     expect(stdout).to.contain('yarn install')
     expect(stdout).to.contain('yarn dhti')
     expect(stdout).to.contain('yarn dev')
+    expect(stdout).to.contain('http://localhost:8001/langserve/my_elixir/cds-services')
   })
 
   it('runs elixir start cmd with custom --elixir and --fhir flags with --dry-run', async () => {
@@ -127,10 +128,27 @@ describe('elixir', () => {
     expect(stdout).to.contain('http://custom-fhir.org/baseR4')
   })
 
-  it('runs elixir start cmd with default --elixir and --fhir flags with --dry-run', async () => {
-    const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '--dry-run'])
+  it('runs elixir start cmd with --name flag and constructs elixir URL with --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'start',
+      '-w',
+      '/tmp/test-workdir',
+      '-n',
+      'test-name-with-dash',
+      '--dry-run',
+    ])
     expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('http://localhost:8001/langserve/dhti_elixir_schat/cds-services')
+    expect(stdout).to.contain('http://localhost:8001/langserve/test_name_with_dash/cds-services')
     expect(stdout).to.contain('http://hapi.fhir.org/baseR4')
+  })
+
+  it('rejects elixir start without --elixir and without --name', async () => {
+    try {
+      await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '--dry-run'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Either --elixir or --name flag must be provided')
+    }
   })
 })
