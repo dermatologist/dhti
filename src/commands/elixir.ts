@@ -4,13 +4,13 @@ import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import {promisify} from 'node:util'
 import {fileURLToPath} from 'node:url'
+import {promisify} from 'node:util'
 
 const execAsync = promisify(exec)
 export default class Elixir extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (init, install, uninstall or dev)'}),
+    op: Args.string({description: 'Operation to perform (init, install, uninstall, dev or start)'}),
   }
 
   static override description = 'Install or uninstall elixirs to create a Docker image'
@@ -28,6 +28,16 @@ export default class Elixir extends Command {
     'dry-run': Flags.boolean({
       default: false,
       description: 'Show what changes would be made without actually making them',
+    }),
+    elixir: Flags.string({
+      char: 'e',
+      default: 'http://localhost:8001/langserve/dhti_elixir_schat/cds-services',
+      description: 'Elixir endpoint URL',
+    }),
+    fhir: Flags.string({
+      char: 'f',
+      default: 'http://hapi.fhir.org/baseR4',
+      description: 'FHIR endpoint URL',
     }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
     local: Flags.string({char: 'l', default: 'none', description: 'Local directory to install from'}),
@@ -106,6 +116,61 @@ export default class Elixir extends Command {
         console.log(chalk.cyan(`  2. Follow the README.md for development instructions`))
       } catch (error) {
         console.error(chalk.red('Error during initialization:'), error)
+        this.exit(1)
+      }
+
+      return
+    }
+
+    // Handle start operation
+    if (args.op === 'start') {
+      const sandboxDir = path.join(flags.workdir, 'cds-hooks-sandbox')
+
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
+        console.log(chalk.cyan(`  npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`))
+        console.log(chalk.cyan(`  cd ${sandboxDir}`))
+        console.log(chalk.cyan(`  yarn install`))
+        console.log(chalk.cyan(`  yarn dhti ${flags.elixir} ${flags.fhir}`))
+        console.log(chalk.cyan(`  yarn dev`))
+        return
+      }
+
+      try {
+        // Clone the cds-hooks-sandbox repository
+        console.log(chalk.blue(`Cloning CDS Hooks Sandbox to ${sandboxDir}...`))
+        const degitCommand = `npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`
+        await execAsync(degitCommand)
+        console.log(chalk.green('✓ CDS Hooks Sandbox cloned successfully'))
+
+        // Install dependencies
+        console.log(chalk.blue('Installing dependencies...'))
+        const installCommand = `cd ${sandboxDir} && yarn install`
+        const {stderr: installError} = await execAsync(installCommand)
+        if (installError && !installError.includes('warning')) {
+          console.error(chalk.yellow(`Installation warnings: ${installError}`))
+        }
+
+        console.log(chalk.green('✓ Dependencies installed successfully'))
+
+        // Configure dhti endpoints
+        console.log(chalk.blue('Configuring DHTI endpoints...'))
+        const dhtiCommand = `cd ${sandboxDir} && yarn dhti ${flags.elixir} ${flags.fhir}`
+        const {stderr: dhtiError} = await execAsync(dhtiCommand)
+        if (dhtiError && !dhtiError.includes('warning')) {
+          console.error(chalk.yellow(`Configuration warnings: ${dhtiError}`))
+        }
+
+        console.log(chalk.green('✓ DHTI endpoints configured successfully'))
+
+        // Start the development server
+        console.log(chalk.blue('Starting development server...'))
+        console.log(chalk.cyan('Run this command to start the dev server:'))
+        console.log(chalk.green(`cd ${sandboxDir} && yarn dev`))
+        console.log(chalk.cyan('Or use:'))
+        console.log(chalk.green(`dhti-cli elixir start -w ${flags.workdir}`))
+      } catch (error) {
+        console.error(chalk.red('Error during start operation:'), error)
         this.exit(1)
       }
 

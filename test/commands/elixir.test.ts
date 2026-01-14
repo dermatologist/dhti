@@ -99,4 +99,38 @@ describe('elixir', () => {
       expect(err.message).to.contain('Local directory does not exist')
     }
   })
+
+  it('runs elixir start cmd with --dry-run flag', async () => {
+    const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '--dry-run'])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('npx degit dermatologist/cds-hooks-sandbox')
+    expect(stdout).to.contain('/tmp/test-workdir/cds-hooks-sandbox')
+    expect(stdout).to.contain('yarn install')
+    expect(stdout).to.contain('yarn dhti')
+    expect(stdout).to.contain('yarn dev')
+  })
+
+  it('runs elixir start cmd with custom --elixir and --fhir flags with --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'start',
+      '-w',
+      '/tmp/test-workdir',
+      '--elixir',
+      'http://custom:8001/cds-services',
+      '--fhir',
+      'http://custom-fhir.org/baseR4',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('http://custom:8001/cds-services')
+    expect(stdout).to.contain('http://custom-fhir.org/baseR4')
+  })
+
+  it('runs elixir start cmd with default --elixir and --fhir flags with --dry-run', async () => {
+    const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '--dry-run'])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('http://localhost:8001/langserve/dhti_elixir_schat/cds-services')
+    expect(stdout).to.contain('http://hapi.fhir.org/baseR4')
+  })
 })
