@@ -16,7 +16,8 @@
 # Digital Health Transformation Initiative (DHTI)
 
 
-##### TL; DR: 🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications within an EHR, facilitating the seamless transition of your experiments to practice! 💥 Moreover, DHTI comes with batteries included! It has the [skills](/.github/skills/) to generate GenAI components from simple problem oriented [prompts](/prompts/e2e-sample.md).
+## TL; DR:
+*🏥 DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications within an EHR, facilitating the seamless transition of experiments to practice! 💥 Moreover, DHTI comes with the [skills](/.github/skills/) to generate GenAI components from simple problem oriented [prompts](/prompts/e2e-sample.md).*
 
 ### Why DHTI?
 
