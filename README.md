@@ -63,10 +63,13 @@ Notes:
 💥  Test elixir in a  CDS-Hooks sandbox.
 
 * `npx dhti-cli conch start -n dhti-elixir-schat` and navigate to the Application URL displayed in the console. (Uses hapi.fhir.org).
+* In the **Rx View** tab, type in the contentString textbox and wait for the elixir to respond.
 
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
 </p>
+
+* We recommend using the [order-select](https://cds-hooks.org/hooks/order-select/) hook, utilizing the contentString from the [FHIR CommunicationRequest](https://build.fhir.org/communicationrequest.html) within the [cds-hook context](https://cds-hooks.org/examples/) for user inputs but you can use patient-view if no user input is needed.
 
 💥  Test elixir in OpenMRS.
 
