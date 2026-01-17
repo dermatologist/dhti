@@ -89,7 +89,9 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 * `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
 ## Wiki & Documentation
-[![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
+* [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
+* [Documentation](https://dermatologist.github.io/dhti/)
+* [CLI Reference](/notes/README.md)
 
 ## User contributions & examples
 * [Elixirs](https://github.com/dermatologist/dhti-elixir)
