@@ -35,6 +35,9 @@ Use this skill when you need to:
 * **Adapt the code:**
    - The above command creates a new directory at `workspace/workspace/openmrs-esm-dhti` with the monorepo.
    - In the packages/ directory of the monorepo, find your newly created microfrontend `esm-dhti-<<name>>`. THIS IS WHERE YOU WILL DO YOUR DEVELOPMENT.
+   - Update `package.json`:
+     - Set the value of the `name` field to `@openmrs/esm-<<name>>`.
+     - Update the `description` field to briefly describe your microfrontend.
     - Update `index.ts` as below:
      - Set the value of `moduleName` variable to `@openmrs/esm-<<name>>`.
      - Set the value of `featureName` variable to `dhti-<<name>>`.
