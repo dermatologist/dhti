@@ -16,7 +16,7 @@
 # DHTI
 *DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications inside an EHR, helping experiments move smoothly into practice. DHTI also includes [skills](/.github/skills/) that generate GenAI components from problem‑oriented [prompts](/prompts/e2e-sample.md).*
 
-### Why DHTI?
+### Why?
 
 Imagine you need to instantly determine whether a patient qualifies for a clinical trial. Your GenAI app pulls in the trial’s eligibility criteria, matches it against the patient’s EHR data, taps a vector store for RAG, relies on a self‑hosted LLM to keep everything private, and uses smart tools to fetch and analyze clinical details. The final output appears right inside the EHR—clean, clear, and clinician‑friendly. 💥 **And that’s just one example of the countless real‑world workflows DHTI makes possible.**
 
@@ -26,7 +26,7 @@ Generative AI features are built as [LangServe Apps](https://python.langchain.co
 🚀 You can test the elixir using a real EMR system, [OpenMRS](https://openmrs.org/), that communicates with the elixir using **CDS-Hooks** or use any other CDS-Hooks compatible EMR system. You can also use the [CDS-Hooks sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) without an EMR.
 
 #### How (non‑technical / clinical)
-DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agentic platforms (e.g., [AntiGravity](https://antigravity.google/), VSCode, or Claude) to generate the GenAI backends and UI components (elixirs and conches) you need. Test these components with synthetic data in OpenMRS or the CDS‑Hooks sandbox, then hand them off to production teams. Because DHTI follows open standards, that handoff (the “valley of death”) becomes smoother and more predictable. Try the [prompts](/.github/skills/start-dhti/examples/e2e-sample.md) in your preferred agentic platform.
+DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agentic platforms (e.g., [AntiGravity](https://antigravity.google/), VSCode, or Claude) to generate the GenAI backends and UI components (elixirs and conches) you need. Test these components with synthetic data in OpenMRS or the CDS‑Hooks sandbox, then hand them off to production teams. Because DHTI follows open standards, that handoff (the “valley of death”) becomes smoother and more predictable. Try the [prompts](/.github/skills/start-dhti/examples/e2e-sample.md) in your preferred agentic platform after cloning this repo.
 
 ## Try it out
 [[Cheatsheet](/notes/cheatsheet.md) | [Download PDF Cheatsheet](https://nuchange.ca/wp-content/uploads/2026/01/dhti_cheatsheet.pdf)]
@@ -36,8 +36,6 @@ DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agenti
 
 Quick start (try the demo script):
 ```bash
-git clone https://github.com/dermatologist/dhti.git
-cd dhti
 ./demo.sh    # Linux / macOS (Windows: use WSL)
 ```
 
@@ -73,7 +71,7 @@ Notes:
 * `npx dhti-cli conch install -g dermatologist/openmrs-esm-dhti -s packages/esm-chatbot-agent -n esm-chatbot-agent` to install a sample chatbot conch from github.
     - *(Optional)* Alternatively, use `-l <local-directory>` to install from a local directory.
 
-* `dhti-cli conch start -n esm-chatbot-agent -s packages/esm-chatbot-agent` to start the conch with OpenMRS.
+* `npx dhti-cli conch start -n esm-chatbot-agent -s packages/esm-chatbot-agent` to start the conch with OpenMRS.
 
 * Go to `http://localhost:8080/openmrs/spa/home`
 * Login with the following credentials:
