@@ -30,7 +30,7 @@ Use this skill when you need to:
 
 * **Scaffold a new microfrontend project** using the DHTI cli:
    ```bash
-   npx dhti-cli@latest conch init -w workspace -n esm-dhti-<<name>>
+   npx dhti-cli conch init -w workspace -n esm-dhti-<<name>>
    ```
 * **Adapt the code:**
    - The above command creates a new directory at `workspace/workspace/openmrs-esm-dhti` with the monorepo.
