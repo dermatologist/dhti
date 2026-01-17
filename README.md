@@ -36,6 +36,8 @@ DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agenti
 
 Quick start (try the demo script):
 ```bash
+git clone https://github.com/dermatologist/dhti.git
+cd dhti
 ./demo.sh    # Linux / macOS (Windows: use WSL)
 ```
 
