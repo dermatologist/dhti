@@ -1,8 +1,7 @@
-# DHTI Elixir Generator Skill
-
-## Description
-
-This skill enables AI agents to generate new DHTI elixir projects from a cookiecutter template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
+---
+name: elixir-generator
+description: This skill enables AI agents to generate new DHTI elixir projects from a cookiecutter template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
+---
 
 ## When to Use This Skill
 
@@ -12,51 +11,39 @@ Use this skill when you need to:
 - Implement clinical decision support services using LangChain
 - Build AI-powered EMR chatbot functionalities
 
+## Best Practices
+* Each elixir should focus ONLY on a single function. (e.g. file upload and glycemic recommender should be separate elixirs). If multiple functionalities are needed, create multiple elixirs and orchestrate them.
+* Reuse existing elixirs where possible instead of creating new ones. You may refer to the list of existing elixirs in the DHTI monorepo: https://github.com/dermatologist/dhti-elixir#available-elixirs
+* Always create a notes/README.md file documenting the purpose, functionality, and usage of the elixir, including additional configuration steps if any as well as other elixirs or services it depends on and needs to be installed alongside.
+* If a RAG pattern is needed, use redis vector stores. Use neo4j to represent complex graphs. Read src/resources/docker-compose.yml to understand how redis and neo4j containers will be spun up. Prefer using existing elixirs if any and mention the dependency in notes/README.md.
+
 ## Instructions
 
-You are an elixir coding agent working in a fresh development environment. Check if the instruction includes a working directory setup; if not, create a new directory for the elixir project at ~/dhti/packages/elixir/<project_name>. Then follow these instructions sequentially.
+You are an elixir coding agent working in a fresh development environment.
 
-### Environment setup and project scaffolding
+### Environment Setup and Project Scaffolding
 
-* Check for uv in the dev environment.  Install `uv` in the dev environment if not already installed.
-* In the project root, run:
+* **Read and internalize the original user feature request:**
+   - Understand the clinical functionality needed.
 
-```bash
-uvx cookiecutter https://github.com/dermatologist/cookiecutter-uv.git
-```
+* **Decide on a simple but unique name** for your backend. (e.g., glycemic, heart_rate, skin_tone etc.). IN THE INSTRUCTIONS BELOW, REPLACE `<<name>>` WITH YOUR CHOSEN NAME.
 
-- The user specification for the elixir agent below may include the preferred details for the cookiecutter prompts (author name, email, GitHub handle, open source license). If any of these details are missing, use reasonable guesses.
-- When cookiecutter prompts you:
-  - **author**: Set to the provided author name (or use a reasonable placeholder if none is given).
-  - **email**: Set to the provided email (or use a reasonable placeholder if none is given).
-  - **author_github_handle**: Set to the provided GitHub handle (or a reasonable placeholder if none is given).
-  - **project_name**: Generate a concise, meaningful project name that reflects the requested features for this Elixir agent. THE NAME MUST START WITH "dhti-elixir-".
-  - **project_slug**: Generate a clean, snake_case slug derived from the project name. THE SLUG MUST START WITH "dhti_elixir_".
-  - **project_description**: Generate a very brief project description clearly summarizing:
-    - the purpose of the project,
-    - the kind of Elixir-related functionality requested,
-    - the intended clinical / FHIR context (if implied by the request below).
-- **Cookiecutter options:**
-  - Keep **all cookiecutter options at their default values**, **except**:
-    - For select dhti:
-      - Set this to 2-y (yes).
-    - For open_source_license:
-      - If an open source license is **explicitly** mentioned in the request, choose the corresponding option.
-      - Otherwise, select **option 7: "Not open source"**.
+* **Scaffold a new microfrontend project** using the DHTI cli:
+   ```bash
+   npx dhti-cli elixir init -w workspace -n <<name>>
+   ```
 
-### Study the reference implementation
+* **Adapt the starter implementation**
+  - Rename workspace/dhti-elixir/packages/<<name>>/dhti_elixir_starter to workspace/dhti-elixir/packages/<<name>>/dhti_elixir_<<name>>
+  - You have to replace "starter" with your chosen name wherever applicable with dhti_elixir_<<name>> in the generated project.
 
-Before editing any generated files, **carefully read and understand** the following reference files, paying attention to patterns, structure, and responsibilities:
-
-- **Chain implementation:**
-  - chain.py reference:
-    - https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
+- **Implementation:**
+  - chain.py:
     - The main class should be named "DhtiChain" inheriting from BaseChain ( from package dhti_elixir_base)
-    - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["<project_slug>_main_llm"] and di["<project_slug>_function_llm"] respectively. Substitute <project_slug> with the project slug. The default prompt should also be injected as di["<project_slug>_prompt"]. Additional hyperparameters can be injected as needed.
+    - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["dhti_elixir_<<name>>_main_llm"] and di["dhti_elixir_<<name>>_function_llm"] respectively. The default prompt should also be injected as di["dhti_elixir_<<name>>_prompt"]. Additional hyperparameters can be injected as needed. (Replace <<name>> with your chosen name)
     - Plan how the problem can be solved using LangChain constructs (chains, agents, tools, callbacks, etc.) following the patterns in the reference chain.py.
 - **Bootstrap / configuration of the chain:**
-  - bootstrap.py reference:
-    - https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/bootstrap.py
+  - bootstrap.py:
     - This file is responsible for setting up dependency injection (DI) for the chain, including:
       - Configuring the main LLM and function calling LLM (if applicable).
       - Setting up prompts and any additional tools or services.
@@ -65,7 +52,7 @@ Before editing any generated files, **carefully read and understand** the follow
     - The cds_hook_discovery should be configured as follows:
 
 ```python
-di["<project_slug>_cds_hook_discovery"] = {  # <- Substitute <project_slug> with the project slug
+di["dhti_elixir_<<name>>_cds_hook_discovery"] = {  # <- <<name>>
     "services": [
         {
             "id": "dhti-service",   # <- Keep as is
@@ -75,14 +62,14 @@ di["<project_slug>_cds_hook_discovery"] = {  # <- Substitute <project_slug> with
 }
 ```
 
-Extract and internalize the following from these references:
+Extract and internalize the following from other packages such as simple_chat in the monorepo:
 
 - How the LangChain chain is constructed (inputs, outputs, prompts, tools, callbacks, etc.).
 - How configuration, environment variables, and settings are wired in bootstrap.py.
 - How FHIR or other external services are integrated, if present.
 - Any conventions for logging, error handling, and dependency injection.
 
-You must follow the **same architectural and stylistic patterns** in the new project's chain.py and bootstrap.py.
+You must follow the **same architectural and stylistic patterns** in the <<name>> project's chain.py and bootstrap.py.
 
 ### Implement the new Elixir request
 
@@ -115,22 +102,22 @@ Interpret below as the high-level functional requirement for the chain. Your imp
     - Any domain logic surrounding Elixir code analysis, generation, or orchestration.
     - Any interactions with external services (e.g., FHIR, LLMs, tools) as appropriate.
 - **Tools** (if applicable):
-  - Internalize how the agent uses tools if available from the reference chain: https://github.com/dermatologist/dhti-elixir-template/blob/feature/agent-2/src/dhti_elixir_template/chain.py
+  - Internalize how the agent uses tools if available from the package agent_chat in the monorepo.
   - The original user specification will indicate any available tools to use. If none are indicated, you do not have access to any tools.
 
 ### Planning: create a TODO list
 
 Before writing or heavily modifying code, create an **elaborate, structured TODO list** in a notes/todo.md file. This TODO list should:
 
-- Break the work into small, concrete tasks.
-- Cover:
-  - **Environment & setup** (if anything beyond cookiecutter defaults is needed),
-  - **Chain design** (inputs/outputs, internal steps, FHIR interactions),
-  - **Implementation tasks** for chain.py and bootstrap.py,
-  - **Dependency updates** (if new packages are needed),
-  - **Unit testing** tasks,
-  - **Documentation updates** (README),
-  - **Validation and final checks**.
+* Break the work into small, concrete tasks.
+* Cover:
+  * **Environment & setup** (if anything beyond cookiecutter defaults is needed),
+  * **Chain design** (inputs/outputs, internal steps, FHIR interactions),
+  * **Implementation tasks** for chain.py and bootstrap.py,
+  * **Dependency updates** (if new packages are needed),
+  * **Unit testing** tasks,
+  * **Documentation updates** (README),
+  * **Validation and final checks**.
 
 Use clear, actionable items that you can check off logically as you progress.
 

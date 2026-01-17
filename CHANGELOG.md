@@ -2,15 +2,15 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/0.7.1...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.8.0...HEAD)
 
 **Closed issues:**
 
-- Feature request: Add install from directory feature and skill [\#106](https://github.com/dermatologist/dhti/issues/106)
-- Feature request: Install elixir and conch from a subdirectory in the GitHub repository. [\#104](https://github.com/dermatologist/dhti/issues/104)
+- Feature request: Redesign conch.ts to use npx openmrs develop instead of openmrs docker container [\#108](https://github.com/dermatologist/dhti/issues/108)
 
 **Merged pull requests:**
 
+- Redesign conch command with init, install, and start operations [\#109](https://github.com/dermatologist/dhti/pull/109) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Add local directory installation and start-dhti orchestration skill [\#107](https://github.com/dermatologist/dhti/pull/107) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Add subdirectory installation support for monorepo packages [\#105](https://github.com/dermatologist/dhti/pull/105) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/prompt 1 [\#103](https://github.com/dermatologist/dhti/pull/103) ([dermatologist](https://github.com/dermatologist))
@@ -26,6 +26,15 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [0.8.0](https://github.com/dermatologist/dhti/tree/0.8.0) (2026-01-11)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/0.7.1...0.8.0)
+
+**Closed issues:**
+
+- Feature request: Add install from directory feature and skill [\#106](https://github.com/dermatologist/dhti/issues/106)
+- Feature request: Install elixir and conch from a subdirectory in the GitHub repository. [\#104](https://github.com/dermatologist/dhti/issues/104)
 
 ## [0.7.1](https://github.com/dermatologist/dhti/tree/0.7.1) (2026-01-06)
 

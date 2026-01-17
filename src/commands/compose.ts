@@ -1,10 +1,14 @@
 import {Args, Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
 import yaml from 'js-yaml'
+import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
+import {promisify} from 'node:util'
+
+const execAsync = promisify(exec)
 
 export default class Compose extends Command {
   static override args = {
@@ -20,16 +24,34 @@ export default class Compose extends Command {
       default: false,
       description: 'Show what changes would be made without actually making them',
     }),
+    env: Flags.string({
+      char: 'e',
+      description: 'Environment variable name (e.g. FHIR_BASE_URL)',
+    }),
     file: Flags.string({
       char: 'f',
       default: `${os.homedir()}/dhti/docker-compose.yml`,
       description: 'Full path to the docker compose file to read from. Creates if it does not exist',
     }),
+    host: Flags.boolean({
+      default: false,
+      description: 'Use host environment variable pattern (e.g. ${VAR_NAME:-default_value})',
+    }),
     // flag with a value (-n, --name=VALUE)
     module: Flags.string({
       char: 'm',
-      description: 'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis, neo4j, mcpFhir, mcpx and docktor)',
+      description:
+        'Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis, neo4j, mcpFhir, mcpx and docktor)',
       multiple: true,
+    }),
+    service: Flags.string({
+      char: 's',
+      default: 'langserve',
+      description: 'Service name to update environment variables',
+    }),
+    value: Flags.string({
+      char: 'v',
+      description: 'Environment variable value',
     }),
   }
 
@@ -94,15 +116,124 @@ export default class Compose extends Command {
       if (fs.existsSync(flags.file)) {
         existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'))
       } else if (flags['dry-run']) {
-          console.log(chalk.yellow(`[DRY RUN] Would create directory: ${os.homedir()}/dhti`))
-          console.log(chalk.yellow(`[DRY RUN] Would create file: ${flags.file}`))
-        } else {
-          Compose.init() // Create the file if it does not exist
-        }
+        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${os.homedir()}/dhti`))
+        console.log(chalk.yellow(`[DRY RUN] Would create file: ${flags.file}`))
+      } else {
+        Compose.init() // Create the file if it does not exist
+      }
 
       // Echo the existing data to the console
       if (args.op === 'read') {
         console.log(existingData)
+        return
+      }
+
+      // Handle env operation to add or update environment variables
+      if (args.op === 'env') {
+        // Validate mandatory flags
+        if (!flags.env) {
+          console.error(chalk.red('Error: --env flag is required for env operation'))
+          this.exit(1)
+        }
+
+        if (!flags.value) {
+          console.error(chalk.red('Error: --value flag is required for env operation'))
+          this.exit(1)
+        }
+
+        const serviceName = flags.service
+        const envVarName = flags.env
+        let envVarValue = flags.value
+
+        // Apply host pattern if --host flag is present
+        if (flags.host) {
+          // eslint-disable-next-line no-template-curly-in-string
+          envVarValue = `\${${envVarName}:-${flags.value}}`
+        }
+
+        // Check if service exists
+        if (!existingData.services[serviceName]) {
+          console.error(chalk.red(`Error: Service '${serviceName}' not found in docker-compose.yml`))
+          this.exit(1)
+        }
+
+        const service = existingData.services[serviceName]
+
+        // Initialize environment array if not present
+        if (!service.environment) {
+          service.environment = []
+        }
+
+        // Find if the environment variable already exists
+        const envArray = service.environment
+        let foundIndex = -1
+        let oldValue: string | undefined
+
+        // Handle environment as array of strings or objects
+        for (const [index, env] of envArray.entries()) {
+          if (typeof env === 'string') {
+            if (env.startsWith(`${envVarName}=`)) {
+              foundIndex = index
+              oldValue = env.split('=').slice(1).join('=')
+              break
+            }
+          } else if (typeof env === 'object' && env !== null && envVarName in env) {
+            foundIndex = index
+            oldValue = (env as Record<string, string>)[envVarName]
+            break
+          }
+        }
+
+        if (flags['dry-run']) {
+          console.log(chalk.yellow('[DRY RUN] Would update environment variable:'))
+          console.log(chalk.cyan(`  Service: ${serviceName}`))
+          console.log(chalk.cyan(`  Variable: ${envVarName}`))
+          if (foundIndex >= 0) {
+            console.log(chalk.yellow(`  Old value: ${oldValue}`))
+            console.log(chalk.green(`  New value: ${envVarValue}`))
+          } else {
+            console.log(chalk.green(`  Adding new value: ${envVarValue}`))
+          }
+
+          console.log(chalk.cyan(`  Would run: docker compose up -d (in ${path.dirname(flags.file)})`))
+          return
+        }
+
+        // Update or add the environment variable
+        if (foundIndex >= 0) {
+          // Update existing
+          const existingEnv = envArray[foundIndex]
+          if (typeof existingEnv === 'string') {
+            envArray[foundIndex] = `${envVarName}=${envVarValue}`
+          } else if (typeof existingEnv === 'object' && existingEnv !== null) {
+            ;(existingEnv as Record<string, string>)[envVarName] = envVarValue
+          }
+
+          console.log(chalk.blue(`Updating environment variable in service '${serviceName}':`))
+          console.log(chalk.yellow(`  Old value: ${oldValue}`))
+          console.log(chalk.green(`  New value: ${envVarValue}`))
+        } else {
+          // Add new
+          envArray.push(`${envVarName}=${envVarValue}`)
+          console.log(chalk.blue(`Adding new environment variable to service '${serviceName}':`))
+          console.log(chalk.green(`  ${envVarName}=${envVarValue}`))
+        }
+
+        // Write the updated compose file
+        const updatedCompose = yaml.dump(existingData).replaceAll('null', '')
+        fs.writeFileSync(flags.file, updatedCompose, 'utf8')
+        console.log(chalk.green(`✓ docker-compose.yml updated successfully`))
+
+        // Run docker compose up -d to apply changes
+        try {
+          const workdir = path.dirname(flags.file)
+          await execAsync('docker compose up -d', {cwd: workdir})
+          console.log(chalk.green(`✓ Docker compose reloaded successfully (docker compose up -d)`))
+        } catch (error: unknown) {
+          const err = error as {message?: string}
+          console.warn(chalk.yellow(`⚠ Warning: Could not run docker compose up -d: ${err.message}`))
+        }
+
         return
       }
 

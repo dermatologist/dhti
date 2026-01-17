@@ -1,0 +1,5 @@
+{
+    "@openmrs/esm-chatbot-agent": {
+        "dhtiRoute": "http://localhost:8001/langserve/dhti_elixir_schat/cds-services/dhti-service"
+    }
+}

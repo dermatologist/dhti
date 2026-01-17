@@ -5,7 +5,7 @@ $ npm install -g dhti-cli
 $ dhti-cli COMMAND
 running command...
 $ dhti-cli (--version)
-dhti-cli/0.7.1 linux-x64 node-v20.19.6
+dhti-cli/0.8.0 linux-x64 node-v20.19.6
 $ dhti-cli --help [COMMAND]
 USAGE
   $ dhti-cli COMMAND
@@ -59,43 +59,34 @@ EXAMPLES
   $ dhti-cli compose
 ```
 
-_See code: [src/commands/compose.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/compose.ts)_
+_See code: [src/commands/compose.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/compose.ts)_
 
 ## `dhti-cli conch [OP]`
 
-Install or uninstall conchs to create a Docker image
+Initialize or start OpenMRS frontend development using npx openmrs develop
 
 ```
 USAGE
-  $ dhti-cli conch [OP] [-b <value>] [-c <value>] [-d <value>] [--dry-run] [-g <value>] [-i <value>] [-n
-    <value>] [-v <value>] [-s <value>] [-w <value>]
+  $ dhti-cli conch [OP] [--dry-run] [-n <value>] [-w <value>]
 
 ARGUMENTS
-  [OP]  Operation to perform (install, uninstall or dev)
+  [OP]  Operation to perform (init or start)
 
 FLAGS
-  -b, --branch=<value>        [default: develop] Branch to install from
-  -c, --container=<value>     [default: dhti-frontend-1] Name of the container to copy the conch to while in dev mode
-  -d, --dev=<value>           [default: none] Dev folder to install
-  -g, --git=<value>           [default: none] Github repository to install
-  -i, --image=<value>         [default: openmrs/openmrs-reference-application-3-frontend:3.0.0-beta.17] Base image to
-                              use for the conch
-  -n, --name=<value>          Name of the elixir
-  -s, --subdirectory=<value>  [default: none] Subdirectory in the repository to install from (for monorepos)
-  -v, --repoVersion=<value>   [default: 1.0.0] Version of the conch
-  -w, --workdir=<value>       [default: /home/runner/dhti] Working directory to install the conch
-      --dry-run               Show what changes would be made without actually making them
+  -n, --name=<value>     Name of the conch
+  -w, --workdir=<value>  [default: /home/runner/dhti] Working directory for the conch
+      --dry-run          Show what changes would be made without actually making them
 
 DESCRIPTION
-  Install or uninstall conchs to create a Docker image
+  Initialize or start OpenMRS frontend development using npx openmrs develop
 
 EXAMPLES
-  $ dhti-cli conch install -n openmrs-esm-genai -g https://github.com/dermatologist/openmrs-esm-dhti-template.git
+  $ dhti-cli conch init -n my-app -w ~/projects
 
-  $ dhti-cli conch install -n openmrs-esm-my-conch -g https://github.com/org/monorepo.git -s packages/my-conch -b main
+  $ dhti-cli conch start -n my-app -w ~/projects
 ```
 
-_See code: [src/commands/conch.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/conch.ts)_
+_See code: [src/commands/conch.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/conch.ts)_
 
 ## `dhti-cli docker [PATH]`
 
@@ -129,7 +120,7 @@ EXAMPLES
   $ dhti-cli docker
 ```
 
-_See code: [src/commands/docker.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/docker.ts)_
+_See code: [src/commands/docker.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/docker.ts)_
 
 ## `dhti-cli docktor OP [NAME]`
 
@@ -163,7 +154,7 @@ EXAMPLES
   $ dhti-cli docktor list
 ```
 
-_See code: [src/commands/docktor.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/docktor.ts)_
+_See code: [src/commands/docktor.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/docktor.ts)_
 
 ## `dhti-cli elixir [OP]`
 
@@ -171,8 +162,8 @@ Install or uninstall elixirs to create a Docker image
 
 ```
 USAGE
-  $ dhti-cli elixir [OP] [-b <value>] [-c <value>] [-d <value>] [--dry-run] [-g <value>] [-n <value>] [-p
-    <value>] [-v <value>] [-s <value>] [-e <value>] [-w <value>]
+  $ dhti-cli elixir [OP] [-b <value>] [-c <value>] [-d <value>] [--dry-run] [-g <value>] [-l <value>] [-n
+    <value>] [-p <value>] [-v <value>] [-s <value>] [-e <value>] [-w <value>]
 
 ARGUMENTS
   [OP]  Operation to perform (install, uninstall or dev)
@@ -183,6 +174,7 @@ FLAGS
   -d, --dev=<value>           [default: none] Dev folder to install
   -e, --whl=<value>           [default: none] Whl file to install
   -g, --git=<value>           [default: none] Github repository to install
+  -l, --local=<value>         [default: none] Local directory to install from
   -n, --name=<value>          Name of the elixir
   -p, --pypi=<value>          [default: none] PyPi package to install. Ex: dhti-elixir-base = ">=0.1.0"
   -s, --subdirectory=<value>  [default: none] Subdirectory in the repository to install from (for monorepos)
@@ -194,12 +186,10 @@ DESCRIPTION
   Install or uninstall elixirs to create a Docker image
 
 EXAMPLES
-  $ dhti-cli elixir install -n dhti-elixir-template -g https://github.com/dermatologist/dhti-elixir-template.git
-
-  $ dhti-cli elixir install -n my-elixir -g https://github.com/org/monorepo.git -s packages/my-elixir -b main
+  $ dhti-cli elixir
 ```
 
-_See code: [src/commands/elixir.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/elixir.ts)_
+_See code: [src/commands/elixir.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/elixir.ts)_
 
 ## `dhti-cli help [COMMAND]`
 
@@ -243,7 +233,7 @@ EXAMPLES
   $ dhti-cli mimic
 ```
 
-_See code: [src/commands/mimic.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/mimic.ts)_
+_See code: [src/commands/mimic.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/mimic.ts)_
 
 ## `dhti-cli plugins`
 
@@ -585,7 +575,7 @@ EXAMPLES
   $ dhti-cli synthea download --covid19
 ```
 
-_See code: [src/commands/synthea.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/synthea.ts)_
+_See code: [src/commands/synthea.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/synthea.ts)_
 
 ## `dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT]`
 
@@ -617,7 +607,7 @@ EXAMPLES
   $ dhti-cli synthetic
 ```
 
-_See code: [src/commands/synthetic.ts](https://github.com/dermatologist/dhti/blob/v0.7.1/src/commands/synthetic.ts)_
+_See code: [src/commands/synthetic.ts](https://github.com/dermatologist/dhti/blob/v0.8.0/src/commands/synthetic.ts)_
 <!-- commandsstop -->
   # Table of contents
   <!-- toc -->

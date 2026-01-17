@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.openmrs.org/routes.schema.json",
+  "backendDependencies": {
+    "fhir2": ">=2.0.0",
+    "webservices.rest": ">=2.2.0"
+  },
+  "extensions": [
+    {
+      "component": "glycemic",
+      "name": "dhti-glycemic-widget",
+      "slot": "patient-chart-summary-dashboard-slot",
+      "meta": {
+        "columnSpan": 4
+      }
+    }
+  ]
+}

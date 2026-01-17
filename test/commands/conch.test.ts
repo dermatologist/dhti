@@ -2,81 +2,82 @@ import {runCommand} from '@oclif/test'
 import {expect} from 'chai'
 
 describe('conch', () => {
-  it('runs conch cmd', async () => {
-    const {stdout} = await runCommand('conch')
-    expect(stdout).to.contain('Please provide a name for the conch')
-  })
-
-  it('runs conch cmd with --dry-run flag', async () => {
-    const {stdout} = await runCommand(['conch', 'install', '-n', 'test-conch', '--dry-run'])
-    expect(stdout).to.contain('[DRY RUN]')
-    // expect(stdout).to.contain('Would copy resources from')
-  })
-
-  it('runs conch cmd with --subdirectory flag and --dry-run', async () => {
-    const {stdout} = await runCommand([
-      'conch',
-      'install',
-      '-n',
-      'test-conch',
-      '-g',
-      'https://github.com/test/repo',
-      '-s',
-      'packages/conch1',
-      '--dry-run',
-    ])
-    expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('Sparse checkout: packages/conch1')
-  })
-
-  it('runs conch cmd without --subdirectory flag and --dry-run', async () => {
-    const {stdout} = await runCommand([
-      'conch',
-      'install',
-      '-n',
-      'test-conch',
-      '-g',
-      'https://github.com/test/repo',
-      '--dry-run',
-    ])
-    expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.not.contain('Sparse checkout')
-  })
-
-  it('runs conch cmd with --local flag and --dry-run', async () => {
-    const {stdout} = await runCommand([
-      'conch',
-      'install',
-      '-n',
-      'test-conch',
-      '-l',
-      '/path/to/local/conch',
-      '--dry-run',
-    ])
-    expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('Would copy /path/to/local/conch')
-  })
-
-  it('runs conch cmd with relative --local flag and --dry-run', async () => {
-    const {stdout} = await runCommand([
-      'conch',
-      'install',
-      '-n',
-      'test-conch',
-      '-l',
-      './local-conch',
-      '--dry-run',
-    ])
-    expect(stdout).to.contain('[DRY RUN]')
-    expect(stdout).to.contain('Would copy')
-  })
-
-  it('rejects conch install with non-existent local directory', async () => {
+  it('runs conch cmd without operation', async () => {
     try {
-      await runCommand(['conch', 'install', '-n', 'test-conch', '-l', '/non/existent/path'])
+      await runCommand('conch')
     } catch (error: unknown) {
       const err = error as {message?: string}
-      expect(err.message).to.contain('Local directory does not exist')
+      expect(err.message).to.contain('Invalid operation')
+    }
+  })
+
+  it('runs conch init cmd with --dry-run flag', async () => {
+    const {stdout} = await runCommand(['conch', 'init', '-n', 'test-conch', '-w', '/tmp/test-workdir', '--dry-run'])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('npx degit dermatologist/openmrs-esm-dhti')
+    expect(stdout).to.contain('/tmp/test-workdir/openmrs-esm-dhti')
+    expect(stdout).to.contain('Copy')
+    expect(stdout).to.contain('packages/esm-starter-app')
+    expect(stdout).to.contain('packages/test-conch')
+  })
+
+  it('runs conch init cmd without name flag', async () => {
+    try {
+      await runCommand(['conch', 'init', '-w', '/tmp/test-workdir'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('name flag is required')
+    }
+  })
+
+  it('runs conch init cmd without workdir flag', async () => {
+    try {
+      await runCommand(['conch', 'init', '-n', 'test-conch', '-w', ''])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('workdir flag is required')
+    }
+  })
+
+  it('runs conch start cmd with --dry-run flag', async () => {
+    const {stdout} = await runCommand(['conch', 'start', '-n', 'test-conch', '-w', '/tmp/test-workdir', '--dry-run'])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('yarn start')
+  })
+
+  it('runs conch start cmd without name flag', async () => {
+    try {
+      await runCommand(['conch', 'start', '-w', '/tmp/test-workdir'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('name flag is required')
+    }
+  })
+
+  it('runs conch start cmd without workdir flag', async () => {
+    try {
+      await runCommand(['conch', 'start', '-n', 'test-conch', '-w', ''])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('workdir flag is required')
+    }
+  })
+
+  it('rejects conch start with non-existent directory', async () => {
+    try {
+      await runCommand(['conch', 'start', '-n', 'non-existent-app', '-w', '/non/existent/path'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Directory does not exist')
+    }
+  })
+
+  it('rejects invalid operation', async () => {
+    try {
+      await runCommand(['conch', 'invalid-op', '-n', 'test-conch'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      expect(err.message).to.contain('Invalid operation')
     }
   })
 })

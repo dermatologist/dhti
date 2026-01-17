@@ -1,0 +1,44 @@
+.container {
+  padding: 1rem;
+  background-color: var(--ui-01);
+  border: 1px solid var(--ui-03);
+  margin-bottom: 1rem;
+}
+
+.header {
+  margin-bottom: 1rem;
+  h3 {
+    margin: 0;
+  }
+}
+
+.content {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.observations, .aiInsights {
+  flex: 1;
+  min-width: 300px;
+}
+
+.observations ul {
+  list-style: none;
+  padding: 0;
+  li {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--ui-03);
+    padding-bottom: 0.25rem;
+  }
+}
+
+.aiContent {
+  background-color: var(--ui-02);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.error {
+  color: var(--support-01);
+}

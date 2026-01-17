@@ -1,8 +1,8 @@
-# DHTI Start Server Skill
+---
+ name: start-dhti
+ description: This skill enables AI agents to orchestrate the DHTI development workflow: installing elixirs and conches, and starting a fully functional DHTI server with all components installed.
+---
 
-## Description
-
-This skill enables AI agents to orchestrate the  DHTI development workflow: installing elixirs and conches, and starting a fully functional DHTI server with all components installed.
 
 ## When to Use This Skill
 
@@ -29,7 +29,6 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 
 1. **Verify Prerequisites:**
    - Check that Node.js, Docker, and Python are installed
-   - Install `uv` if not already present: `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`
    - Verify Docker is running: `docker ps`
 
 2. **Install DHTI CLI:**
@@ -41,11 +40,10 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 
 5. **Create Docker Compose Configuration:**
    ```bash
-   npx dhti-cli compose add -m openmrs -m langserve
+   npx dhti-cli compose add -m langserve
    ```
 
    This creates a Docker Compose configuration with:
-   - OpenMRS (EMR)
    - LangServe (GenAI backend)
    - Other necessary infrastructure
 
@@ -74,7 +72,7 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 
    Example:
    ```bash
-   npx dhti-cli elixir install -l /home/user/dhti/packages/elixir/dhti-elixir-glycemic -n dhti-elixir-glycemic
+   npx dhti-cli elixir install -l workspace/dhti-elixir/packages/glycemic_advisor -n glycemic_advisor
    ```
 
 8. **Build Elixir Docker Image:**
@@ -96,14 +94,9 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 
    Example:
    ```bash
-   npx dhti-cli conch install -l /home/user/dhti/packages/conch/openmrs-esm-dhti-glycemic -n openmrs-esm-dhti-glycemic
+   npx dhti-cli conch install -l workspace/openmrs-esm-dhti/packages/esm-glycemic-advisor -n esm-glycemic-advisor
    ```
 
-10. **Build Conch Docker Image:**
-    ```bash
-    npx dhti-cli docker -n dhti/conch-test:1.0 -t conch
-    ```
-      Replace `dhti` with your Docker Hub username or registry name if available from the original user prompt.
 
 ### Phase 5: Start DHTI Server
 
@@ -112,20 +105,30 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
     npx dhti-cli docker -u
     ```
 
-    This command starts all Docker containers defined in the compose file. Services typically include:
-    - OpenMRS on `http://localhost/openmrs`
-    - LangServe backend
+   - Start openmrs
+```
+npx dhti-cli conch start -n <conch-name>
+```
+
+Example:
+```
+npx dhti-cli conch start -n esm-glycemic-advisor
+```
+
+   - Login to OpenMRS with at `http://localhost:8080/openmrs/spa/home`
+     - Username: `admin`
+     - Password: `Admin123`
+
 
 
 12. **Wait for Services to Initialize:**
     - Wait 2-3 minutes for all services to fully start
-    - OpenMRS initialization can take time on first startup
     - Monitor logs: `docker compose logs -f`
 
 ### Phase 6: Verify and Test
 
 13. **Access OpenMRS:**
-    - Navigate to `http://localhost/openmrs/spa/home`
+    - Navigate to `http://localhost:8080/openmrs/spa/home`
     - Login credentials:
       - Username: `admin`
       - Password: `Admin123`
@@ -148,7 +151,7 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 ### Phase 9: Documentation and Handoff
 
 17. **Create Summary Documentation:**
-    - Document the complete setup in a `SETUP.md` file
+    - Document the complete setup in a `notes/<<name>>.md` file
     - Include:
       - Elixir name, location, and functionality
       - Conch name, location, and functionality
@@ -167,19 +170,6 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 
 ### Development Mode (Optional)
 
-19. **Hot Reload During Development:**
-
-    For Elixir development:
-    ```bash
-    npx dhti-cli elixir dev -d <elixir-path> -n <elixir-name>
-    ```
-
-    For Conch development:
-    ```bash
-    npx dhti-cli conch dev -d <conch-path> -n <conch-name>
-    ```
-
-    These commands copy updated files to running containers and restart them.
 
 ## Dry-Run Mode
 
@@ -201,12 +191,7 @@ A fully functional DHTI development environment that includes:
 - Accessible OpenMRS interface with the new functionality
 - Documentation for setup, testing, and development
 
-## Example Workflow
 
-See the `examples/` directory for complete end-to-end scenarios demonstrating:
-- Creating a glycemic control application
-- Building a medication interaction checker
-- Implementing a clinical decision support system
 
 ## Troubleshooting
 
@@ -244,9 +229,3 @@ Common issues and solutions:
 - **elixir-generator**: For generating standalone elixirs
 - **conch-generator**: For generating standalone conches
 
-## Support
-
-For more information about DHTI:
-- [DHTI Repository](https://github.com/dermatologist/dhti)
-- [DHTI Wiki](https://github.com/dermatologist/dhti/wiki)
-- [DHTI Documentation](https://dermatologist.github.io/dhti/)

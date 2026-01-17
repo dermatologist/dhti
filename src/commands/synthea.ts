@@ -41,7 +41,7 @@ interface SyntheaFlags {
 
 /**
  * Synthea command for managing synthetic FHIR data generation
- * 
+ *
  * This command provides subcommands to:
  * - install: Download and install Synthea JAR file
  * - generate: Generate synthetic FHIR data using Synthea
@@ -250,9 +250,7 @@ export default class Synthea extends Command {
       rmSync(dataDir, {force: true, recursive: true})
       console.log(chalk.green(`✓ Deleted: ${dataDir}`))
     } catch (error) {
-      this.error(
-        `Failed to delete directory: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      this.error(`Failed to delete directory: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -394,9 +392,7 @@ export default class Synthea extends Command {
         console.log(chalk.green(`✓ Extracted to ${outputDir}`))
       } catch (error) {
         console.log(
-          chalk.red(
-            `✗ Failed to download ${datasetKey}: ${error instanceof Error ? error.message : String(error)}`,
-          ),
+          chalk.red(`✗ Failed to download ${datasetKey}: ${error instanceof Error ? error.message : String(error)}`),
         )
       }
     }
@@ -431,11 +427,7 @@ export default class Synthea extends Command {
 
     // Check if JAR exists
     if (!existsSync(jarPath)) {
-      console.log(
-        chalk.red(
-          `✗ Synthea JAR not found at: ${jarPath}\nRun 'dhti-cli synthea install' first.`,
-        ),
-      )
+      console.log(chalk.red(`✗ Synthea JAR not found at: ${jarPath}\nRun 'dhti-cli synthea install' first.`))
       this.exit(1)
     }
 
@@ -481,9 +473,7 @@ export default class Synthea extends Command {
         console.log(chalk.white(`FHIR files location: ${fhirDir}`))
       }
     } catch (error) {
-      this.error(
-        `Failed to generate synthetic data: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      this.error(`Failed to generate synthetic data: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -568,9 +558,7 @@ export default class Synthea extends Command {
       fileStream.end()
       console.log('\n' + chalk.green(`✓ Downloaded synthea-with-dependencies.jar to ${jarPath}`))
     } catch (error) {
-      this.error(
-        `Failed to download Synthea JAR: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      this.error(`Failed to download Synthea JAR: ${error instanceof Error ? error.message : String(error)}`)
     }
 
     // Display usage instructions
@@ -611,11 +599,7 @@ export default class Synthea extends Command {
 
     // Check if FHIR directory exists
     if (!existsSync(fhirDir)) {
-      console.log(
-        chalk.red(
-          `✗ FHIR data directory not found: ${fhirDir}\nRun 'dhti-cli synthea generate' first.`,
-        ),
-      )
+      console.log(chalk.red(`✗ FHIR data directory not found: ${fhirDir}\nRun 'dhti-cli synthea generate' first.`))
       this.exit(1)
     }
 
@@ -672,19 +656,11 @@ export default class Synthea extends Command {
           console.log(chalk.green(`  ✓ Uploaded ${file}`))
         } else {
           failCount++
-          console.log(
-            chalk.red(
-              `  ✗ Failed to upload ${file}: ${response.status} ${response.statusText}`,
-            ),
-          )
+          console.log(chalk.red(`  ✗ Failed to upload ${file}: ${response.status} ${response.statusText}`))
         }
       } catch (error) {
         failCount++
-        console.log(
-          chalk.red(
-            `  ✗ Error uploading ${file}: ${error instanceof Error ? error.message : String(error)}`,
-          ),
-        )
+        console.log(chalk.red(`  ✗ Error uploading ${file}: ${error instanceof Error ? error.message : String(error)}`))
       }
     }
 
