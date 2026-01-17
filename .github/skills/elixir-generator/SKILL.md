@@ -1,8 +1,7 @@
-# DHTI Elixir Generator Skill
-
-## Description
-
-This skill enables AI agents to generate new DHTI elixir projects. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding, studying reference implementations, and implementing the requested elixir functionality.
+---
+name: elixir-generator
+description: This skill enables AI agents to generate new DHTI elixir projects from a cookiecutter template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
+---
 
 ## When to Use This Skill
 
@@ -11,6 +10,12 @@ Use this skill when you need to:
 - Generate a LangServe-based backend service with FHIR integration
 - Implement clinical decision support services using LangChain
 - Build AI-powered EMR chatbot functionalities
+
+## Best Practices
+* Each elixir should focus ONLY on a single function. (e.g. file upload and glycemic recommender should be separate elixirs). If multiple functionalities are needed, create multiple elixirs and orchestrate them.
+* Reuse existing elixirs where possible instead of creating new ones. You may refer to the list of existing elixirs in the DHTI monorepo: https://github.com/dermatologist/dhti-elixir#available-elixirs
+* Always create a notes/README.md file documenting the purpose, functionality, and usage of the elixir, including additional configuration steps if any as well as other elixirs or services it depends on and needs to be installed alongside.
+* If a RAG pattern is needed, use redis vector stores. Use neo4j to represent complex graphs. Read src/resources/docker-compose.yml to understand how redis and neo4j containers will be spun up. Prefer using existing elixirs if any and mention the dependency in notes/README.md.
 
 ## Instructions
 

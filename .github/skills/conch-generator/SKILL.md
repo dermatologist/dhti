@@ -1,6 +1,7 @@
-# OpenMRS Conch Agent Skill
-
-This skill helps you generate a new OpenMRS ESM microfrontend (DHTI conch) from this template. Use this skill when you need to create a new DHTI-enabled microfrontend that integrates with the OpenMRS 3.x ecosystem.
+---
+name: conch-generator
+description: This skill helps you generate a new OpenMRS ESM microfrontend (DHTI conch) from this template. Use this skill when you need to create a new DHTI-enabled microfrontend that integrates with the OpenMRS 3.x ecosystem.
+---
 
 ## Skill Purpose
 

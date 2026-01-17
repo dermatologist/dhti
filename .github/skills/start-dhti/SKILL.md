@@ -1,8 +1,8 @@
-# DHTI Start Server Skill
+---
+ name: start-dhti
+ description: This skill enables AI agents to orchestrate the DHTI development workflow: installing elixirs and conches, and starting a fully functional DHTI server with all components installed.
+---
 
-## Description
-
-This skill enables AI agents to orchestrate the  DHTI development workflow: installing elixirs and conches, and starting a fully functional DHTI server with all components installed.
 
 ## When to Use This Skill
 
