@@ -230,4 +230,78 @@ describe('elixir', () => {
     expect(stdout).to.contain('Remove dependency')
     expect(stdout).to.contain('Remove source')
   })
+
+  it('shows success message on install', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'success-test',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would update files')
+  })
+
+  it('shows success message on uninstall', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'uninstall',
+      '-n',
+      'success-uninstall-test',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would update files')
+  })
+
+  it('correctly formats dependency and source in pyproject', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'test-format',
+      '-g',
+      'https://github.com/test/monorepo.git',
+      '-s',
+      'packages/elixir1',
+      '-b',
+      'main',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('test_format')
+    expect(stdout).to.contain('subdirectory = "packages/elixir1"')
+    expect(stdout).to.contain('branch = "main"')
+  })
+
+  it('handles multiple installs without duplication with dry-run', async () => {
+    const {stdout: firstInstall} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'multi-test-1',
+      '-g',
+      'https://github.com/test/repo1',
+      '--dry-run',
+    ])
+    expect(firstInstall).to.contain('Add dependency')
+    expect(firstInstall).to.contain('multi_test_1')
+
+    const {stdout: secondInstall} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'multi-test-2',
+      '-g',
+      'https://github.com/test/repo2',
+      '--dry-run',
+    ])
+    expect(secondInstall).to.contain('Add dependency')
+    expect(secondInstall).to.contain('multi_test_2')
+  })
 })

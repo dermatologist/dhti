@@ -408,12 +408,56 @@ export default class Elixir extends Command {
       lineToAdd = `${flags.name} = { path = "${absolutePath}" }`
     }
 
-    if (!flags['dry-run']) {
-      pyproject = pyproject.replace('dependencies = [', `dependencies = [\n"${flags.name}",`)
-      pyproject = pyproject.replace('[tool.uv.sources]', `[tool.uv.sources]\n${lineToAdd}\n`)
+    // Helper function to add dependency to pyproject.toml
+    const addDependencyToPyproject = (content: string, depName: string): string => {
+      // Check if dependency already exists
+      if (content.includes(`"${depName}"`)) {
+        return content
+      }
+
+      // Add to dependencies array
+      return content.replace('dependencies = [', `dependencies = [\n"${depName}",`)
     }
 
-    const newPyproject = pyproject
+    // Helper function to add source to pyproject.toml
+    const addSourceToPyproject = (content: string, source: string): string => {
+      // Check if source already exists (by checking for the package name)
+      if (content.includes(`${flags.name} =`)) {
+        return content
+      }
+
+      // Add to [tool.uv.sources] section
+      return content.replace('[tool.uv.sources]', `[tool.uv.sources]\n${source}\n`)
+    }
+
+    // Helper function to remove dependency from pyproject.toml
+    const removeDependencyFromPyproject = (content: string, depName: string): string => {
+      // Remove from dependencies array - handle both formats: "depName", or "depName",\n
+      let result = content.replace(`"${depName}",`, '').replace(`"${depName}"`, '')
+
+      // Also try to remove with newline variations
+      result = result.replace(`\n"${depName}",`, '').replace(`"${depName}",\n`, '')
+
+      return result
+    }
+
+    // Helper function to remove source from pyproject.toml
+    const removeSourceFromPyproject = (content: string, pkgName: string): string => {
+      // Remove source line for this package
+      const sourceRegex = new RegExp(`${pkgName}\\s*=\\s*\\{[^}]*\\}\n?`, 'g')
+      return content.replace(sourceRegex, '')
+    }
+
+    let newPyproject = pyproject
+    if (!flags['dry-run']) {
+      if (args.op === 'install') {
+        newPyproject = addDependencyToPyproject(pyproject, flags.name)
+        newPyproject = addSourceToPyproject(newPyproject, lineToAdd)
+      } else if (args.op === 'uninstall') {
+        newPyproject = removeDependencyFromPyproject(pyproject, flags.name)
+        newPyproject = removeSourceFromPyproject(newPyproject, flags.name)
+      }
+    }
 
     // Add the elixir import and bootstrap to the server.py file
     let CliImport = `from ${expoName}.bootstrap import bootstrap as ${expoName}_bootstrap\n`
@@ -424,25 +468,43 @@ ${expoName}_chain = ${expoName}_chain_class().get_chain_as_langchain_tool()
 ${expoName}_mcp_tool = ${expoName}_chain_class().get_chain_as_mcp_tool
 mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
     `
-    let newCliImport = ''
-    if (!flags['dry-run']) {
-      newCliImport = fs
-        .readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
-        .replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
+    const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
+    const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
+    const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
+
+    // Helper function to add elixir to server.py
+    const addElixirToServer = (content: string, elixirName: string): string => {
+      // Check if elixir already installed
+      if (content.includes(`${elixirName}_bootstrap`)) {
+        return content
+      }
+
+      let result = content
+      result = result.replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
+      result = result.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
+      result = result.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+      result = result.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+
+      return result
     }
 
-    const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
-    const newLangfuseRoute = flags['dry-run']
-      ? ''
-      : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-    const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
-    const newNormalRoute = flags['dry-run']
-      ? ''
-      : newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
-    const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
-    const finalRoute = flags['dry-run']
-      ? ''
-      : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+    // Helper function to remove elixir from server.py
+    const removeElixirFromServer = (content: string): string => {
+      let result = content
+      result = result.replace(CliImport, '')
+      result = result.replace(langfuseRoute, '')
+      result = result.replace(normalRoute, '')
+      result = result.replace(commonRoutes, '')
+
+      return result
+    }
+
+    let finalRoute = currentServer
+    if (!flags['dry-run'] && args.op === 'install') {
+      finalRoute = addElixirToServer(currentServer, expoName)
+    } else if (!flags['dry-run'] && args.op === 'uninstall') {
+      finalRoute = removeElixirFromServer(currentServer)
+    }
 
     if (args.op === 'install') {
       if (flags['dry-run']) {
@@ -455,6 +517,7 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
       } else {
         fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
         fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
+        console.log(chalk.green(`✓ Elixir '${flags.name}' installed successfully`))
       }
     }
 
@@ -467,15 +530,9 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
         console.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
         console.log(chalk.green(`    Remove import and routes for ${expoName}`))
       } else {
-        // if args.op === uninstall, remove the line from the pyproject.toml file
-        fs.writeFileSync(
-          `${elixirDir}/pyproject.toml`,
-          pyproject.replace(lineToAdd, '').replace(`"${flags.name}",`, ''),
-        )
-        let newServer = currentServer.replace(CliImport, '')
-        newServer = newServer.replace(langfuseRoute, '')
-        newServer = newServer.replace(normalRoute, '')
-        fs.writeFileSync(`${elixirDir}/app/server.py`, newServer)
+        fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
+        fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
+        console.log(chalk.green(`✓ Elixir '${flags.name}' uninstalled successfully`))
       }
     }
   }
