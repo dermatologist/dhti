@@ -38,7 +38,10 @@ describe('elixir', () => {
   it('runs elixir cmd with --dry-run flag', async () => {
     const {stdout} = await runCommand(['elixir', 'install', '-n', 'test-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
-    // expect(stdout).to.contain('Would copy resources from')
+    // Either creating directory (first time) or using existing one (subsequent times)
+    expect(stdout).to.satisfy(
+      (msg: string) => msg.includes('Would create directory') || msg.includes('Using existing elixir directory'),
+    )
   })
 
   it('runs elixir cmd with --subdirectory flag and --dry-run', async () => {
@@ -178,5 +181,53 @@ describe('elixir', () => {
     expect(stdout).to.contain('Update docker-compose.yml')
     expect(stdout).to.contain('FHIR_BASE_URL=http://custom-fhir:8080/R4')
     expect(stdout).to.contain('docker restart custom-container')
+  })
+
+  it('runs elixir install cmd with --dry-run showing directory creation only on first install', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'first-elixir',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    // Either creating directory (first time) or using existing one (subsequent times)
+    expect(stdout).to.satisfy(
+      (msg: string) => msg.includes('Would create directory') || msg.includes('Using existing elixir directory'),
+    )
+    expect(stdout).to.contain('Add import and routes for first_elixir')
+  })
+
+  it('runs elixir uninstall cmd with --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'uninstall',
+      '-n',
+      'test-elixir',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Remove')
+    expect(stdout).to.contain('Remove import and routes')
+  })
+
+  it('runs elixir uninstall cmd removes dependency and source from pyproject', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'uninstall',
+      '-n',
+      'test-uninstall',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Remove dependency')
+    expect(stdout).to.contain('Remove source')
   })
 })

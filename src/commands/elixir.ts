@@ -330,45 +330,47 @@ export default class Elixir extends Command {
       return
     }
 
-    // Create a directory to install the elixir
-    if (!fs.existsSync(`${flags.workdir}/elixir`)) {
+    // Create a directory to install the elixir (only on first install)
+    const elixirDir = `${flags.workdir}/elixir`
+    const isFirstInstall = !fs.existsSync(elixirDir)
+
+    if (isFirstInstall) {
       if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${flags.workdir}/elixir`))
+        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${elixirDir}`))
+        console.log(chalk.yellow(`[DRY RUN] Would copy resources from ${RESOURCES_DIR}/genai to ${elixirDir}`))
       } else {
-        fs.mkdirSync(`${flags.workdir}/elixir`)
+        fs.mkdirSync(elixirDir)
+        fs.cpSync(path.join(RESOURCES_DIR, 'genai'), elixirDir, {recursive: true})
+        console.log(chalk.blue(`✓ Initialized elixir directory at ${elixirDir}`))
       }
+    } else if (args.op === 'install') {
+      console.log(chalk.blue(`Using existing elixir directory at ${elixirDir}`))
     }
 
-    if (flags['dry-run']) {
-      console.log(chalk.yellow(`[DRY RUN] Would copy resources from ${RESOURCES_DIR}/genai to ${flags.workdir}/elixir`))
-    } else {
-      fs.cpSync(path.join(RESOURCES_DIR, 'genai'), `${flags.workdir}/elixir`, {recursive: true})
-    }
-
-    // if whl is not none, copy the whl file to thee whl directory
+    // if whl is not none, copy the whl file to the whl directory
     if (flags.whl !== 'none') {
-      if (!fs.existsSync(`${flags.workdir}/elixir/whl/`)) {
+      const whlDir = `${elixirDir}/whl/`
+      if (!fs.existsSync(whlDir)) {
         if (flags['dry-run']) {
-          console.log(chalk.yellow(`[DRY RUN] Would create directory: ${flags.workdir}/whl/`))
+          console.log(chalk.yellow(`[DRY RUN] Would create directory: ${whlDir}`))
         } else {
-          fs.mkdirSync(`${flags.workdir}/whl/`)
+          fs.mkdirSync(whlDir)
         }
       }
 
       if (flags['dry-run']) {
-        console.log(
-          chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`),
-        )
-        console.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify boostrap.py file if needed'))
+        console.log(chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${whlDir}${path.basename(flags.whl)}`))
+        console.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify bootstrap.py file if needed'))
       } else {
-        fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
-        console.log('Installing elixir from whl file. Please modify boostrap.py file if needed')
+        fs.cpSync(flags.whl, `${whlDir}${path.basename(flags.whl)}`)
+        console.log('Installing elixir from whl file. Please modify bootstrap.py file if needed')
       }
     }
 
     // Install the elixir from git adding to the pyproject.toml file
-    let pyproject = flags['dry-run'] ? '' : fs.readFileSync(`${flags.workdir}/elixir/pyproject.toml`, 'utf8')
-    const originalServer = flags['dry-run'] ? '' : fs.readFileSync(`${flags.workdir}/elixir/app/server.py`, 'utf8')
+    // Always read from the current state, not the template
+    let pyproject = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/pyproject.toml`, 'utf8')
+    const currentServer = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/app/server.py`, 'utf8')
     let lineToAdd = ''
     if (flags.whl !== 'none') {
       lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
@@ -442,35 +444,38 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
       ? ''
       : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
 
-    // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would update files:'))
-        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/pyproject.toml`))
+        console.log(chalk.cyan(`  - ${elixirDir}/pyproject.toml`))
         console.log(chalk.green(`    Add dependency: "${flags.name}"`))
         console.log(chalk.green(`    Add source: ${lineToAdd}`))
-        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/app/server.py`))
+        console.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
         console.log(chalk.green(`    Add import and routes for ${expoName}`))
       } else {
-        fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, newPyproject)
-        fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, finalRoute)
+        fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
+        fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
       }
     }
 
     if (args.op === 'uninstall') {
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would update files:'))
-        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/pyproject.toml`))
+        console.log(chalk.cyan(`  - ${elixirDir}/pyproject.toml`))
+        console.log(chalk.green(`    Remove dependency: "${flags.name}"`))
         console.log(chalk.green(`    Remove source: ${lineToAdd}`))
-        console.log(chalk.cyan(`  - ${flags.workdir}/elixir/app/server.py`))
+        console.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
         console.log(chalk.green(`    Remove import and routes for ${expoName}`))
       } else {
         // if args.op === uninstall, remove the line from the pyproject.toml file
-        fs.writeFileSync(`${flags.workdir}/elixir/pyproject.toml`, pyproject.replace(lineToAdd, ''))
-        let newServer = originalServer.replace(CliImport, '')
+        fs.writeFileSync(
+          `${elixirDir}/pyproject.toml`,
+          pyproject.replace(lineToAdd, '').replace(`"${flags.name}",`, ''),
+        )
+        let newServer = currentServer.replace(CliImport, '')
         newServer = newServer.replace(langfuseRoute, '')
         newServer = newServer.replace(normalRoute, '')
-        fs.writeFileSync(`${flags.workdir}/elixir/app/server.py`, newServer)
+        fs.writeFileSync(`${elixirDir}/app/server.py`, newServer)
       }
     }
   }
