@@ -370,7 +370,6 @@ export default class Elixir extends Command {
     // Install the elixir from git adding to the pyproject.toml file
     // Always read from the current state, not the template
     let pyproject = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/pyproject.toml`, 'utf8')
-    const currentServer = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/app/server.py`, 'utf8')
     let lineToAdd = ''
     if (flags.whl !== 'none') {
       lineToAdd = `${flags.name} = { file = "whl/${path.basename(flags.whl)}" }`
@@ -473,23 +472,66 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
     const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
 
     // Helper function to add elixir to server.py
-    const addElixirToServer = (content: string, elixirName: string): string => {
+    // The strategy is to append imports BEFORE the 'import uvicorn' line
+    // and append routes AFTER the route marker comments
+    const addElixirToServer = (elixirName: string): string => {
+      // Read fresh file content each time to get the current state
+      const content = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/app/server.py`, 'utf8')
+
+      if (flags['dry-run'] || content === '') {
+        return ''
+      }
+
       // Check if elixir already installed
       if (content.includes(`${elixirName}_bootstrap`)) {
         return content
       }
 
       let result = content
-      result = result.replace('# DHTI_CLI_IMPORT', `#DHTI_CLI_IMPORT\n${CliImport}`)
-      result = result.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
-      result = result.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
-      result = result.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+
+      // Find where to insert the import - look for 'import uvicorn' and insert before it
+      // This way, all imports are together before uvicorn import
+      if (!result.includes('import uvicorn')) {
+        console.error(chalk.red('Error: Could not find "import uvicorn" marker in server.py'))
+        return content
+      }
+
+      result = result.replace('import uvicorn', `${CliImport}\nimport uvicorn`)
+
+      // For routes, we need to insert into both langfuse and normal route sections
+      // But only if they exist
+      // Find the langfuse try block and insert before 'except'
+      if (result.includes('except:')) {
+        // Insert langfuse route before except with proper indentation
+        result = result.replace('except:', `    ${langfuseRoute}\n\nexcept:`)
+
+        // Insert normal route in the except block, after the '# DHTI_NORMAL_ROUTE' marker
+        result = result.replace('# DHTI_NORMAL_ROUTE\n', `# DHTI_NORMAL_ROUTE\n    ${normalRoute}\n`)
+      }
+
+      // For common routes, look for the marker and append with proper indentation
+      const commonRoutesMarker = '# DHTI_COMMON_ROUTE'
+      if (result.includes(commonRoutesMarker)) {
+        // Get the exact indentation by checking what comes after the marker
+        const markerIndex = result.indexOf(commonRoutesMarker)
+        const afterMarker = result.substring(markerIndex + commonRoutesMarker.length)
+        const newlineAndIndent = afterMarker.match(/\n[ \t]*/)?.[0] || '\n'
+
+        result = result.replace(commonRoutesMarker, `${commonRoutesMarker}${newlineAndIndent}${commonRoutes}`)
+      }
 
       return result
     }
 
     // Helper function to remove elixir from server.py
-    const removeElixirFromServer = (content: string): string => {
+    const removeElixirFromServer = (): string => {
+      // Read fresh file content each time to get the current state
+      const content = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/app/server.py`, 'utf8')
+
+      if (flags['dry-run'] || content === '') {
+        return ''
+      }
+
       let result = content
       result = result.replace(CliImport, '')
       result = result.replace(langfuseRoute, '')
@@ -499,11 +541,11 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
       return result
     }
 
-    let finalRoute = currentServer
+    let finalRoute = ''
     if (!flags['dry-run'] && args.op === 'install') {
-      finalRoute = addElixirToServer(currentServer, expoName)
+      finalRoute = addElixirToServer(expoName)
     } else if (!flags['dry-run'] && args.op === 'uninstall') {
-      finalRoute = removeElixirFromServer(currentServer)
+      finalRoute = removeElixirFromServer()
     }
 
     if (args.op === 'install') {
