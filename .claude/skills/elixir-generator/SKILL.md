@@ -1,8 +1,7 @@
-# DHTI Elixir Generator Skill
-
-## Description
-
-This skill enables AI agents to generate new DHTI elixir projects. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding, studying reference implementations, and implementing the requested elixir functionality.
+---
+name: elixir-generator
+description: This skill enables AI agents to generate new DHTI elixir projects from a cookiecutter template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
+---
 
 ## When to Use This Skill
 
@@ -11,6 +10,12 @@ Use this skill when you need to:
 - Generate a LangServe-based backend service with FHIR integration
 - Implement clinical decision support services using LangChain
 - Build AI-powered EMR chatbot functionalities
+
+## Best Practices
+* Each elixir should focus ONLY on a single function. (e.g. file upload and glycemic recommender should be separate elixirs). If multiple functionalities are needed, create multiple elixirs and orchestrate them.
+* Reuse existing elixirs where possible instead of creating new ones. You may refer to the list of existing elixirs in the DHTI monorepo: https://github.com/dermatologist/dhti-elixir#available-elixirs
+* Always create a notes/README.md file documenting the purpose, functionality, and usage of the elixir, including additional configuration steps if any as well as other elixirs or services it depends on and needs to be installed alongside.
+* If a RAG pattern is needed, use redis vector stores. Use neo4j to represent complex graphs. Read src/resources/docker-compose.yml to understand how redis and neo4j containers will be spun up. Prefer using existing elixirs if any and mention the dependency in notes/README.md.
 
 ## Instructions
 
@@ -28,12 +33,14 @@ You are an elixir coding agent working in a fresh development environment.
    npx dhti-cli elixir init -w workspace -n <<name>>
    ```
 
-* **Study the reference implementation. carefully read and understand** the following reference files, paying attention to patterns, structure, and responsibilities:
+* **Adapt the starter implementation**
+  - Rename workspace/dhti-elixir/packages/<<name>>/dhti_elixir_starter to workspace/dhti-elixir/packages/<<name>>/dhti_elixir_<<name>>
+  - You have to replace "starter" with your chosen name wherever applicable with dhti_elixir_<<name>> in the generated project.
 
 - **Implementation:**
   - chain.py:
     - The main class should be named "DhtiChain" inheriting from BaseChain ( from package dhti_elixir_base)
-    - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["<project_slug>_main_llm"] and di["<project_slug>_function_llm"] respectively. Substitute <project_slug> with the project slug. The default prompt should also be injected as di["<project_slug>_prompt"]. Additional hyperparameters can be injected as needed.
+    - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["dhti_elixir_<<name>>_main_llm"] and di["dhti_elixir_<<name>>_function_llm"] respectively. The default prompt should also be injected as di["dhti_elixir_<<name>>_prompt"]. Additional hyperparameters can be injected as needed. (Replace <<name>> with your chosen name)
     - Plan how the problem can be solved using LangChain constructs (chains, agents, tools, callbacks, etc.) following the patterns in the reference chain.py.
 - **Bootstrap / configuration of the chain:**
   - bootstrap.py:
@@ -45,7 +52,7 @@ You are an elixir coding agent working in a fresh development environment.
     - The cds_hook_discovery should be configured as follows:
 
 ```python
-di["<<name>>_cds_hook_discovery"] = {  # <- Substitute <project_slug> with the project slug
+di["dhti_elixir_<<name>>_cds_hook_discovery"] = {  # <- <<name>>
     "services": [
         {
             "id": "dhti-service",   # <- Keep as is
