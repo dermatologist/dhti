@@ -19,6 +19,7 @@ export default class Conch extends Command {
     '<%= config.bin %> <%= command.id %> install -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> init -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects',
+    '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects -s packages/chatbot -s packages/utils',
   ]
 
   static override flags = {
@@ -39,7 +40,9 @@ export default class Conch extends Command {
     name: Flags.string({char: 'n', description: 'Name of the conch'}),
     sources: Flags.string({
       char: 's',
-      description: 'Additional sources to include when starting (e.g., packages/esm-chatbot-agent)',
+      multiple: true,
+      description:
+        'Additional sources to include when starting (e.g., packages/esm-chatbot-agent, packages/esm-another-app)',
     }),
     workdir: Flags.string({
       char: 'w',
@@ -123,8 +126,10 @@ export default class Conch extends Command {
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
         console.log(chalk.cyan(`  cd ${targetDir}`))
         let dryRunCommand = 'corepack enable && yarn install && yarn start'
-        if (flags.sources) {
-          dryRunCommand += ` --sources '${flags.sources}'`
+        if (flags.sources && flags.sources.length > 0) {
+          for (const source of flags.sources) {
+            dryRunCommand += ` --sources '${source}'`
+          }
         }
 
         console.log(chalk.cyan(`  ${dryRunCommand}`))
@@ -144,8 +149,10 @@ export default class Conch extends Command {
 
         // Build the start command with sources flag if provided
         let startCommand = 'corepack enable && yarn install && yarn start'
-        if (flags.sources) {
-          startCommand += ` --sources '${flags.sources}'`
+        if (flags.sources && flags.sources.length > 0) {
+          for (const source of flags.sources) {
+            startCommand += ` --sources '${source}'`
+          }
         }
 
         // Spawn corepack enable && yarn install && yarn start with stdio inheritance to show output and allow Ctrl-C
@@ -195,7 +202,7 @@ export default class Conch extends Command {
       }
 
       // Warn if sources flag is used with install (not applicable)
-      if (flags.sources) {
+      if (flags.sources && flags.sources.length > 0) {
         console.warn(
           chalk.yellow('Warning: --sources flag is not applicable for install operation. It will be ignored.'),
         )
@@ -219,8 +226,10 @@ export default class Conch extends Command {
         console.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
         console.log(chalk.blue(`\nTo start development, run:`))
         let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
-        if (flags.sources) {
-          startCmd += ` -s '${flags.sources}'`
+        if (flags.sources && flags.sources.length > 0) {
+          for (const source of flags.sources) {
+            startCmd += ` -s '${source}'`
+          }
         }
 
         console.log(chalk.cyan(`  ${startCmd}`))
