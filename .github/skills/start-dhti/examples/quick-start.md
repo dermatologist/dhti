@@ -7,11 +7,12 @@ This is a  reference for using the start-dhti skill to create complete DHTI appl
 
 Create a simple DHTI application:
 
-1. Spin up dhti with only openmrs and langserve modules.
-2. Install the elixir from the directory ~/dhti/packages/dhti_elixir_glycemic.
-3. Install the conch from the directory ~/dhti/packages/openmrs-esm-dhti-glycemic.
-4. Start the docker containers.
+1. Spin up dhti with only langserve modules.
+2. Install the elixir from the directory workspace/dhti-elixir/packages/glycemic_advisor.
+3. Install the conch from the directory workspace/openmrs-esm-dhti/packages/esm-glycemic-advisor.
+4. Start the docker container.
 5. Verify everything is working end to end.
+6. Start openmrs and it in browser.
 
 
 Use start-dhti skill.

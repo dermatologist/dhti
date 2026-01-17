@@ -1,13 +1,18 @@
 import {Args, Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
+// eslint-disable-next-line import/default
+import yaml from 'js-yaml'
 import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
+import {promisify} from 'node:util'
+
+const execAsync = promisify(exec)
 export default class Elixir extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install, uninstall or dev)'}),
+    op: Args.string({description: 'Operation to perform (init, install, uninstall, dev or start)'}),
   }
 
   static override description = 'Install or uninstall elixirs to create a Docker image'
@@ -25,6 +30,15 @@ export default class Elixir extends Command {
     'dry-run': Flags.boolean({
       default: false,
       description: 'Show what changes would be made without actually making them',
+    }),
+    elixir: Flags.string({
+      char: 'e',
+      description: 'Elixir endpoint URL',
+    }),
+    fhir: Flags.string({
+      char: 'f',
+      default: 'http://hapi.fhir.org/baseR4',
+      description: 'FHIR endpoint URL',
     }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
     local: Flags.string({char: 'l', default: 'none', description: 'Local directory to install from'}),
@@ -56,6 +70,219 @@ export default class Elixir extends Command {
     const __dirname = path.dirname(__filename)
     const RESOURCES_DIR = path.resolve(__dirname, '../resources')
 
+    // Handle init operation
+    if (args.op === 'init') {
+      // Validate required flags
+      if (!flags.workdir) {
+        console.error(chalk.red('Error: workdir flag is required for init operation'))
+        this.exit(1)
+      }
+
+      if (!flags.name) {
+        console.error(chalk.red('Error: name flag is required for init operation'))
+        this.exit(1)
+      }
+
+      const targetDir = path.join(flags.workdir, 'dhti-elixir')
+
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
+        console.log(chalk.cyan(`  npx degit dermatologist/dhti-elixir ${targetDir}`))
+        console.log(chalk.cyan(`  Copy ${targetDir}/packages/starter to ${targetDir}/packages/${flags.name}`))
+        return
+      }
+
+      try {
+        // Run npx degit to clone the dhti-elixir template
+        console.log(chalk.blue(`Initializing DHTI elixir template in ${targetDir}...`))
+        const degitCommand = `npx degit dermatologist/dhti-elixir ${targetDir}`
+        await execAsync(degitCommand)
+        console.log(chalk.green('✓ DHTI elixir template cloned successfully'))
+
+        // Copy packages/starter subdirectory to packages/<name>
+        const simpleChatSource = path.join(targetDir, 'packages', 'starter')
+        const targetPackageDir = path.join(targetDir, 'packages', flags.name)
+
+        if (fs.existsSync(simpleChatSource)) {
+          console.log(chalk.blue(`Copying starter to packages/${flags.name}...`))
+          fs.cpSync(simpleChatSource, targetPackageDir, {recursive: true})
+          console.log(chalk.green(`✓ starter copied to packages/${flags.name}`))
+        } else {
+          console.log(chalk.yellow(`Warning: starter not found at ${simpleChatSource}`))
+        }
+
+        console.log(chalk.green(`\n✓ Initialization complete! Your elixir workspace is ready at ${targetDir}`))
+        console.log(chalk.blue(`\nNext steps:`))
+        console.log(chalk.cyan(`  1. cd ${targetDir}`))
+        console.log(chalk.cyan(`  2. Follow the README.md for development instructions`))
+      } catch (error) {
+        console.error(chalk.red('Error during initialization:'), error)
+        this.exit(1)
+      }
+
+      return
+    }
+
+    // Handle start operation
+    if (args.op === 'start') {
+      // Determine the elixir endpoint URL
+      let elixirUrl = flags.elixir
+      if (!elixirUrl) {
+        // If --elixir is not provided, construct it from --name
+        if (!flags.name) {
+          console.error(chalk.red('Error: Either --elixir or --name flag must be provided for start operation'))
+          this.exit(1)
+        }
+
+        const nameWithUnderscores = flags.name.replaceAll('-', '_')
+        elixirUrl = `http://localhost:8001/langserve/${nameWithUnderscores}/cds-services`
+      }
+
+      const sandboxDir = path.join(flags.workdir, 'cds-hooks-sandbox')
+
+      if (flags['dry-run']) {
+        const directoryExists = fs.existsSync(sandboxDir)
+        console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
+        if (directoryExists) {
+          console.log(chalk.cyan(`  [SKIP] Directory already exists: ${sandboxDir}`))
+        } else {
+          console.log(chalk.cyan(`  npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`))
+          console.log(chalk.cyan(`  cd ${sandboxDir}`))
+          console.log(chalk.cyan(`  yarn install`))
+        }
+
+        console.log(chalk.cyan(`  yarn dhti ${elixirUrl} ${flags.fhir}`))
+        console.log(chalk.cyan(`  Update docker-compose.yml FHIR_BASE_URL=${flags.fhir}`))
+        console.log(chalk.cyan(`  docker restart ${flags.container}`))
+        console.log(chalk.cyan(`  yarn dev`))
+        return
+      }
+
+      try {
+        // Check if the directory already exists
+        const directoryExists = fs.existsSync(sandboxDir)
+
+        if (directoryExists) {
+          console.log(chalk.blue(`Using existing CDS Hooks Sandbox at ${sandboxDir}...`))
+          console.log(chalk.green('✓ Skipped clone and install (directory already exists)'))
+        } else {
+          // Clone the cds-hooks-sandbox repository
+          console.log(chalk.blue(`Cloning CDS Hooks Sandbox to ${sandboxDir}...`))
+          const degitCommand = `npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`
+          await execAsync(degitCommand)
+          console.log(chalk.green('✓ CDS Hooks Sandbox cloned successfully'))
+
+          // Install dependencies
+          console.log(chalk.blue('Installing dependencies...'))
+          const installCommand = `cd ${sandboxDir} && yarn install`
+          const {stderr: installError} = await execAsync(installCommand)
+          if (installError && !installError.includes('warning')) {
+            console.error(chalk.yellow(`Installation warnings: ${installError}`))
+          }
+
+          console.log(chalk.green('✓ Dependencies installed successfully'))
+        }
+
+        // Configure dhti endpoints
+        console.log(chalk.blue('Configuring DHTI endpoints...'))
+        const dhtiCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${flags.fhir}`
+        const {stderr: dhtiError} = await execAsync(dhtiCommand)
+        if (dhtiError && !dhtiError.includes('warning')) {
+          console.error(chalk.yellow(`Configuration warnings: ${dhtiError}`))
+        }
+
+        console.log(chalk.green('✓ DHTI endpoints configured successfully'))
+
+        // Configure Docker container with FHIR_BASE_URL environment variable
+        console.log(chalk.blue('Setting up Docker container environment...'))
+        try {
+          // Update the docker-compose.yml file with the new FHIR_BASE_URL
+          const dockerComposeFile = path.join(flags.workdir, 'docker-compose.yml')
+          if (fs.existsSync(dockerComposeFile)) {
+            const composeContent = fs.readFileSync(dockerComposeFile, 'utf8')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const compose = yaml.load(composeContent) as Record<string, any>
+
+            if (compose.services && compose.services.langserve) {
+              if (!compose.services.langserve.environment) {
+                compose.services.langserve.environment = []
+              }
+
+              // Update or add the FHIR_BASE_URL environment variable
+              const envArray = compose.services.langserve.environment
+              const fhirIndex = envArray.findIndex((env: string | Record<string, string>) => {
+                if (typeof env === 'string') {
+                  return env.startsWith('FHIR_BASE_URL=')
+                }
+
+                return typeof env === 'object' && env !== null && 'FHIR_BASE_URL' in env
+              })
+
+              if (fhirIndex >= 0) {
+                // Update existing environment variable
+                const existingEnv = envArray[fhirIndex]
+                if (typeof existingEnv === 'string') {
+                  envArray[fhirIndex] = `FHIR_BASE_URL=${flags.fhir}`
+                } else if (typeof existingEnv === 'object' && existingEnv !== null) {
+                  existingEnv.FHIR_BASE_URL = flags.fhir
+                }
+              } else {
+                // Add new environment variable
+                envArray.push(`FHIR_BASE_URL=${flags.fhir}`)
+              }
+
+              const updatedCompose = yaml.dump(compose)
+              fs.writeFileSync(dockerComposeFile, updatedCompose)
+              console.log(chalk.green(`✓ docker-compose.yml updated with FHIR_BASE_URL=${flags.fhir}`))
+            } else {
+              console.warn(chalk.yellow('⚠ Warning: langserve service not found in docker-compose.yml'))
+            }
+          } else {
+            console.warn(chalk.yellow(`⚠ Warning: docker-compose.yml not found at ${dockerComposeFile}`))
+          }
+
+          // Restart the container to apply the new environment variables
+          const upCommand = `docker compose up -d` // Docker Compose is smart enough to re-create only the services where the configuration, including environment variables, has changed
+          await execAsync(upCommand, {cwd: flags.workdir})
+          console.log(chalk.green(`✓ Docker container ${flags.container} restarted (compose up -d) successfully`))
+        } catch (error: unknown) {
+          const err = error as {message?: string}
+          if (err.message?.includes('No such container')) {
+            console.warn(
+              chalk.yellow(`⚠ Warning: Docker container ${flags.container} not found. Skipping container restart.`),
+            )
+          } else {
+            console.error(chalk.red(`Error setting up Docker container: ${err.message}`))
+            this.exit(1)
+          }
+        }
+
+        // Start the development server
+        console.log(chalk.blue('Starting development server...'))
+        const {spawn} = await import('node:child_process')
+        const devCommand = `yarn dhti ${elixirUrl} ${flags.fhir} && yarn dev`
+        try {
+          const child = spawn(devCommand, {cwd: sandboxDir, shell: true, stdio: 'inherit'})
+          await new Promise((resolve, reject) => {
+            child.on('exit', (code) => {
+              if (code === 0) resolve(undefined)
+              else reject(new Error(`Dev server exited with code ${code}`))
+            })
+            child.on('error', reject)
+          })
+        } catch (error: unknown) {
+          const err = error as {message?: string}
+          console.error(chalk.red('Error starting development server:'), err.message)
+          this.exit(1)
+        }
+      } catch (error) {
+        console.error(chalk.red('Error during start operation:'), error)
+        this.exit(1)
+      }
+
+      return
+    }
+
     if (!flags.name) {
       console.log('Please provide a name for the elixir')
       this.exit(1)
@@ -68,7 +295,7 @@ export default class Elixir extends Command {
     if (args.op === 'dev') {
       const devCommand = `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`
       const restartCommand = `docker restart ${flags.container}`
-      
+
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute commands:'))
         console.log(chalk.cyan(`  ${devCommand}`))
@@ -129,7 +356,9 @@ export default class Elixir extends Command {
       }
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`))
+        console.log(
+          chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`),
+        )
         console.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify boostrap.py file if needed'))
       } else {
         fs.cpSync(flags.whl, `${flags.workdir}/elixir/whl/${path.basename(flags.whl)}`)
@@ -159,21 +388,21 @@ export default class Elixir extends Command {
     if (flags.local !== 'none') {
       // Use path for local directory installation
       const absolutePath = path.isAbsolute(flags.local) ? flags.local : path.resolve(process.cwd(), flags.local)
-      
+
       // Validate that the path exists and is a directory (skip validation in dry-run mode)
       if (!flags['dry-run']) {
         if (!fs.existsSync(absolutePath)) {
           console.error(chalk.red(`Error: Local directory does not exist: ${absolutePath}`))
           this.exit(1)
         }
-        
+
         const stats = fs.statSync(absolutePath)
         if (!stats.isDirectory()) {
           console.error(chalk.red(`Error: Path is not a directory: ${absolutePath}`))
           this.exit(1)
         }
       }
-      
+
       lineToAdd = `${flags.name} = { path = "${absolutePath}" }`
     }
 
@@ -201,11 +430,17 @@ mcp_server.add_tool(${expoName}_mcp_tool) # type: ignore
     }
 
     const langfuseRoute = `add_routes(app, ${expoName}_chain.with_config(config), path="/langserve/${expoName}")`
-    const newLangfuseRoute = flags['dry-run'] ? '' : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
+    const newLangfuseRoute = flags['dry-run']
+      ? ''
+      : newCliImport.replace('# DHTI_LANGFUSE_ROUTE', `#DHTI_LANGFUSE_ROUTE\n    ${langfuseRoute}`)
     const normalRoute = `add_routes(app, ${expoName}_chain, path="/langserve/${expoName}")`
-    const newNormalRoute = flags['dry-run'] ? '' : newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
+    const newNormalRoute = flags['dry-run']
+      ? ''
+      : newLangfuseRoute.replace('# DHTI_NORMAL_ROUTE', `#DHTI_NORMAL_ROUTE\n    ${normalRoute}`)
     const commonRoutes = `\nadd_invokes(app, path="/langserve/${expoName}")\nadd_services(app, path="/langserve/${expoName}")`
-    const finalRoute = flags['dry-run'] ? '' : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
+    const finalRoute = flags['dry-run']
+      ? ''
+      : newNormalRoute.replace('# DHTI_COMMON_ROUTE', `#DHTI_COMMON_ROUTES${commonRoutes}`)
 
     // if args.op === install, add the line to the pyproject.toml file
     if (args.op === 'install') {
