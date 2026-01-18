@@ -37,12 +37,16 @@ export default class Conch extends Command {
       default: 'dermatologist/openmrs-esm-dhti-template',
       description: 'GitHub repository to install (for install operation)',
     }),
+    local: Flags.string({
+      char: 'l',
+      description: 'Local path to use instead of calculated workdir/name path (for start operation)',
+    }),
     name: Flags.string({char: 'n', description: 'Name of the conch'}),
     sources: Flags.string({
       char: 's',
-      multiple: true,
       description:
         'Additional sources to include when starting (e.g., packages/esm-chatbot-agent, packages/esm-another-app)',
+      multiple: true,
     }),
     workdir: Flags.string({
       char: 'w',
@@ -110,17 +114,20 @@ export default class Conch extends Command {
 
     if (args.op === 'start') {
       // Validate required flags
-      if (!flags.workdir) {
-        console.error(chalk.red('Error: workdir flag is required for start operation'))
-        this.exit(1)
+      if (!flags.local) {
+        // If --local is not provided, require workdir and name
+        if (!flags.workdir) {
+          console.error(chalk.red('Error: workdir flag is required for start operation (unless --local is provided)'))
+          this.exit(1)
+        }
+
+        if (!flags.name) {
+          console.error(chalk.red('Error: name flag is required for start operation (unless --local is provided)'))
+          this.exit(1)
+        }
       }
 
-      if (!flags.name) {
-        console.error(chalk.red('Error: name flag is required for start operation'))
-        this.exit(1)
-      }
-
-      const targetDir = path.join(flags.workdir, flags.name)
+      const targetDir = flags.local || path.join(flags.workdir, flags.name!)
 
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
@@ -139,7 +146,10 @@ export default class Conch extends Command {
       // Check if directory exists (not in dry-run mode)
       if (!fs.existsSync(targetDir)) {
         console.error(chalk.red(`Error: Directory does not exist: ${targetDir}`))
-        console.log(chalk.yellow(`Run 'dhti-cli conch init -n ${flags.name} -w ${flags.workdir}' first`))
+        if (!flags.local) {
+          console.log(chalk.yellow(`Run 'dhti-cli conch init -n ${flags.name} -w ${flags.workdir}' first`))
+        }
+
         this.exit(1)
       }
 
