@@ -30,7 +30,7 @@ Use this skill when you need to:
 
 * **Scaffold a new microfrontend project** using the DHTI cli:
    ```bash
-   npx dhti-cli conch init -w workspace -n esm-dhti-<<name>>
+   npx dhti-cli@latest conch init -w workspace -n esm-dhti-<<name>>
    ```
 * **Adapt the code:**
    - The above command creates a new directory at `workspace/workspace/openmrs-esm-dhti` with the monorepo.
@@ -117,6 +117,12 @@ Use this skill when you need to:
 
 * **Write tests:**
     - Write unit and integration tests for your components and logic. Use the testing framework set up in the template. Ensure good test coverage to catch potential issues early.
+    - Use yarn to build and test your microfrontend:
+      ```bash
+      cd workspace/openmrs-esm-dhti
+      yarn build
+      yarn test
+      ```
 
 ### Documentation
 

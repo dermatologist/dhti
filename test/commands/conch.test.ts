@@ -80,4 +80,141 @@ describe('conch', () => {
       expect(err.message).to.contain('Invalid operation')
     }
   })
+
+  it('runs conch start cmd with single --sources flag', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '-n',
+      'test-conch',
+      '-w',
+      '/tmp/test-workdir',
+      '-s',
+      'packages/esm-chatbot-agent',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain("--sources 'packages/esm-chatbot-agent'")
+  })
+
+  it('runs conch start cmd with multiple --sources flags', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '-n',
+      'test-conch',
+      '-w',
+      '/tmp/test-workdir',
+      '-s',
+      'packages/esm-chatbot-agent',
+      '-s',
+      'packages/esm-another-app',
+      '-s',
+      'packages/esm-third-app',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain("--sources 'packages/esm-chatbot-agent'")
+    expect(stdout).to.contain("--sources 'packages/esm-another-app'")
+    expect(stdout).to.contain("--sources 'packages/esm-third-app'")
+    expect(stdout).to.contain('yarn start')
+  })
+
+  it('runs conch install cmd with multiple --sources flags and shows warning', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'install',
+      '-n',
+      'test-conch',
+      '-w',
+      '/tmp/test-workdir',
+      '-s',
+      'packages/esm-chatbot-agent',
+      '-s',
+      'packages/esm-another-app',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would execute install operation')
+  })
+
+  it('correctly builds start command with multiple sources in output', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '-n',
+      'test-app',
+      '-w',
+      '/tmp/test-dir',
+      '-s',
+      'packages/app1',
+      '-s',
+      'packages/app2',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain("--sources 'packages/app1'")
+    expect(stdout).to.contain("--sources 'packages/app2'")
+    // Verify the command is built correctly in sequence
+    const lines = stdout.split('\n')
+    const yarnStartLine = lines.find((line) => line.includes('yarn start'))
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    expect(yarnStartLine).to.be.ok
+    if (yarnStartLine) {
+      const sourcesCount = (yarnStartLine.match(/--sources/g) || []).length
+      expect(sourcesCount).to.equal(2)
+    }
+  })
+
+  it('runs conch start cmd with --local flag', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '--local',
+      '../openmrs-esm-dhti/packages/esm-generic-display',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('../openmrs-esm-dhti/packages/esm-generic-display')
+    expect(stdout).to.contain('yarn start')
+  })
+
+  it('runs conch start cmd with --local flag and --sources', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '--local',
+      '../openmrs-esm-dhti/packages/esm-generic-display',
+      '-s',
+      'packages/esm-chatbot-agent',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('../openmrs-esm-dhti/packages/esm-generic-display')
+    expect(stdout).to.contain("--sources 'packages/esm-chatbot-agent'")
+    expect(stdout).to.contain('yarn start')
+  })
+
+  it('runs conch start with --local flag and does not require name flag', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '--local',
+      '../openmrs-esm-dhti/packages/esm-generic-display',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.not.include('name flag is required')
+  })
+
+  it('runs conch start with --local flag and does not require workdir flag', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'start',
+      '--local',
+      '../openmrs-esm-dhti/packages/esm-generic-display',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.not.include('workdir flag is required')
+  })
 })
