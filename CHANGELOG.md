@@ -2,10 +2,11 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/1.0.0...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.0.1...HEAD)
 
 **Merged pull requests:**
 
+- Feature/fix elixir overwrite 1 [\#112](https://github.com/dermatologist/dhti/pull/112) ([dermatologist](https://github.com/dermatologist))
 - docs: add initial README.md with usage and command details [\#111](https://github.com/dermatologist/dhti/pull/111) ([dermatologist](https://github.com/dermatologist))
 - Redesign conch command with init, install, and start operations [\#109](https://github.com/dermatologist/dhti/pull/109) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Add local directory installation and start-dhti orchestration skill [\#107](https://github.com/dermatologist/dhti/pull/107) ([Copilot](https://github.com/apps/copilot-swe-agent))
@@ -23,6 +24,10 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [1.0.1](https://github.com/dermatologist/dhti/tree/1.0.1) (2026-01-17)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.0.0...1.0.1)
 
 ## [1.0.0](https://github.com/dermatologist/dhti/tree/1.0.0) (2026-01-17)
 
