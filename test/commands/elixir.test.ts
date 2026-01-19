@@ -38,7 +38,10 @@ describe('elixir', () => {
   it('runs elixir cmd with --dry-run flag', async () => {
     const {stdout} = await runCommand(['elixir', 'install', '-n', 'test-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
-    // expect(stdout).to.contain('Would copy resources from')
+    // Either creating directory (first time) or using existing one (subsequent times)
+    expect(stdout).to.satisfy(
+      (msg: string) => msg.includes('Would create directory') || msg.includes('Using existing elixir directory'),
+    )
   })
 
   it('runs elixir cmd with --subdirectory flag and --dry-run', async () => {
@@ -178,5 +181,127 @@ describe('elixir', () => {
     expect(stdout).to.contain('Update docker-compose.yml')
     expect(stdout).to.contain('FHIR_BASE_URL=http://custom-fhir:8080/R4')
     expect(stdout).to.contain('docker restart custom-container')
+  })
+
+  it('runs elixir install cmd with --dry-run showing directory creation only on first install', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'first-elixir',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    // Either creating directory (first time) or using existing one (subsequent times)
+    expect(stdout).to.satisfy(
+      (msg: string) => msg.includes('Would create directory') || msg.includes('Using existing elixir directory'),
+    )
+    expect(stdout).to.contain('Add import and routes for first_elixir')
+  })
+
+  it('runs elixir uninstall cmd with --dry-run', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'uninstall',
+      '-n',
+      'test-elixir',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Remove')
+    expect(stdout).to.contain('Remove import and routes')
+  })
+
+  it('runs elixir uninstall cmd removes dependency and source from pyproject', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'uninstall',
+      '-n',
+      'test-uninstall',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Remove dependency')
+    expect(stdout).to.contain('Remove source')
+  })
+
+  it('shows success message on install', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'success-test',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would update files')
+  })
+
+  it('shows success message on uninstall', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'uninstall',
+      '-n',
+      'success-uninstall-test',
+      '-g',
+      'https://github.com/test/repo',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('Would update files')
+  })
+
+  it('correctly formats dependency and source in pyproject', async () => {
+    const {stdout} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'test-format',
+      '-g',
+      'https://github.com/test/monorepo.git',
+      '-s',
+      'packages/elixir1',
+      '-b',
+      'main',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('test_format')
+    expect(stdout).to.contain('subdirectory = "packages/elixir1"')
+    expect(stdout).to.contain('branch = "main"')
+  })
+
+  it('handles multiple installs without duplication with dry-run', async () => {
+    const {stdout: firstInstall} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'multi-test-1',
+      '-g',
+      'https://github.com/test/repo1',
+      '--dry-run',
+    ])
+    expect(firstInstall).to.contain('Add dependency')
+    expect(firstInstall).to.contain('multi_test_1')
+
+    const {stdout: secondInstall} = await runCommand([
+      'elixir',
+      'install',
+      '-n',
+      'multi-test-2',
+      '-g',
+      'https://github.com/test/repo2',
+      '--dry-run',
+    ])
+    expect(secondInstall).to.contain('Add dependency')
+    expect(secondInstall).to.contain('multi_test_2')
   })
 })

@@ -19,6 +19,7 @@ export default class Conch extends Command {
     '<%= config.bin %> <%= command.id %> install -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> init -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects',
+    '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects -s packages/chatbot -s packages/utils',
   ]
 
   static override flags = {
@@ -36,10 +37,16 @@ export default class Conch extends Command {
       default: 'dermatologist/openmrs-esm-dhti-template',
       description: 'GitHub repository to install (for install operation)',
     }),
+    local: Flags.string({
+      char: 'l',
+      description: 'Local path to use instead of calculated workdir/name path (for start operation)',
+    }),
     name: Flags.string({char: 'n', description: 'Name of the conch'}),
     sources: Flags.string({
       char: 's',
-      description: 'Additional sources to include when starting (e.g., packages/esm-chatbot-agent)',
+      description:
+        'Additional sources to include when starting (e.g., packages/esm-chatbot-agent, packages/esm-another-app)',
+      multiple: true,
     }),
     workdir: Flags.string({
       char: 'w',
@@ -107,24 +114,29 @@ export default class Conch extends Command {
 
     if (args.op === 'start') {
       // Validate required flags
-      if (!flags.workdir) {
-        console.error(chalk.red('Error: workdir flag is required for start operation'))
-        this.exit(1)
+      if (!flags.local) {
+        // If --local is not provided, require workdir and name
+        if (!flags.workdir) {
+          console.error(chalk.red('Error: workdir flag is required for start operation (unless --local is provided)'))
+          this.exit(1)
+        }
+
+        if (!flags.name) {
+          console.error(chalk.red('Error: name flag is required for start operation (unless --local is provided)'))
+          this.exit(1)
+        }
       }
 
-      if (!flags.name) {
-        console.error(chalk.red('Error: name flag is required for start operation'))
-        this.exit(1)
-      }
-
-      const targetDir = path.join(flags.workdir, flags.name)
+      const targetDir = flags.local || path.join(flags.workdir, flags.name!)
 
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
         console.log(chalk.cyan(`  cd ${targetDir}`))
         let dryRunCommand = 'corepack enable && yarn install && yarn start'
-        if (flags.sources) {
-          dryRunCommand += ` --sources '${flags.sources}'`
+        if (flags.sources && flags.sources.length > 0) {
+          for (const source of flags.sources) {
+            dryRunCommand += ` --sources '${source}'`
+          }
         }
 
         console.log(chalk.cyan(`  ${dryRunCommand}`))
@@ -134,7 +146,10 @@ export default class Conch extends Command {
       // Check if directory exists (not in dry-run mode)
       if (!fs.existsSync(targetDir)) {
         console.error(chalk.red(`Error: Directory does not exist: ${targetDir}`))
-        console.log(chalk.yellow(`Run 'dhti-cli conch init -n ${flags.name} -w ${flags.workdir}' first`))
+        if (!flags.local) {
+          console.log(chalk.yellow(`Run 'dhti-cli conch init -n ${flags.name} -w ${flags.workdir}' first`))
+        }
+
         this.exit(1)
       }
 
@@ -144,8 +159,10 @@ export default class Conch extends Command {
 
         // Build the start command with sources flag if provided
         let startCommand = 'corepack enable && yarn install && yarn start'
-        if (flags.sources) {
-          startCommand += ` --sources '${flags.sources}'`
+        if (flags.sources && flags.sources.length > 0) {
+          for (const source of flags.sources) {
+            startCommand += ` --sources '${source}'`
+          }
         }
 
         // Spawn corepack enable && yarn install && yarn start with stdio inheritance to show output and allow Ctrl-C
@@ -195,7 +212,7 @@ export default class Conch extends Command {
       }
 
       // Warn if sources flag is used with install (not applicable)
-      if (flags.sources) {
+      if (flags.sources && flags.sources.length > 0) {
         console.warn(
           chalk.yellow('Warning: --sources flag is not applicable for install operation. It will be ignored.'),
         )
@@ -219,8 +236,10 @@ export default class Conch extends Command {
         console.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
         console.log(chalk.blue(`\nTo start development, run:`))
         let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
-        if (flags.sources) {
-          startCmd += ` -s '${flags.sources}'`
+        if (flags.sources && flags.sources.length > 0) {
+          for (const source of flags.sources) {
+            startCmd += ` -s '${source}'`
+          }
         }
 
         console.log(chalk.cyan(`  ${startCmd}`))
