@@ -33,8 +33,11 @@ Use this skill when you need to:
    npx dhti-cli@latest conch init -w workspace -n esm-dhti-<<name>>
    ```
 * **Adapt the code:**
-   - The above command creates a new directory at `workspace/workspace/openmrs-esm-dhti` with the monorepo.
-   - In the packages/ directory of the monorepo, find your newly created microfrontend `esm-dhti-<<name>>`. THIS IS WHERE YOU WILL DO YOUR DEVELOPMENT.
+   - The above command creates a new directory at `workspace/openmrs-esm-dhti` with the monorepo.
+   - In the packages/ directory of the monorepo (`workspace/openmrs-esm-dhti/packages`), find your newly created microfrontend `esm-dhti-<<name>>`. THIS IS WHERE YOU WILL DO YOUR DEVELOPMENT.
+   - Update the package.json in packages/esm-dhti-<<name>>:
+        Change the name field to @openmrs/esm-<<name>>.
+        Update the description, author, and other relevant fields.
     - Update `index.ts` as below:
      - Set the value of `moduleName` variable to `@openmrs/esm-<<name>>`.
      - Set the value of `featureName` variable to `dhti-<<name>>`.
