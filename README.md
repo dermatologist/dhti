@@ -101,14 +101,16 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 ## Presentations
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 2025-09-12.**
 
-## What problems do DHTI solve?
+## 🔧 What problems do DHTI solve?
 
 | Why | How |
 | --- | --- |
+| I am a clinician! I have no idea how to build GenAI apps. | ✨ DHTI comes with batteries ([skills](/.github/skills/)) included! Use your preferred agentic platform (e.g., [AntiGravity](https://antigravity.google/), [VSCode with Copilot in agent mode](https://code.visualstudio.com/docs/copilot/overview), Claude, [Cursor](https://cursor.com/) and many other) to generate elixirs and conches from [problem-oriented prompts](/prompts/e2e-sample.md) (most of these platforms have a free tier). Test them using synthetic data in OpenMRS or the CDS-Hooks sandbox, then hand them off to production teams. |
 | I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR. | [These sample elixirs](https://github.com/dermatologist/dhti-elixir) adopt FHIR and cds-hooks as standards for data retrieval and display. The [base class](https://github.com/dermatologist/dhti-elixir-base) provides reusable artifacts |
 | I need a simple platform for experimenting. | This repository provides  everything to start experimenting fast. The command-line tools help to virtualize and orchestrate your experiments using [Docker](https://www.docker.com/)|
 | I am a UI designer. I want to design helpful UI for real users. | See [these sample conches](https://github.com/dermatologist/openmrs-esm-dhti). It shows how to build interface components (conches) for [OpenMRS](https://openmrs.org/) an open-source EMR used by many. Read more about [OpenMRS UI](https://o3-docs.openmrs.org/) |
 | We use another EMR  |  Your EMR may support CDS-Hook for displaying components. In that case, you can use [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) |
+| We don't use an EMR. We use a web based health information system for ------ population with no FHIR support. | You can still use DHTI as a GenAI experimentation platform. ✨ We have a [browser extension](https://github.com/dermatologist/openmrs-esm-dhti/blob/develop/packages/dhti-screen-grabber/README.md) that can read any web page! |
 | Our IT team is often unable to take my experiments to production. | Use DHTI, follow the recommended patterns, and you will make their lives easier.|
 
 
