@@ -1,4 +1,3 @@
-
 services:
   gateway:
     image: beapen/dhti-gateway:latest
@@ -87,7 +86,6 @@ services:
       - OPENAI_API_BASE=${OPENAI_API_BASE:-https://openrouter.ai/api/v1}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-openrouter-api-key}
       - FHIR_BASE_URL=${FHIR_BASE_URL:-http://localhost:8080/openmrs/ws/fhir2/R4}
-
 
   ollama:
     image: ollama/ollama:latest
@@ -357,6 +355,21 @@ services:
     depends_on:
       - medplum-server
 
+  orthanc:
+    image: orthancteam/orthanc:latest
+    ports:
+      # Orthanc web interface and DICOMweb port
+      - "8042:8042"
+      # DICOM store SCU/SCP port (default 4242 in container, 104 is standard, 8104 used in some examples)
+      - "8104:4242"
+    environment:
+      # Enable the web interface and remote access
+      - ORTHANC_JSON={"RemoteAccessAllowed":true,"AuthenticationEnabled":false}
+    volumes:
+      # Persist the data (DICOM files and database)
+      - orthanc-data:/var/lib/orthanc/
+    restart: unless-stopped
+
 volumes:
   openmrs-data: ~
   openmrs-db: ~
@@ -368,3 +381,4 @@ volumes:
   ollama-root: ~
   ollama-webui: ~
   mcpx-config: ~
+  orthanc-data: ~
