@@ -364,11 +364,18 @@ services:
       - "8104:4242"
     environment:
       # Enable the web interface and remote access
-      - ORTHANC_JSON={"RemoteAccessAllowed":true,"AuthenticationEnabled":false}
+      - ORTHANC_JSON={"RemoteAccessAllowed":true,"AuthenticationEnabled":false,"HttpHeaders":{"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET, POST, PUT, DELETE, OPTIONS","Access-Control-Allow-Headers":"Content-Type"},"HttpRequestTimeout":60}
     volumes:
       # Persist the data (DICOM files and database)
       - orthanc-data:/var/lib/orthanc/
     restart: unless-stopped
+
+  cors-proxy:
+    image: redocly/cors-anywhere:latest
+    ports:
+      - "8010:8080"
+    restart: "unless-stopped"
+
 
 volumes:
   openmrs-data: ~
