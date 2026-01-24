@@ -10,12 +10,14 @@ const execAsync = promisify(exec)
 
 export default class Conch extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (init, install, or start)'}),
+    op: Args.string({description: 'Operation to perform (add, init, install, or start)'}),
   }
 
   static override description = 'Initialize, install, or start OpenMRS frontend development'
 
   static override examples = [
+    '<%= config.bin %> <%= command.id %> add -g my-repo/my-package -n my-package -w ~/projects',
+    '<%= config.bin %> <%= command.id %> add -g my-repo/my-package -b main -n my-package -w ~/projects',
     '<%= config.bin %> <%= command.id %> install -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> init -n my-app -w ~/projects',
     '<%= config.bin %> <%= command.id %> start -n my-app -w ~/projects',
@@ -34,14 +36,14 @@ export default class Conch extends Command {
     }),
     git: Flags.string({
       char: 'g',
-      default: 'dermatologist/openmrs-esm-dhti-template',
+      default: 'dermatologist/openmrs-esm-dhti',
       description: 'GitHub repository to install (for install operation)',
     }),
     local: Flags.string({
       char: 'l',
       description: 'Local path to use instead of calculated workdir/name path (for start operation)',
     }),
-    name: Flags.string({char: 'n', description: 'Name of the conch'}),
+    name: Flags.string({char: 'n', default: 'esm-dhti', description: 'Name of the conch'}),
     sources: Flags.string({
       char: 's',
       description:
@@ -57,6 +59,52 @@ export default class Conch extends Command {
 
   public async run(): Promise<void> {
     const {args, flags} = await this.parse(Conch)
+
+    if (args.op === 'add') {
+      // Validate that git and name are overridden from defaults
+      const defaultGit = 'dermatologist/openmrs-esm-dhti'
+      const defaultName = 'esm-dhti'
+
+      const gitOverridden = flags.git !== defaultGit
+      const nameOverridden = flags.name !== defaultName
+
+      if (!gitOverridden || !nameOverridden) {
+        console.log(
+          chalk.yellow('Note: The "add" operation requires non-default values for both --git and --name flags.'),
+        )
+        if (!gitOverridden) {
+          console.log(chalk.yellow('  Current --git: (default)'))
+        }
+
+        if (!nameOverridden) {
+          console.log(chalk.yellow('  Current --name: (default)'))
+        }
+
+        console.log(chalk.yellow('\nNo changes made. Please provide custom --git and --name values.'))
+        this.exit(0)
+      }
+
+      if (flags['dry-run']) {
+        console.log(chalk.yellow('[DRY RUN] Would execute add operation:'))
+        const targetPath = path.join(flags.workdir, 'esm-dhti', 'packages', flags.name)
+        console.log(chalk.cyan(`  npx degit ${flags.git}#${flags.branch} ${targetPath}`))
+        return
+      }
+
+      try {
+        console.log(chalk.blue(`Adding package ${flags.name} from ${flags.git}#${flags.branch}...`))
+        const targetPath = path.join(flags.workdir, 'esm-dhti', 'packages', flags.name)
+        const degitCommand = `npx degit ${flags.git}#${flags.branch} ${targetPath}`
+        await execAsync(degitCommand)
+        console.log(chalk.green('✓ Package added successfully'))
+        console.log(chalk.green(`\n✓ Package is ready at ${targetPath}`))
+      } catch (error) {
+        console.error(chalk.red('Error during add operation:'), error)
+        this.exit(1)
+      }
+
+      return
+    }
 
     if (args.op === 'init') {
       // Validate required flags
@@ -252,7 +300,7 @@ export default class Conch extends Command {
     }
 
     // If no valid operation is provided
-    console.error(chalk.red('Error: Invalid operation. Use "install", "init", or "start"'))
+    console.error(chalk.red('Error: Invalid operation. Use "add", "install", "init", or "start"'))
     this.exit(1)
   }
 }

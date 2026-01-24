@@ -25,6 +25,8 @@ Generative AI features are built as [LangServe Apps](https://python.langchain.co
 
 🚀 You can test the elixir using a real EMR system, [OpenMRS](https://openmrs.org/), that communicates with the elixir using **CDS-Hooks** or use any other CDS-Hooks compatible EMR system. You can also use the [CDS-Hooks sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) without an EMR.
 
+🚀 Checkout **[Vidhi Recipes](/vidhi/README.md)** for chatbot, RAG, imaging (DICOM) and MCPX for dockerized calculators
+
 #### How (non‑technical / clinical)
 DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agentic platforms (e.g., [AntiGravity](https://antigravity.google/), VSCode, or Claude) to generate the GenAI backends and UI components (elixirs and conches) you need. Test these components with synthetic data in OpenMRS or the CDS‑Hooks sandbox, then hand them off to production teams. Because DHTI follows open standards, that handoff (the “valley of death”) becomes smoother and more predictable. Try the [prompts](/.github/skills/start-dhti/examples/e2e-sample.md) in your preferred agentic platform after cloning this repo.
 
@@ -52,15 +54,16 @@ npx dhti-cli docker -u                    # start services from compose
 ```
 
 Notes:
-- Configure models and hyperparameters in `~/dhti/elixir/app/bootstrap.py` or install from a local directory using `-l`.
+- Install from a local directory using `-l`.
 - Stop and remove containers with `npx dhti-cli docker -d`.
 
 ✌️  Decide where to test the new elixir: OpenMRS a full EHR system, or CDS-Hooks sandbox for a lightweight testing without an EHR.
 
 💥  Test elixir in a  CDS-Hooks sandbox.
 
-* `npx dhti-cli conch start -n dhti-elixir-schat` and navigate to the Application URL displayed in the console. (Uses hapi.fhir.org).
-* In the **Rx View** tab, type in the contentString textbox and wait for the elixir to respond.
+* `npx dhti-cli elixir start -n dhti-elixir-schat` and navigate to the **Application URL displayed in the console** (scroll up to see this). Not the base URL listed at the bottom.
+* Uses hapi.fhir.org for data.
+* In the **Rx View** tab, type in the contentString textbox and wait for the elixir to respond (Submits automatically in 5 seconds).
 
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
@@ -88,12 +91,17 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 
 * `npx dhti-cli docker -d` to stop and delete all the docker containers.
 
+## Configuration
+
+* `npx dhti-cli docker bootstrap -f bootstrap.py` will create and sync bootstrap.py where you can configure default model and hyperparameters for LangServe. Run this command after changing bootstrap.py to apply the changes.
+
 ## Wiki & Documentation
 * [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
 * [Documentation](https://dermatologist.github.io/dhti/)
 * [CLI Reference](/notes/README.md)
 
 ## User contributions & examples
+* 🚀 **[Vidhi Recipes](/vidhi/README.md)** for chatbot, RAG, imaging (DICOM) and MCPX for dockerized calculators
 * [Elixirs](https://github.com/dermatologist/dhti-elixir)
 * [OpenMRS Conches / UI](https://github.com/dermatologist/openmrs-esm-dhti)
 * [CDS Hooks Sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox)
@@ -101,14 +109,16 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 ## Presentations
 ⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 2025-09-12.**
 
-## What problems do DHTI solve?
+## 🔧 What problems do DHTI solve?
 
 | Why | How |
 | --- | --- |
+| I am a clinician! I have no idea how to build GenAI apps. | ✨ DHTI comes with batteries ([skills](/.github/skills/)) included! Use your preferred agentic platform (e.g., [AntiGravity](https://antigravity.google/), [VSCode with Copilot in agent mode](https://code.visualstudio.com/docs/copilot/overview), Claude, [Cursor](https://cursor.com/) and many other) to generate elixirs and conches from [problem-oriented prompts](/prompts/e2e-sample.md) (most of these platforms have a free tier). Test them using synthetic data in OpenMRS or the CDS-Hooks sandbox, then hand them off to production teams. |
 | I know LangChain, but I don’t know how to build a chain/agent based on data in our EHR. | [These sample elixirs](https://github.com/dermatologist/dhti-elixir) adopt FHIR and cds-hooks as standards for data retrieval and display. The [base class](https://github.com/dermatologist/dhti-elixir-base) provides reusable artifacts |
 | I need a simple platform for experimenting. | This repository provides  everything to start experimenting fast. The command-line tools help to virtualize and orchestrate your experiments using [Docker](https://www.docker.com/)|
 | I am a UI designer. I want to design helpful UI for real users. | See [these sample conches](https://github.com/dermatologist/openmrs-esm-dhti). It shows how to build interface components (conches) for [OpenMRS](https://openmrs.org/) an open-source EMR used by many. Read more about [OpenMRS UI](https://o3-docs.openmrs.org/) |
 | We use another EMR  |  Your EMR may support CDS-Hook for displaying components. In that case, you can use [cds-hooks-sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) |
+| We don't use an EMR. We use a web based health information system for ------ population with no FHIR support. | You can still use DHTI as a GenAI experimentation platform. ✨ We have a [browser extension](https://github.com/dermatologist/openmrs-esm-dhti/blob/develop/packages/dhti-screen-grabber/README.md) that can read any web page! |
 | Our IT team is often unable to take my experiments to production. | Use DHTI, follow the recommended patterns, and you will make their lives easier.|
 
 

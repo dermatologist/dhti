@@ -11,6 +11,68 @@ describe('conch', () => {
     }
   })
 
+  it('runs conch add cmd with --dry-run flag and custom git', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'add',
+      '-g',
+      'my-org/my-package',
+      '-n',
+      'my-package',
+      '-w',
+      '/tmp/test-workdir',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('npx degit my-org/my-package#develop')
+    expect(stdout).to.contain('/tmp/test-workdir/esm-dhti/packages/my-package')
+  })
+
+  it('runs conch add cmd with custom git and custom branch', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'add',
+      '-g',
+      'my-org/my-package',
+      '-b',
+      'main',
+      '-n',
+      'my-package',
+      '-w',
+      '/tmp/test-workdir',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('[DRY RUN]')
+    expect(stdout).to.contain('npx degit my-org/my-package#main')
+    expect(stdout).to.contain('/tmp/test-workdir/esm-dhti/packages/my-package')
+  })
+
+  it('rejects add operation with default git flag', async () => {
+    const {stdout} = await runCommand(['conch', 'add', '-n', 'my-package', '-w', '/tmp/test-workdir', '--dry-run'])
+    expect(stdout).to.contain('Note: The "add" operation requires non-default values')
+    expect(stdout).to.contain('No changes made')
+  })
+
+  it('rejects add operation with default name flag', async () => {
+    const {stdout} = await runCommand([
+      'conch',
+      'add',
+      '-g',
+      'my-org/my-package',
+      '-w',
+      '/tmp/test-workdir',
+      '--dry-run',
+    ])
+    expect(stdout).to.contain('Note: The "add" operation requires non-default values')
+    expect(stdout).to.contain('No changes made')
+  })
+
+  it('rejects add operation with both default git and name flags', async () => {
+    const {stdout} = await runCommand(['conch', 'add', '-w', '/tmp/test-workdir', '--dry-run'])
+    expect(stdout).to.contain('Note: The "add" operation requires non-default values')
+    expect(stdout).to.contain('No changes made')
+  })
+
   it('runs conch init cmd with --dry-run flag', async () => {
     const {stdout} = await runCommand(['conch', 'init', '-n', 'test-conch', '-w', '/tmp/test-workdir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
