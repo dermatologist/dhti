@@ -25,6 +25,8 @@ Generative AI features are built as [LangServe Apps](https://python.langchain.co
 
 🚀 You can test the elixir using a real EMR system, [OpenMRS](https://openmrs.org/), that communicates with the elixir using **CDS-Hooks** or use any other CDS-Hooks compatible EMR system. You can also use the [CDS-Hooks sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox/tree/dhti-1) without an EMR.
 
+🚀 Checkout **[Vidhi Recipes](/vidhi/README.md)** for chatbot, RAG, imaging (DICOM) and MCPX for dockerized calculators
+
 #### How (non‑technical / clinical)
 DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agentic platforms (e.g., [AntiGravity](https://antigravity.google/), VSCode, or Claude) to generate the GenAI backends and UI components (elixirs and conches) you need. Test these components with synthetic data in OpenMRS or the CDS‑Hooks sandbox, then hand them off to production teams. Because DHTI follows open standards, that handoff (the “valley of death”) becomes smoother and more predictable. Try the [prompts](/.github/skills/start-dhti/examples/e2e-sample.md) in your preferred agentic platform after cloning this repo.
 
@@ -95,6 +97,7 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 * [CLI Reference](/notes/README.md)
 
 ## User contributions & examples
+* 🚀 **[Vidhi Recipes](/vidhi/README.md)** for chatbot, RAG, imaging (DICOM) and MCPX for dockerized calculators
 * [Elixirs](https://github.com/dermatologist/dhti-elixir)
 * [OpenMRS Conches / UI](https://github.com/dermatologist/openmrs-esm-dhti)
 * [CDS Hooks Sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox)
