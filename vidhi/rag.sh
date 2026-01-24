@@ -5,10 +5,10 @@ dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir.git -b d
 dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir.git -b debug -n dhti-elixir-srag -s packages/simple_rag
 dhti-cli docker -n dhti/genai-test:3.0 -t elixir
 dhti-cli docker -u
+
+# Testing in OpenMRS EMR
 dhti-cli conch install -s packages/esm-chatbot-agent -s packages/esm-dhti-upload
 dhti-cli conch start -s packages/esm-chatbot-agent -s packages/esm-dhti-upload
-
-
 # Finally, add the following configuration to your OpenMRS
 # Alternatively, you can click on the wrench icon in the top left navbar to pull up implementers tools.
 # Click on configuration tab and paste the following JSON:
@@ -17,3 +17,8 @@ dhti-cli conch start -s packages/esm-chatbot-agent -s packages/esm-dhti-upload
 #         "dhtiRoute": "http://localhost:8001/langserve/dhti_elixir_srag/cds-services/dhti-service"
 #     }
 # }
+
+
+# Testing in CDS-Hooks sandbox
+#! Remember to click on the application link rather than the final display link
+npx dhti-cli elixir start -n dhti-elixir-srag

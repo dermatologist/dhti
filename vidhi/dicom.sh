@@ -10,3 +10,5 @@ npx dhti-cli conch start -n esm-dhti -l ../openmrs-esm-dhti/packages/esm-dhti-im
 
 # Finally
 # npx dhti-cli docker -d
+
+# Testing in CDS-Hooks sandbox is not yet supported for DICOM imaging report
