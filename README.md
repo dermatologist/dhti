@@ -54,7 +54,7 @@ npx dhti-cli docker -u                    # start services from compose
 ```
 
 Notes:
-- Configure models and hyperparameters in `~/dhti/elixir/app/bootstrap.py` or install from a local directory using `-l`.
+- Install from a local directory using `-l`.
 - Stop and remove containers with `npx dhti-cli docker -d`.
 
 ✌️  Decide where to test the new elixir: OpenMRS a full EHR system, or CDS-Hooks sandbox for a lightweight testing without an EHR.
@@ -90,6 +90,10 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 </p>
 
 * `npx dhti-cli docker -d` to stop and delete all the docker containers.
+
+## Configuration
+
+* `npx dhti-cli docker bootstrap -f bootstrap.py -c dhti-langserve-1` will create and sync bootstrap.py where you can configure default model and hyperparameters for LangServe. Run this command after changing bootstrap.py to apply the changes.
 
 ## Wiki & Documentation
 * [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
