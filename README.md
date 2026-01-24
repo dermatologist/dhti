@@ -59,7 +59,7 @@ Notes:
 
 💥  Test elixir in a  CDS-Hooks sandbox.
 
-* `npx dhti-cli conch start -n dhti-elixir-schat` and navigate to the Application URL displayed in the console. (Uses hapi.fhir.org).
+* `npx dhti-cli elixir start -n dhti-elixir-schat` and navigate to the Application URL displayed in the console. (Uses hapi.fhir.org).
 * In the **Rx View** tab, type in the contentString textbox and wait for the elixir to respond.
 
 <p align="center">
