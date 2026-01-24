@@ -28,12 +28,17 @@ def bootstrap():
         llm = FakeListLLM(responses=["I am a fake LLM", "I don't know"])
     di["main_llm"] = llm
 
-    model = init_chat_model(
-        model="nvidia/nemotron-nano-9b-v2:free",
-        model_provider="openai",
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.environ.get("OPENROUTER_API_KEY"),
-    )
+    openrouter_api_key = os.environ.get("OPENROUTER_API_KEY")
+    if openrouter_api_key:
+        model = init_chat_model(
+            model="nvidia/nemotron-nano-9b-v2:free",
+            model_provider="openai",
+            base_url="https://openrouter.ai/api/v1",
+            api_key=openrouter_api_key,
+        )
+    else:
+        # Fallback to the main LLM if no OpenRouter API key is configured
+        model = llm
 
     di["function_llm"] = model
     di["main_prompt"] = PromptTemplate.from_template(
