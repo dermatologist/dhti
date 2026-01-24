@@ -15,7 +15,7 @@ npx dhti-cli docker bootstrap -f bootstrap.py
 npx dhti-cli elixir start -n dhti-elixir-schat
 
 # Testing in OpenMRS EMR
-npx dhti-cli conch install -s packages/esm-chatbot-agent
+npx dhti-cli conch install # (Optional) if you have not performed this step before.
 npx dhti-cli conch start -s packages/esm-chatbot-agent
 # Open OpenMRS and login with admin/Admin123
 # Click on search 🔍 and click on any patient record.
