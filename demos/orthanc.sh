@@ -9,3 +9,5 @@ dhti-cli conch start -n esm-dhti -l ../openmrs-esm-dhti/packages/esm-dhti-imagin
 # dhti-cli conch install -g dermatologist/openmrs-esm-dhti -b debug -n esm-imaging-report
 # dhti-cli conch start -n esm-imaging-report -s packages/esm-dhti-imaging-report
 # npx degit {git}#{branch} {workdir}/esm-dhti/packages/{name}
+
+dhti-cli conch start -n esm-dhti -l ../openmrs-esm-dhti/packages/esm-dhti-orthanc-viewer
