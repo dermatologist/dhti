@@ -92,6 +92,7 @@ export default class Compose extends Command {
     const mcpx = ['mcpx']
     const docktor = ['mcpx']
     const medplum = ['medplum-server', 'medplum-app', 'postgres-db', 'redis', 'mpclient']
+    const orthanc = ['orthanc', 'cors-proxy']
 
     const _modules: {[key: string]: string[]} = {
       cqlFhir,
@@ -108,6 +109,7 @@ export default class Compose extends Command {
       openmrs,
       redis,
       webui,
+      orthanc,
     }
 
     try {

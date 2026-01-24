@@ -1,7 +1,7 @@
 import {Args, Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
 import yaml from 'js-yaml'
-import { exec } from 'node:child_process';
+import {exec} from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import ora from 'ora'
@@ -88,15 +88,17 @@ export default class Docker extends Command {
       }
 
       const containerName = flags.gateway ? 'dhti-gateway-1' : flags.restart
-      
+
       // Validate container name to prevent command injection
       if (containerName && !/^[\w-]+$/.test(containerName)) {
-        console.error('Error: Invalid container name. Container names can only contain letters, numbers, hyphens, and underscores.')
+        console.error(
+          'Error: Invalid container name. Container names can only contain letters, numbers, hyphens, and underscores.',
+        )
         this.exit(1)
       }
 
       const restartCommand = `docker restart ${containerName}`
-      
+
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute:'))
         console.log(chalk.cyan(`  ${restartCommand}`))
@@ -128,17 +130,22 @@ export default class Docker extends Command {
         this.exit(1)
       }
 
-      const copyCommand = `docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`
+      // Determine copy direction based on whether local file exists
+      const fileExists = fs.existsSync(flags.file)
+      const copyCommand = fileExists
+        ? `docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`
+        : `docker cp ${flags.container}:/app/app/bootstrap.py ${flags.file}`
       const restartCommand = `docker restart ${flags.container}`
-      
+
       if (flags['dry-run']) {
         console.log(chalk.yellow('[DRY RUN] Would execute:'))
-        console.log(chalk.cyan(`  ${copyCommand}`))
+        const direction = fileExists ? 'to container' : 'from container'
+        console.log(chalk.cyan(`  ${copyCommand} (copy ${direction})`))
         console.log(chalk.cyan(`  ${restartCommand}`))
         return
       }
 
-      // copy -f to container:/app/app/ and only restart after copy completes
+      // copy file and only restart after copy completes
       exec(copyCommand, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`)
@@ -164,7 +171,7 @@ export default class Docker extends Command {
 
     // cd to path, docker build tag with name
     const buildCommand = `cd ${args.path}/${flags.type} && docker build -t ${flags.name} . > /dev/null 2>&1`
-    
+
     if (flags['dry-run']) {
       console.log(chalk.yellow('[DRY RUN] Would execute:'))
       console.log(chalk.cyan(`  ${buildCommand}`))
