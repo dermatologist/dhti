@@ -93,7 +93,7 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 
 ## Configuration
 
-* `npx dhti-cli docker bootstrap -f bootstrap.py -c dhti-langserve-1` will create and sync bootstrap.py where you can configure default model and hyperparameters for LangServe. Run this command after changing bootstrap.py to apply the changes.
+* `npx dhti-cli docker bootstrap -f bootstrap.py` will create and sync bootstrap.py where you can configure default model and hyperparameters for LangServe. Run this command after changing bootstrap.py to apply the changes.
 
 ## Wiki & Documentation
 * [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
