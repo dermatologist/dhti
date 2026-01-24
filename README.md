@@ -59,8 +59,9 @@ Notes:
 
 💥  Test elixir in a  CDS-Hooks sandbox.
 
-* `npx dhti-cli elixir start -n dhti-elixir-schat` and navigate to the Application URL displayed in the console. (Uses hapi.fhir.org).
-* In the **Rx View** tab, type in the contentString textbox and wait for the elixir to respond.
+* `npx dhti-cli elixir start -n dhti-elixir-schat` and navigate to the **Application URL displayed in the console** (scroll up to see this). Not the base URL listed at the bottom.
+* Uses hapi.fhir.org for data.
+* In the **Rx View** tab, type in the contentString textbox and wait for the elixir to respond (Submits automatically in 5 seconds).
 
 <p align="center">
   <img src="https://github.com/dermatologist/dhti/blob/develop/notes/cds-hook-sandbox.jpg" />
