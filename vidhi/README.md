@@ -1,4 +1,4 @@
-# Vidhi (DHTI Receipe)
+# Vidhi (DHTI Recipe)
 
  This directory contains scripts and instructions to build and test DHTI recipes (Vidhi).
 
