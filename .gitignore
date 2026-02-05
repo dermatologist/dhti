@@ -12,7 +12,7 @@ oclif.manifest.json
 /development
 /packages
 /dhti
-
+.agents/backup/*
 yarn.lock
 pnpm-lock.yaml
 docker-compose.yml
