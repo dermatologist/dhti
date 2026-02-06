@@ -1,6 +1,6 @@
 ---
 name: elixir-generator
-description: This skill enables AI agents to generate new DHTI elixir projects from a cookiecutter template. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding using cookiecutter, studying reference implementations, and implementing the requested elixir functionality.
+description: This skill enables AI agents to generate new DHTI elixir project. Elixirs provide backend GenAI capabilities as HTTP endpoints hosted by LangServe. The skill guides the agent through environment setup, project scaffolding, studying reference implementations, and implementing the requested elixir functionality.
 ---
 
 ## When to Use This Skill
