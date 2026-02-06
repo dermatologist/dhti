@@ -1,6 +1,6 @@
 ---
 name: start-dhti
-description: This skill enables AI agents to orchestrate the DHTI development workflow by installing elixirs and conches, and starting a fully functional DHTI server with all components installed.
+description: This skill enables AI agents to orchestrate the DHTI development workflow by installing elixirs and conches, and starting a fully functional DHTI server with all components installed using Docker.
 ---
 
 
