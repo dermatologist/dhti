@@ -161,7 +161,7 @@ export default class Copilot extends Command {
 
     // Build system message with skill instructions
     let systemMessageContent = 'You are a helpful AI assistant for DHTI (Dhanvantari Healthcare Technology Integration).'
-    
+
     // Add skill-specific instructions
     if (skillContent) {
       systemMessageContent += '\n\n' + skillContent

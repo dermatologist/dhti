@@ -37,8 +37,8 @@ describe('copilot', () => {
   })
 
   it('detects elixir-generator skill for elixir-related prompt', async () => {
-    // This test will fail if copilot CLI is not installed, so we skip it in CI
-    // We're just testing the skill detection logic which happens before SDK interaction
+    // This test verifies skill detection logic which happens before SDK interaction
+    // If copilot CLI is not installed, the test handles the error gracefully
     try {
       await runCommand(['copilot', '--prompt', 'Create a new elixir for patient assessment'])
     } catch (error: unknown) {
