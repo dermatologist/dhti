@@ -55,6 +55,28 @@ npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir
 npx dhti-cli docker -u                    # start services from compose
 ```
 
+**🤖 AI-Powered Workflow with GitHub Copilot SDK:**
+
+DHTI now integrates with GitHub Copilot SDK, enabling AI-assisted workflows directly from the command line:
+
+```bash
+# Interactive AI assistance with auto-skill detection
+npx dhti-cli copilot --prompt "Start the DHTI stack with langserve and ollama"
+
+# Use specific skills for specialized tasks
+npx dhti-cli copilot --prompt "Create a patient risk assessment elixir" --skill elixir-generator
+
+# Load prompts from files for complex workflows
+npx dhti-cli copilot --file ./my-workflow.txt --model gpt-4.1
+
+# Available skills: start-dhti, elixir-generator, conch-generator, or auto (default)
+```
+
+Prerequisites for Copilot SDK:
+- Install GitHub Copilot CLI: https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line
+- Authenticate: `copilot auth login`
+- See detailed guide: [notes/copilot-sdk-dhti.md](/notes/copilot-sdk-dhti.md)
+
 Notes:
 - Install from a local directory using `-l`.
 - Stop and remove containers with `npx dhti-cli docker -d`.
