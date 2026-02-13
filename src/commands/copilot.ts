@@ -121,6 +121,7 @@ export default class Copilot extends Command {
     return this.fetchSkillFromGitHub(skillName)
   }
 
+  // eslint-disable-next-line perfectionist/sort-classes
   public async run(): Promise<void> {
     const {flags} = await this.parse(Copilot)
 
