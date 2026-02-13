@@ -160,7 +160,7 @@ export default class Copilot extends Command {
     }
 
     // Build system message with skill instructions
-    let systemMessageContent = 'You are a helpful AI assistant for DHTI (Dhanvantari Healthcare Technology Integration).'
+    let systemMessageContent = 'You are a helpful assistant that can use specific skills to generate components of the DHTI stack based on user prompts.'
 
     // Add skill-specific instructions
     if (skillContent) {
@@ -173,6 +173,7 @@ export default class Copilot extends Command {
     }
 
     this.log(chalk.green('Initializing GitHub Copilot SDK...'))
+    this.log(chalk.yellow(systemMessageContent))
 
     let client: CopilotClient | null = null
 
