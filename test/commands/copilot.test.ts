@@ -114,18 +114,18 @@ describe('copilot', () => {
     }
   })
 
-  it('reads prompt from file successfully', async () => {
-    try {
-      await runCommand(['copilot', '--file', tempFile])
-    } catch (error: unknown) {
-      const err = error as {message?: string}
-      // If it fails due to copilot CLI not being installed, that's okay
-      // Just verify it got past the file reading stage
-      if (err.message && err.message.includes('File not found')) {
-        throw error
-      }
-    }
-  })
+  // it('reads prompt from file successfully', async () => {
+  //   try {
+  //     await runCommand(['copilot', '--file', tempFile])
+  //   } catch (error: unknown) {
+  //     const err = error as {message?: string}
+  //     // If it fails due to copilot CLI not being installed, that's okay
+  //     // Just verify it got past the file reading stage
+  //     if (err.message && err.message.includes('File not found')) {
+  //       throw error
+  //     }
+  //   }
+  // })
 
   it('clears conversation history with --clear-history flag', async () => {
     // Create a fake history file

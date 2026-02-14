@@ -14,7 +14,7 @@ jobs:
       - name: Begin CI...
         uses: actions/checkout@v6
 
-      - name: Use Node 20
+      - name: Use Node 24
         uses: actions/setup-node@v6.2.0
         with:
           node-version: 24.x
