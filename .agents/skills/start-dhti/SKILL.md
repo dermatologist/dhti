@@ -7,7 +7,6 @@ description: This skill enables AI agents to orchestrate the DHTI development wo
 ## When to Use This Skill
 
 Use this skill when you need to:
-- Create a complete DHTI application from scratch with both backend (elixir) and frontend (conch) components
 - Install elixirs and conches created by other skills
 - Set up a fully functional DHTI development server for testing and prototyping
 - Rapidly prototype GenAI healthcare applications with both backend and frontend components
@@ -17,24 +16,17 @@ Use this skill when you need to:
 Before using this skill, ensure you have:
 - Node.js (>= 18.0.0) installed
 - Docker and Docker Compose installed and running
-- Python 3.x installed (for elixir development)
-- `uv` package manager (will be installed if not present)
 - Sufficient disk space for Docker images
 
 ## Instructions
-
 You are a DHTI orchestration agent working to create a complete GenAI healthcare application. Follow these instructions sequentially.
+The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
 
 ### Phase 1: Environment Setup
 
 1. **Verify Prerequisites:**
-   - Check that Node.js, Docker, and Python are installed
+   - Check that Node.js and Docker are installed
    - Verify Docker is running: `docker ps`
-
-2. **Install DHTI CLI:**
-   - If not already installed globally: `npm install -g dhti-cli`
-   - Or use via npx: `npx dhti-cli help`
-
 
 ### Phase 2: Set Up DHTI Infrastructure
 
@@ -63,7 +55,9 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 ### Phase 3: Install Elixir from Local Directory (If Applicable)
 
 7. **Install the Generated Elixir:**
-   - Use the new `-l` flag to install the elixir from the local directory specified in the original user prompt.
+   - Install the elixir from `workspace` directory in the current path.
+   - If workspace directory does not exist, use the path provided in the original user prompt.
+   - Use the `-l` flag to specify the directory.
    - Use -n flag with the elixir's project name (starting with `dhti-elixir-`)
 
    ```bash
@@ -85,7 +79,9 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
 ### Phase 4: Install Conch from Local Directory (If Applicable)
 
 9. **Install the Generated Conch:**
-   - Use the new `-l` flag to install the conch from the local directory specified in the original user prompt.
+   - Install the conch from `workspace` directory in the current path.
+   - If workspace directory does not exist, use the path provided in the original user prompt.
+   - Use the  `-l` flag to install the conch from the directory.
    - Use -n flag with the conch's project name (starting with `openmrs-esm-dhti-`)
 
    ```bash
@@ -97,6 +93,33 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
    npx dhti-cli conch install -l workspace/openmrs-esm-dhti/packages/esm-glycemic-advisor -n esm-glycemic-advisor
    ```
 
+### Hot Reload / Dev Sync (If Applicable)
+
+Use these commands to sync work-in-progress code/assets into running containers. This is ideal for UI tweaks and elixir logic changes that don't alter dependencies.
+
+- Elixir dev sync
+
+```bash
+npx dhti-cli elixir dev -d <<workspace>>/dhti-elixir/packages/<<elixir-name>> -n <<elixir-name>> -c dhti-langserve-1
+```
+
+Note: If dependencies change (e.g., `requirements.txt` or `pyproject.toml`), rebuild the image instead of using dev sync.
+
+- Conch dev sync
+
+```bash
+npx dhti-cli conch dev -d <<workspace>>/openmrs-esm-dhti/packages/<<conch-name>> -n <<conch-name>> -c dhti-frontend-1
+```
+
+Tip: Clear your browser cache if assets look stale after syncing.
+
+- Update runtime bootstrap
+
+```bash
+npx dhti-cli docker bootstrap -f <<workspace>>/bootstrap.py -c dhti-langserve-1
+```
+When run for the first time, this command will copy the bootstrap file into the langserve container to workspace.
+Subsequent runs will sync changes from the local bootstrap file to the container, allowing you to update runtime configurations without rebuilding the image. This is especially useful for tweaking model settings, tool configurations, or other parameters defined in the bootstrap file during development.
 
 ### Phase 5: Start DHTI Server
 
@@ -105,60 +128,60 @@ You are a DHTI orchestration agent working to create a complete GenAI healthcare
     npx dhti-cli docker -u
     ```
 
-   - Start openmrs
+### Phase 6: Decide whether to use OpenMRS or CDS-Hooks container.
+
+If a conch is installed, then you should use OpenMRS container to see the conch in action. If no conch is installed, you can choose to use CDS-Hooks container to test the elixir functionality.
+
+#### If using OpenMRS container:
 ```
-npx dhti-cli conch start -n <conch-name>
+npx dhti-cli conch install # if you have not performed this step before.
+npx dhti-cli conch start -s packages/<<conch-name>>
 ```
 
 Example:
 ```
-npx dhti-cli conch start -n esm-glycemic-advisor
+npx dhti-cli conch install # if you have not performed this step before.
+npx dhti-cli conch start -s packages/esm-chatbot-agent
 ```
 
    - Login to OpenMRS with at `http://localhost:8080/openmrs/spa/home`
      - Username: `admin`
      - Password: `Admin123`
 
-
+You may include multiple conches with multiple -s flags to start them at the same time.
 
 12. **Wait for Services to Initialize:**
     - Wait 2-3 minutes for all services to fully start
     - Monitor logs: `docker compose logs -f`
 
-### Phase 6: Verify and Test
-
-13. **Access OpenMRS:**
+13. **Hand off with the following instructions:**
     - Navigate to `http://localhost:8080/openmrs/spa/home`
     - Login credentials:
       - Username: `admin`
       - Password: `Admin123`
 
-14. **Verify Conch Installation:**
-    - Look for the new conch in the OpenMRS interface
-    - It should appear in the navigation or as configured in routes.json
-    - Test the UI functionality
+#### If using CDS-Hooks container:
 
-15. **Verify Elixir Installation:**
-    - Check that the elixir endpoints are accessible
-    - Test the GenAI functionality through the conch
-    - Verify FHIR data retrieval works correctly
+```
+npx dhti-cli elixir start -n <<elixir-name>>
+```
 
-16. **Run Integration Tests:**
-    - If provided in the generated projects, run integration tests
-    - Verify end-to-end functionality
-    - Check for any errors in Docker logs
+Example:
+```
+npx dhti-cli elixir start -n glycemic_advisor
+```
 
-### Phase 9: Documentation and Handoff
+NOTE the `Application link` in the output rather than the final display link.
 
-17. **Create Summary Documentation:**
-    - Document the complete setup in a `notes/<<name>>.md` file
-    - Include:
-      - Elixir name, location, and functionality
-      - Conch name, location, and functionality
-      - Docker images created
-      - Access URLs and credentials
-      - Testing instructions
-      - Known issues or limitations
+12. **Wait for Services to Initialize:**
+   - Wait 2-3 minutes for all services to fully start
+   - Monitor logs: `docker compose logs -f`
+
+13. **Hand off with the following instructions:**
+   - Use the `Application link`: <<application-link>>
+   - Open this in browser to access the application
+
+### Phase 9: Clean Up (If Needed)
 
 18. **Cleanup Instructions:**
     - Provide commands to stop and remove containers:
@@ -180,18 +203,6 @@ npx dhti-cli compose add -m openmrs -m langserve --dry-run
 npx dhti-cli elixir install -l <path> -n <name> --dry-run
 npx dhti-cli conch install -l <path> -n <name> --dry-run
 ```
-
-## Expected Output
-
-A fully functional DHTI development environment that includes:
-- A custom elixir implementing the specified GenAI backend logic
-- A custom conch implementing the specified UI components
-- Complete Docker-based infrastructure with all necessary services
-- Working integration between elixir and conch
-- Accessible OpenMRS interface with the new functionality
-- Documentation for setup, testing, and development
-
-
 
 ## Troubleshooting
 
@@ -223,9 +234,5 @@ Common issues and solutions:
 - Generated projects can be version controlled and shared
 - Docker images can be pushed to registries for deployment
 - The skill creates a complete, production-ready DHTI application
-
-## Related Skills
-
-- **elixir-generator**: For generating standalone elixirs
-- **conch-generator**: For generating standalone conches
+- The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
 

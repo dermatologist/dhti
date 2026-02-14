@@ -13,13 +13,11 @@ DHTI is a platform to rapidly prototype, share, and test GenAI healthcare applic
 
 Use this skill when you need to:
 - Create a new OpenMRS ESM microfrontend from this template
-- Build a DHTI-enabled healthcare application
 - Integrate GenAI capabilities into an OpenMRS microfrontend
 - Develop patient-context-aware UI components for OpenMRS
 
-## Instructions
-
 ### Environment Setup and Project Scaffolding
+* **Use this ONLY if you are creating a new elixir project from scratch.** If you already have an existing elixir project, you can skip the scaffolding step and proceed directly to "Implementation Steps" below.
 
 * **Read and internalize the original user feature request:**
    - Understand the clinical functionality needed.
@@ -32,6 +30,7 @@ Use this skill when you need to:
    ```bash
    npx dhti-cli@latest conch init -w workspace -n esm-dhti-<<name>>
    ```
+
 * **Adapt the code:**
    - The above command creates a new directory at `workspace/openmrs-esm-dhti` with the monorepo.
    - In the packages/ directory of the monorepo (`workspace/openmrs-esm-dhti/packages`), find your newly created microfrontend `esm-dhti-<<name>>`. THIS IS WHERE YOU WILL DO YOUR DEVELOPMENT.
@@ -111,10 +110,10 @@ Use this skill when you need to:
     - Use the `useDhti` route from the monorepo (esm-dhti-utils) to call the DHTI service and get GenAI outputs. You need to update the DHTI service route (dhtiRoute) in the config-schema.ts file. If the user has not provided it above, ask for it using a prompt.
     If the user has only provided the DHTI service name, construct the full route as follows: http://localhost:8001/langserve/dhti_elixir_<service-name>/cds-services/dhti-service. Otherwise use the default value as 'http://localhost:8001/langserve/dhti_elixir_schat/cds-services/dhti-service'
 
-### Implementation
+## Implementation Steps
 
-* **Implement the feature:**
     - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview. Test your code frequently to ensure it works as expected.
+    - The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
 
 ### Testing
 
@@ -141,8 +140,10 @@ Use this skill when you need to:
 
 See `examples/conch-sample-request.md` for a sample feature request that demonstrates how to use this skill.
 
-## Additional Resources
+### Best Practices
+- The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
+- Use OpenMRS design system components where possible to ensure consistency with the rest of the application.
+- Keep components small and focused on a single responsibility.
+- Write clear and concise documentation for your code and features.
+- Test your code frequently to catch issues early.
 
-- [OpenMRS Frontend Modules Overview](https://o3-docs.openmrs.org/docs/frontend-modules/overview)
-- [OpenMRS Extension System](https://o3-docs.openmrs.org/docs/extension-system)
-- [DHTI GitHub Repository](https://github.com/dermatologist/dhti)

@@ -32,6 +32,8 @@ DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agenti
 
 Other skills from the open agent skills ecosystem may be useful too! For example, use `npx skills find clinical trial` to find clinical trial related skills. From the results, you can use `npx skills add <skill-name>` to use the skill in your agentic platform. (e.g.`npx skills add anthropics/healthcare@clinical-trial-protocol-skill`)
 
+**🤖 [AI-Powered Workflow with GitHub Copilot SDK:](/notes/COPILOT.md) - WIP**
+
 ## Try it out
 [[Cheatsheet](/notes/cheatsheet.md) | [Download PDF Cheatsheet](https://nuchange.ca/wp-content/uploads/2026/01/dhti_cheatsheet.pdf)]
 
