@@ -8,7 +8,7 @@ description: This skill enables AI agents to generate new DHTI elixir project. E
 Use this skill when you need to:
 - Create a new DHTI elixir project from scratch
 - Generate a LangServe-based backend service with FHIR integration
-- Implement clinical decision support services using LangChain
+- Implement clinical decision support services
 - Build AI-powered EMR chatbot functionalities
 
 ## Best Practices
@@ -16,12 +16,10 @@ Use this skill when you need to:
 * Reuse existing elixirs where possible instead of creating new ones. You may refer to the list of existing elixirs in the DHTI monorepo: https://github.com/dermatologist/dhti-elixir#available-elixirs
 * Always create a notes/README.md file documenting the purpose, functionality, and usage of the elixir, including additional configuration steps if any as well as other elixirs or services it depends on and needs to be installed alongside.
 * If a RAG pattern is needed, use redis vector stores. Use neo4j to represent complex graphs. Read src/resources/docker-compose.yml to understand how redis and neo4j containers will be spun up. Prefer using existing elixirs if any and mention the dependency in notes/README.md.
-
-## Instructions
-
-You are an elixir coding agent working in a fresh development environment.
+* The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
 
 ### Environment Setup and Project Scaffolding
+* **Use this if you are creating a new elixir project from scratch.** If you already have an existing elixir project, you can skip the scaffolding step and proceed directly to "Implementation Steps" below.
 
 * **Read and internalize the original user feature request:**
    - Understand the clinical functionality needed.
@@ -37,11 +35,39 @@ You are an elixir coding agent working in a fresh development environment.
   - Rename workspace/dhti-elixir/packages/<<name>>/dhti_elixir_starter to workspace/dhti-elixir/packages/<<name>>/dhti_elixir_<<name>>
   - You have to replace "starter" with your chosen name wherever applicable with dhti_elixir_<<name>> in the generated project.
 
-- **Implementation:**
+### Planning: create a TODO list if not completed in previous steps
+
+Before writing or heavily modifying code, create an **elaborate, structured TODO list** in a notes/todo.md file. This TODO list should:
+
+* Break the work into small, concrete tasks.
+* Cover:
+  * **Environment & setup** (if anything beyond cookiecutter defaults is needed),
+  * **Chain design** (inputs/outputs, internal steps, FHIR interactions),
+  * **Implementation tasks** for chain.py and bootstrap.py,
+  * **Dependency updates** (if new packages are needed),
+  * **Unit testing** tasks,
+  * **Documentation updates** (README),
+  * **Validation and final checks**.
+
+Use clear, actionable items that you can check off logically as you progress.
+
+## Implementation Steps
+* YOU WILL DO WORK IN THIS NEWLY GENERATED PROJECT GOING FORWARD. The rest of the project files can be used for reference but you should not modify them directly.
+  - Extract and internalize the following from other packages such as simple_chat in the monorepo:
+
+    - How the LangChain chain is constructed (inputs, outputs, prompts, tools, callbacks, etc.).
+    - How configuration, environment variables, and settings are wired in bootstrap.py.
+    - How FHIR or other external services are integrated, if present.
+    - Any conventions for logging, error handling, and dependency injection.
+
+* You must follow the **same architectural and stylistic patterns** in the <<name>> project's chain.py and bootstrap.py.
   - chain.py:
     - The main class should be named "DhtiChain" inheriting from BaseChain ( from package dhti_elixir_base)
     - The main LLM and optionally a function calling LLM should be injected while bootstrapping as di["dhti_elixir_<<name>>_main_llm"] and di["dhti_elixir_<<name>>_function_llm"] respectively. The default prompt should also be injected as di["dhti_elixir_<<name>>_prompt"]. Additional hyperparameters can be injected as needed. (Replace <<name>> with your chosen name)
     - Plan how the problem can be solved using LangChain constructs (chains, agents, tools, callbacks, etc.) following the patterns in the reference chain.py.
+
+* YOUR TASK is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the user specifications described in the original user request for the elixir. Use subagents if needed to break down the problem into smaller steps. You can also create additional helper classes or functions within chain.py if needed, but avoid creating new files unless absolutely necessary.
+
 - **Bootstrap / configuration of the chain:**
   - bootstrap.py:
     - This file is responsible for setting up dependency injection (DI) for the chain, including:
@@ -62,23 +88,7 @@ di["dhti_elixir_<<name>>_cds_hook_discovery"] = {  # <- <<name>>
 }
 ```
 
-Extract and internalize the following from other packages such as simple_chat in the monorepo:
-
-- How the LangChain chain is constructed (inputs, outputs, prompts, tools, callbacks, etc.).
-- How configuration, environment variables, and settings are wired in bootstrap.py.
-- How FHIR or other external services are integrated, if present.
-- Any conventions for logging, error handling, and dependency injection.
-
-You must follow the **same architectural and stylistic patterns** in the <<name>> project's chain.py and bootstrap.py.
-
-### Implement the new Elixir request
-
-Your primary task is to **update the newly created chain.py and bootstrap.py** in the generated project to implement the following user specification:
-
-The DhtiChain should implement the functionality described in the original user request for the elixir.
-
-Interpret below as the high-level functional requirement for the chain. Your implementation should:
-
+## High level functional requirements for chain.py and bootstrap.py implementation
 - **Align with the reference pattern:**
   - Mirror the structure, abstractions, and flow used in the reference chain.py and bootstrap.py.
   - Reuse naming conventions, configuration style, and initialization patterns where appropriate.
@@ -104,22 +114,6 @@ Interpret below as the high-level functional requirement for the chain. Your imp
 - **Tools** (if applicable):
   - Internalize how the agent uses tools if available from the package agent_chat in the monorepo.
   - The original user specification will indicate any available tools to use. If none are indicated, you do not have access to any tools.
-
-### Planning: create a TODO list
-
-Before writing or heavily modifying code, create an **elaborate, structured TODO list** in a notes/todo.md file. This TODO list should:
-
-* Break the work into small, concrete tasks.
-* Cover:
-  * **Environment & setup** (if anything beyond cookiecutter defaults is needed),
-  * **Chain design** (inputs/outputs, internal steps, FHIR interactions),
-  * **Implementation tasks** for chain.py and bootstrap.py,
-  * **Dependency updates** (if new packages are needed),
-  * **Unit testing** tasks,
-  * **Documentation updates** (README),
-  * **Validation and final checks**.
-
-Use clear, actionable items that you can check off logically as you progress.
 
 ### Implementation details
 
@@ -184,7 +178,7 @@ Perform a **final pass** over the project to ensure:
   - README is up to date.
   - The TODO list accurately reflects what has been completed (you may optionally mark completed tasks).
 
-Your final output should include:
+Your final output for the current iteration may include:
 
 - Updated chain.py and bootstrap.py implementing the requested features,
 - Any new/updated tests,
@@ -193,16 +187,6 @@ Your final output should include:
 - A clear, up-to-date TODO list (with remaining future improvements, if any).
 
 Now proceed to implement the above steps carefully and methodically.
-
-## Expected Output
-
-A fully functional DHTI elixir project that:
-- Follows the architectural patterns of the reference template
-- Implements the requested elixir functionality
-- Includes proper FHIR integration
-- Has comprehensive tests
-- Is well-documented
-- Can be installed into DHTI using the dhti-cli
 
 ## Notes
 
