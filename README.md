@@ -32,6 +32,8 @@ DHTI includes ready‑to‑use [skills](/.github/skills/) that can prompt agenti
 
 Other skills from the open agent skills ecosystem may be useful too! For example, use `npx skills find clinical trial` to find clinical trial related skills. From the results, you can use `npx skills add <skill-name>` to use the skill in your agentic platform. (e.g.`npx skills add anthropics/healthcare@clinical-trial-protocol-skill`)
 
+**🤖 [AI-Powered Workflow with GitHub Copilot SDK:](/notes/COPILOT.md) - WIP**
+
 ## Try it out
 [[Cheatsheet](/notes/cheatsheet.md) | [Download PDF Cheatsheet](https://nuchange.ca/wp-content/uploads/2026/01/dhti_cheatsheet.pdf)]
 
@@ -54,37 +56,6 @@ npx dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir.git 
 npx dhti-cli docker -n yourdockerhandle/genai-test:1.0 -t elixir
 npx dhti-cli docker -u                    # start services from compose
 ```
-
-**🤖 AI-Powered Workflow with GitHub Copilot SDK:**
-
-DHTI now integrates with GitHub Copilot SDK, enabling AI-assisted workflows directly from the command line with **stateful conversations**:
-
-```bash
-# Interactive AI assistance with auto-skill detection
-npx dhti-cli copilot --prompt "Start the DHTI stack with langserve and ollama"
-
-# Continue the conversation - history is automatically maintained
-npx dhti-cli copilot --prompt "Now add redis to the configuration"
-
-# Use specific skills for specialized tasks
-npx dhti-cli copilot --prompt "Create a patient risk assessment elixir" --skill elixir-generator
-
-# Load prompts from files for complex workflows
-npx dhti-cli copilot --file ./my-workflow.txt --model gpt-4.1
-
-# Clear conversation history and start fresh
-npx dhti-cli copilot --clear-history --prompt "Start a new conversation"
-
-# Or just clear history without starting a new conversation
-npx dhti-cli copilot --clear-history
-
-# Available skills: start-dhti, elixir-generator, conch-generator, or auto (default)
-```
-
-Prerequisites for Copilot SDK:
-- Install GitHub Copilot CLI: https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line
-- Authenticate: `copilot auth login`
-- See detailed guide: [notes/copilot-sdk-dhti.md](/notes/copilot-sdk-dhti.md)
 
 Notes:
 - Install from a local directory using `-l`.
