@@ -110,6 +110,31 @@ Use this skill when you need to:
     - Use the `useDhti` route from the monorepo (esm-dhti-utils) to call the DHTI service and get GenAI outputs. You need to update the DHTI service route (dhtiRoute) in the config-schema.ts file. If the user has not provided it above, ask for it using a prompt.
     If the user has only provided the DHTI service name, construct the full route as follows: http://localhost:8001/langserve/dhti_elixir_<service-name>/cds-services/dhti-service. Otherwise use the default value as 'http://localhost:8001/langserve/dhti_elixir_schat/cds-services/dhti-service'
 
+### Directory Structure
+
+```
+workspace/
+└── dhti-elixir/
+    └── packages/
+        └── <name>/                # Your generated elixir package
+            ├── notes/todo.md          # Your detailed TODO list and plan
+            ├── src/dhti_elixir_<name>/   # Main code for the elixir
+            │   ├── chain.py              # Main chain implementation
+            │   ├── bootstrap.py          # Bootstrap/configuration file
+            │   ├── README.md             # Documentation for your elixir
+            │   └── (other files, e.g., __init__.py, utils.py)
+            ├── pyproject.toml            # Add new dependencies here
+            └── tests/
+                └── test_chain.py         # Example test file for chain.py
+└── openmrs-esm-dhti/
+    └── packages/
+        └── esm-dhti-<name>/           # Your generated elixir package
+            ├── notes/todo.md          # Your detailed TODO list and plan
+            ├── src/   # Main code for the conch with multiple subdirectories.
+            ├── package.json          # Update dependencies and metadata here
+            └── README.md             # Documentation for your conch
+```
+
 ## Implementation Steps
 
     - Start implementing the feature based on your plans. Follow best practices for React and OpenMRS frontend-module development. When you are in doubt refer to the implementation guide here: https://r.jina.ai/https://o3-docs.openmrs.org/docs/frontend-modules/overview. Test your code frequently to ensure it works as expected.
