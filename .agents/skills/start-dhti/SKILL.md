@@ -28,6 +28,31 @@ The user conversation may provide context on the work you have done in the past.
    - Check that Node.js and Docker are installed
    - Verify Docker is running: `docker ps`
 
+2. **Directory Structure**
+
+```
+workspace/
+└── dhti-elixir/
+    └── packages/
+        └── <name>/                # Your generated elixir package
+            ├── notes/todo.md          # Your detailed TODO list and plan
+            ├── src/dhti_elixir_<name>/   # Main code for the elixir
+            │   ├── chain.py              # Main chain implementation
+            │   ├── bootstrap.py          # Bootstrap/configuration file
+            │   ├── README.md             # Documentation for your elixir
+            │   └── (other files, e.g., __init__.py, utils.py)
+            ├── pyproject.toml            # Add new dependencies here
+            └── tests/
+                └── test_chain.py         # Example test file for chain.py
+└── openmrs-esm-dhti/
+    └── packages/
+        └── esm-dhti-<name>/           # Your generated elixir package
+            ├── notes/todo.md          # Your detailed TODO list and plan
+            ├── src/   # Main code for the conch with multiple subdirectories.
+            ├── package.json          # Update dependencies and metadata here
+            └── README.md             # Documentation for your conch
+```
+
 ### Phase 2: Set Up DHTI Infrastructure
 
 5. **Create Docker Compose Configuration:**

@@ -11,8 +11,7 @@ import {fileURLToPath} from 'node:url'
  * and display results with streaming support.
  */
 export default class Copilot extends Command {
-  static override description =
-    'Interact with DHTI using GitHub Copilot SDK with streaming responses'
+  static override description = 'Interact with DHTI using GitHub Copilot SDK with streaming responses'
 
   static override examples = [
     '<%= config.bin %> <%= command.id %> --prompt "Start the DHTI stack with langserve"',
@@ -77,8 +76,19 @@ export default class Copilot extends Command {
       return 'conch-generator'
     }
 
-    // Default to start-dhti for general setup/orchestration
-    return 'start-dhti'
+    // Use start-dhti if prompt includes 'start', 'show', or 'run'
+    if (lowerPrompt.includes('start') || lowerPrompt.includes('show') || lowerPrompt.includes('run')) {
+      return 'start-dhti'
+    }
+
+    // If none of the skills match, exit asking for a skill name and show available skills
+    const availableSkills = ['start-dhti', 'elixir-generator', 'conch-generator']
+    this.error(
+      `Could not detect the appropriate skill from the prompt.\n` +
+        `Please specify a skill name using --skill.\n` +
+        `Available skills: ${availableSkills.join(', ')}`,
+    )
+    return ''
   }
 
   /**
@@ -245,7 +255,8 @@ export default class Copilot extends Command {
     }
 
     // Build system message with skill instructions
-    let systemMessageContent = 'You are a helpful assistant that can use specific skills to generate components of the DHTI stack based on user prompts.'
+    let systemMessageContent =
+      'You are a helpful assistant that can use specific skills to generate components of the DHTI stack based on user prompts.'
 
     // Add skill-specific instructions
     if (skillContent) {
@@ -322,13 +333,17 @@ export default class Copilot extends Command {
       }
 
       this.saveConversationHistory(conversationHistory)
-      this.log(chalk.dim(`💾 Conversation saved (${conversationHistory.length} messages). Use --clear-history to reset.`))
+      this.log(
+        chalk.dim(`💾 Conversation saved (${conversationHistory.length} messages). Use --clear-history to reset.`),
+      )
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       this.error(
         chalk.red(`Failed to interact with Copilot SDK: ${errorMessage}\n\n`) +
           chalk.yellow('Troubleshooting:\n') +
-          chalk.yellow('1. Ensure GitHub Copilot CLI is installed: https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line\n') +
+          chalk.yellow(
+            '1. Ensure GitHub Copilot CLI is installed: https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line\n',
+          ) +
           chalk.yellow('2. Authenticate with: copilot auth login\n') +
           chalk.yellow('3. Verify CLI is working: copilot --version\n'),
       )
