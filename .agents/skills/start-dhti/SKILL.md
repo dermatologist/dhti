@@ -93,6 +93,33 @@ The user conversation may provide context on the work you have done in the past.
    npx dhti-cli conch install -l workspace/openmrs-esm-dhti/packages/esm-glycemic-advisor -n esm-glycemic-advisor
    ```
 
+### Hot Reload / Dev Sync (If Applicable)
+
+Use these commands to sync work-in-progress code/assets into running containers. This is ideal for UI tweaks and elixir logic changes that don't alter dependencies.
+
+- Elixir dev sync
+
+```bash
+npx dhti-cli elixir dev -d <<workspace>>/dhti-elixir/packages/<<elixir-name>> -n <<elixir-name>> -c dhti-langserve-1
+```
+
+Note: If dependencies change (e.g., `requirements.txt` or `pyproject.toml`), rebuild the image instead of using dev sync.
+
+- Conch dev sync
+
+```bash
+npx dhti-cli conch dev -d <<workspace>>/openmrs-esm-dhti/packages/<<conch-name>> -n <<conch-name>> -c dhti-frontend-1
+```
+
+Tip: Clear your browser cache if assets look stale after syncing.
+
+- Update runtime bootstrap
+
+```bash
+npx dhti-cli docker bootstrap -f <<workspace>>/bootstrap.py -c dhti-langserve-1
+```
+When run for the first time, this command will copy the bootstrap file into the langserve container to workspace.
+Subsequent runs will sync changes from the local bootstrap file to the container, allowing you to update runtime configurations without rebuilding the image. This is especially useful for tweaking model settings, tool configurations, or other parameters defined in the bootstrap file during development.
 
 ### Phase 5: Start DHTI Server
 
@@ -208,9 +235,4 @@ Common issues and solutions:
 - Docker images can be pushed to registries for deployment
 - The skill creates a complete, production-ready DHTI application
 - The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
-
-## Related Skills
-
-- **elixir-generator**: For generating standalone elixirs
-- **conch-generator**: For generating standalone conches
 
