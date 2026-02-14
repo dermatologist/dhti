@@ -88,6 +88,31 @@ di["dhti_elixir_<<name>>_cds_hook_discovery"] = {  # <- <<name>>
 }
 ```
 
+### Directory Structure
+
+```
+workspace/
+└── dhti-elixir/
+    └── packages/
+        └── <name>/                # Your generated elixir package
+            ├── notes/todo.md          # Your detailed TODO list and plan
+            ├── src/dhti_elixir_<name>/   # Main code for the elixir
+            │   ├── chain.py              # Main chain implementation
+            │   ├── bootstrap.py          # Bootstrap/configuration file
+            │   ├── README.md             # Documentation for your elixir
+            │   └── (other files, e.g., __init__.py, utils.py)
+            ├── pyproject.toml            # Add new dependencies here
+            └── tests/
+                └── test_chain.py         # Example test file for chain.py
+└── openmrs-esm-dhti/
+    └── packages/
+        └── esm-dhti-<name>/           # Your generated elixir package
+            ├── notes/todo.md          # Your detailed TODO list and plan
+            ├── src/   # Main code for the conch with multiple subdirectories.
+            ├── package.json          # Update dependencies and metadata here
+            └── README.md             # Documentation for your conch
+```
+
 ## High level functional requirements for chain.py and bootstrap.py implementation
 - **Align with the reference pattern:**
   - Mirror the structure, abstractions, and flow used in the reference chain.py and bootstrap.py.
