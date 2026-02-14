@@ -2,13 +2,21 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/1.1.0...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.2.0...HEAD)
+
+**Closed issues:**
+
+- Build a new command that uses the COPILOT-SDK to interact with DHTI and display results. [\#119](https://github.com/dermatologist/dhti/issues/119)
 
 **Merged pull requests:**
 
+- Add GitHub Copilot SDK integration with skill-based streaming AI assistance and stateful conversations [\#120](https://github.com/dermatologist/dhti/pull/120) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Feature/agent skills 2 [\#118](https://github.com/dermatologist/dhti/pull/118) ([dermatologist](https://github.com/dermatologist))
+- Feature/agent skills 1 [\#117](https://github.com/dermatologist/dhti/pull/117) ([dermatologist](https://github.com/dermatologist))
 - Feature/orthac 1 [\#116](https://github.com/dermatologist/dhti/pull/116) ([dermatologist](https://github.com/dermatologist))
 - docs: enhance README with additional problem-solving scenarios for DHTI [\#115](https://github.com/dermatologist/dhti/pull/115) ([dermatologist](https://github.com/dermatologist))
 - fix: update instructions for scaffolding microfrontend with latest dh… [\#114](https://github.com/dermatologist/dhti/pull/114) ([dermatologist](https://github.com/dermatologist))
+- chore\(deps\): bump actions/setup-node from 6.1.0 to 6.2.0 [\#113](https://github.com/dermatologist/dhti/pull/113) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Feature/fix elixir overwrite 1 [\#112](https://github.com/dermatologist/dhti/pull/112) ([dermatologist](https://github.com/dermatologist))
 - docs: add initial README.md with usage and command details [\#111](https://github.com/dermatologist/dhti/pull/111) ([dermatologist](https://github.com/dermatologist))
 - Redesign conch command with init, install, and start operations [\#109](https://github.com/dermatologist/dhti/pull/109) ([Copilot](https://github.com/apps/copilot-swe-agent))
@@ -27,6 +35,10 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [1.2.0](https://github.com/dermatologist/dhti/tree/1.2.0) (2026-01-24)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.1.0...1.2.0)
 
 ## [1.1.0](https://github.com/dermatologist/dhti/tree/1.1.0) (2026-01-19)
 
