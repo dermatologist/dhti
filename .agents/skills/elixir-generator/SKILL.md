@@ -19,7 +19,7 @@ Use this skill when you need to:
 * The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
 
 ### Environment Setup and Project Scaffolding
-* **Use this if you are creating a new elixir project from scratch.** If you already have an existing elixir project, you can skip the scaffolding step and proceed directly to "Implementation Steps" below.
+* **Use this ONLY if you are creating a new elixir project from scratch.** If you already have an existing elixir project, you can skip the scaffolding step and proceed directly to "Implementation Steps" below.
 
 * **Read and internalize the original user feature request:**
    - Understand the clinical functionality needed.
