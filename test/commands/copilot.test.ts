@@ -6,17 +6,32 @@ import path from 'node:path'
 
 describe('copilot', () => {
   let tempFile: string
+  let historyPath: string
 
   beforeEach(() => {
     // Create a temporary test file with a prompt
     tempFile = path.join(os.tmpdir(), `copilot-test-${Date.now()}.txt`)
     fs.writeFileSync(tempFile, 'Test prompt for copilot', 'utf8')
+
+    // Set up history path
+    const dhtiDir = path.join(os.homedir(), '.dhti')
+    historyPath = path.join(dhtiDir, 'copilot-history.json')
+
+    // Clean up any existing history before test
+    if (fs.existsSync(historyPath)) {
+      fs.unlinkSync(historyPath)
+    }
   })
 
   afterEach(() => {
     // Clean up temporary file
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
+    }
+
+    // Clean up history file
+    if (fs.existsSync(historyPath)) {
+      fs.unlinkSync(historyPath)
     }
   })
 
@@ -110,5 +125,61 @@ describe('copilot', () => {
         throw error
       }
     }
+  })
+
+  it('clears conversation history with --clear-history flag', async () => {
+    // Create a fake history file
+    const dhtiDir = path.join(os.homedir(), '.dhti')
+    if (!fs.existsSync(dhtiDir)) {
+      fs.mkdirSync(dhtiDir, {recursive: true})
+    }
+
+    const fakeHistory = [
+      {content: 'Previous question', role: 'user'},
+      {content: 'Previous answer', role: 'assistant'},
+    ]
+    fs.writeFileSync(historyPath, JSON.stringify(fakeHistory), 'utf8')
+
+    // Run command with --clear-history
+    const {stdout} = await runCommand(['copilot', '--clear-history'])
+    expect(stdout).to.contain('Conversation history cleared')
+
+    // Verify history file is deleted
+    expect(fs.existsSync(historyPath)).to.be.false
+  })
+
+  it('allows clearing history and starting new conversation', async () => {
+    // Create a fake history file
+    const dhtiDir = path.join(os.homedir(), '.dhti')
+    if (!fs.existsSync(dhtiDir)) {
+      fs.mkdirSync(dhtiDir, {recursive: true})
+    }
+
+    const fakeHistory = [
+      {content: 'Previous question', role: 'user'},
+      {content: 'Previous answer', role: 'assistant'},
+    ]
+    fs.writeFileSync(historyPath, JSON.stringify(fakeHistory), 'utf8')
+
+    // Run command with both --clear-history and --prompt
+    try {
+      await runCommand(['copilot', '--clear-history', '--prompt', 'New conversation'])
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      // If it fails due to copilot CLI not being installed, that's okay
+      if (err.message && !err.message.includes('Failed to interact with Copilot SDK')) {
+        throw error
+      }
+    }
+  })
+
+  it('does not error when clearing non-existent history', async () => {
+    // Ensure no history file exists
+    if (fs.existsSync(historyPath)) {
+      fs.unlinkSync(historyPath)
+    }
+
+    const {stdout} = await runCommand(['copilot', '--clear-history'])
+    expect(stdout).to.contain('No conversation history to clear')
   })
 })

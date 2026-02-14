@@ -2,6 +2,7 @@ import {CopilotClient} from '@github/copilot-sdk'
 import {Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 
@@ -17,9 +18,15 @@ export default class Copilot extends Command {
     '<%= config.bin %> <%= command.id %> --prompt "Start the DHTI stack with langserve"',
     '<%= config.bin %> <%= command.id %> --file ./my-prompt.txt --model gpt-4.1',
     '<%= config.bin %> <%= command.id %> --prompt "Generate a new elixir for patient risk assessment" --skill elixir-generator',
+    '<%= config.bin %> <%= command.id %> --clear-history --prompt "Start fresh conversation"',
+    '<%= config.bin %> <%= command.id %> --clear-history  # Clear history without starting new conversation',
   ]
 
   static override flags = {
+    'clear-history': Flags.boolean({
+      default: false,
+      description: 'Clear conversation history and start a new session',
+    }),
     file: Flags.string({
       char: 'f',
       description: 'Path to a file containing the prompt to send to copilot-sdk',
@@ -75,6 +82,67 @@ export default class Copilot extends Command {
   }
 
   /**
+   * Gets the path to the conversation history file
+   * @returns The path to the history file
+   */
+  private getHistoryFilePath(): string {
+    const dhtiDir = path.join(os.homedir(), '.dhti')
+    if (!fs.existsSync(dhtiDir)) {
+      fs.mkdirSync(dhtiDir, {recursive: true})
+    }
+
+    return path.join(dhtiDir, 'copilot-history.json')
+  }
+
+  /**
+   * Loads conversation history from file
+   * @returns Array of conversation turns or empty array if no history
+   */
+  private loadConversationHistory(): Array<{role: 'assistant' | 'user'; content: string}> {
+    try {
+      const historyPath = this.getHistoryFilePath()
+      if (fs.existsSync(historyPath)) {
+        const historyData = fs.readFileSync(historyPath, 'utf8')
+        return JSON.parse(historyData)
+      }
+    } catch (error) {
+      this.warn(chalk.yellow(`Failed to load conversation history: ${error}`))
+    }
+
+    return []
+  }
+
+  /**
+   * Saves conversation history to file
+   * @param history - Array of conversation turns to save
+   */
+  private saveConversationHistory(history: Array<{role: 'assistant' | 'user'; content: string}>): void {
+    try {
+      const historyPath = this.getHistoryFilePath()
+      fs.writeFileSync(historyPath, JSON.stringify(history, null, 2), 'utf8')
+    } catch (error) {
+      this.warn(chalk.yellow(`Failed to save conversation history: ${error}`))
+    }
+  }
+
+  /**
+   * Clears the conversation history
+   */
+  private clearConversationHistory(): void {
+    try {
+      const historyPath = this.getHistoryFilePath()
+      if (fs.existsSync(historyPath)) {
+        fs.unlinkSync(historyPath)
+        this.log(chalk.green('✓ Conversation history cleared'))
+      } else {
+        this.log(chalk.yellow('No conversation history to clear'))
+      }
+    } catch (error) {
+      this.warn(chalk.yellow(`Failed to clear conversation history: ${error}`))
+    }
+  }
+
+  /**
    * Fetches skill content from GitHub if not available locally
    * @param skillName - The name of the skill to fetch
    * @returns The skill content or null if not found
@@ -125,6 +193,15 @@ export default class Copilot extends Command {
   public async run(): Promise<void> {
     const {flags} = await this.parse(Copilot)
 
+    // Handle clear-history flag
+    if (flags['clear-history']) {
+      this.clearConversationHistory()
+      // If only clearing history, exit after clearing
+      if (!flags.prompt && !flags.file) {
+        return
+      }
+    }
+
     // Validate that either prompt or file is provided
     if (!flags.prompt && !flags.file) {
       this.error('Either --prompt or --file must be provided')
@@ -144,6 +221,14 @@ export default class Copilot extends Command {
       }
     } else {
       promptContent = flags.prompt!
+    }
+
+    // Load conversation history
+    const conversationHistory = this.loadConversationHistory()
+    const hasHistory = conversationHistory.length > 0
+
+    if (hasHistory) {
+      this.log(chalk.cyan(`📜 Loaded ${conversationHistory.length} previous message(s) from history`))
     }
 
     // Determine which skill to use
@@ -172,10 +257,21 @@ export default class Copilot extends Command {
       systemMessageContent += '\n\nNote: If the user needs to start the DHTI stack, use the start-dhti skill workflow.'
     }
 
+    // Add conversation history context
+    if (hasHistory) {
+      systemMessageContent += '\n\n## Previous Conversation\n'
+      systemMessageContent += 'Here is the conversation history for context:\n\n'
+      for (const turn of conversationHistory) {
+        systemMessageContent += `${turn.role === 'user' ? 'User' : 'Assistant'}: ${turn.content}\n\n`
+      }
+
+      systemMessageContent += 'Continue the conversation naturally based on this context.'
+    }
+
     this.log(chalk.green('Initializing GitHub Copilot SDK...'))
-    this.log(chalk.yellow(systemMessageContent))
 
     let client: CopilotClient | null = null
+    let assistantResponse = ''
 
     try {
       // Create copilot client
@@ -202,7 +298,9 @@ export default class Copilot extends Command {
           responseStarted = true
         }
 
-        process.stdout.write(event.data.deltaContent)
+        const content = event.data.deltaContent
+        process.stdout.write(content)
+        assistantResponse += content
       })
 
       // Handle session idle (response complete)
@@ -216,6 +314,15 @@ export default class Copilot extends Command {
       await session.sendAndWait({prompt: promptContent})
 
       this.log(chalk.blue('\n--- End of Response ---\n'))
+
+      // Save conversation history
+      conversationHistory.push({content: promptContent, role: 'user'})
+      if (assistantResponse.trim()) {
+        conversationHistory.push({content: assistantResponse.trim(), role: 'assistant'})
+      }
+
+      this.saveConversationHistory(conversationHistory)
+      this.log(chalk.dim(`💾 Conversation saved (${conversationHistory.length} messages). Use --clear-history to reset.`))
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       this.error(

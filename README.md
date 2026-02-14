@@ -57,17 +57,26 @@ npx dhti-cli docker -u                    # start services from compose
 
 **🤖 AI-Powered Workflow with GitHub Copilot SDK:**
 
-DHTI now integrates with GitHub Copilot SDK, enabling AI-assisted workflows directly from the command line:
+DHTI now integrates with GitHub Copilot SDK, enabling AI-assisted workflows directly from the command line with **stateful conversations**:
 
 ```bash
 # Interactive AI assistance with auto-skill detection
 npx dhti-cli copilot --prompt "Start the DHTI stack with langserve and ollama"
+
+# Continue the conversation - history is automatically maintained
+npx dhti-cli copilot --prompt "Now add redis to the configuration"
 
 # Use specific skills for specialized tasks
 npx dhti-cli copilot --prompt "Create a patient risk assessment elixir" --skill elixir-generator
 
 # Load prompts from files for complex workflows
 npx dhti-cli copilot --file ./my-workflow.txt --model gpt-4.1
+
+# Clear conversation history and start fresh
+npx dhti-cli copilot --clear-history --prompt "Start a new conversation"
+
+# Or just clear history without starting a new conversation
+npx dhti-cli copilot --clear-history
 
 # Available skills: start-dhti, elixir-generator, conch-generator, or auto (default)
 ```

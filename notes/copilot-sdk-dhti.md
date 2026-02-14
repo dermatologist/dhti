@@ -22,6 +22,7 @@ The DHTI Copilot command integrates GitHub's Copilot SDK to provide AI-assisted 
 - **Context-aware assistance**: Automatically detect the right skill based on your prompt
 - **Streaming responses**: Real-time feedback as the AI processes your request
 - **Skill-based guidance**: Leverage documented DHTI skills (start-dhti, elixir-generator, conch-generator) for consistent, high-quality results
+- **Stateful conversations**: Maintain conversation history across multiple command executions for continuous dialogue
 
 ## Prerequisites
 
@@ -103,8 +104,9 @@ dhti-cli copilot [OPTIONS]
 | `--file` | `-f` | Path to file containing prompt | - |
 | `--model` | `-m` | Model to use (e.g., gpt-4.1, gpt-4o, gpt-5.2) | `gpt-4.1` |
 | `--skill` | `-s` | Skill to use (auto, start-dhti, elixir-generator, conch-generator) | `auto` |
+| `--clear-history` | - | Clear conversation history and optionally start fresh | `false` |
 
-**Note**: Either `--prompt` or `--file` must be provided, but not both.
+**Note**: Either `--prompt` or `--file` must be provided, but not both (unless only using `--clear-history`).
 
 ### Model Selection
 
@@ -257,11 +259,84 @@ dhti-cli copilot -m gpt-4o --prompt "Compare different approaches for implementi
 dhti-cli copilot -m gpt-5.2 --prompt "Design a DHTI architecture for multi-tenant deployment"
 ```
 
+### Example 7: Stateful Conversations
+
+Maintain context across multiple interactions:
+
+```bash
+# First interaction - start the conversation
+dhti-cli copilot --prompt "I need to set up a DHTI development environment"
+
+# AI responds with setup steps...
+
+# Continue the conversation - history is automatically maintained
+dhti-cli copilot --prompt "Now add ollama for local model hosting"
+
+# AI remembers the previous context and continues naturally...
+
+# Ask a follow-up question
+dhti-cli copilot --prompt "What configuration changes do I need for production?"
+
+# AI continues with the full context of the conversation...
+
+# Start fresh when needed
+dhti-cli copilot --clear-history --prompt "Let's discuss a different topic"
+```
+
+**What happens:**
+1. Each command execution saves the conversation (user prompt + AI response) to `~/.dhti/copilot-history.json`
+2. Subsequent commands load the history and include it in the system message
+3. The AI maintains context across multiple command executions
+4. Use `--clear-history` to reset and start a new conversation
+
+### Example 8: Managing Conversation History
+
+```bash
+# Check if you have history by looking at the message count
+dhti-cli copilot --prompt "Continue our discussion"
+# Output: 📜 Loaded 4 previous message(s) from history
+
+# Clear history without starting a new conversation
+dhti-cli copilot --clear-history
+# Output: ✓ Conversation history cleared
+
+# Clear history and immediately start a new conversation
+dhti-cli copilot --clear-history --prompt "Let's start over with a new project"
+```
+
 ## Advanced Features
 
 ### Streaming Responses
 
 All responses are streamed in real-time, providing immediate feedback as the AI generates content. You'll see text appear progressively rather than waiting for the complete response.
+
+### Stateful Conversation History
+
+The copilot command maintains conversation history across multiple executions, enabling continuous dialogue:
+
+**How it works:**
+- Conversation history is stored in `~/.dhti/copilot-history.json`
+- Each interaction (user prompt + AI response) is appended to the history
+- History is loaded automatically on subsequent commands
+- History is included in the system message for context
+
+**Benefits:**
+- **Continuity**: AI remembers previous interactions and maintains context
+- **Efficiency**: No need to repeat context in every prompt
+- **Natural dialogue**: Conversations flow naturally across multiple command executions
+- **Iterative refinement**: Easily build on previous responses
+
+**Management:**
+- View history status: Each command shows how many messages are loaded
+- Clear history: Use `--clear-history` flag to start fresh
+- Storage location: `~/.dhti/copilot-history.json` (simple JSON format)
+- No size limits: History grows indefinitely until cleared
+
+**Best practices:**
+1. Clear history when switching to a completely different topic
+2. Clear history if responses become confused or lose focus
+3. Keep conversations focused on related topics for best results
+4. Periodically clear history to prevent overly long context
 
 ### Error Handling
 
@@ -271,12 +346,14 @@ The command includes comprehensive error handling:
 - **Skill loading failures**: Falls back gracefully, continues without skill context
 - **File not found**: Validates file existence before processing
 - **Network issues**: Handles GitHub API failures when fetching remote skills
+- **History errors**: Warns about history read/write failures without blocking execution
 
 ### System Message Configuration
 
 Skills are injected into the AI's system message using the "append" mode, which:
 - Preserves GitHub Copilot SDK's built-in safety guardrails
 - Adds DHTI-specific instructions on top
+- Includes conversation history for context
 - Ensures consistent, high-quality responses
 
 ## Troubleshooting
@@ -329,6 +406,29 @@ ln -s /path/to/dhti/.agents .agents
 - Rephrase your prompt to be more specific
 - Include context and examples in your prompt
 
+### Issue: Conversation history causing confused responses
+
+**Cause**: Long or mixed-topic conversation history
+
+**Solutions**:
+```bash
+# Clear history and start fresh
+dhti-cli copilot --clear-history
+
+# Then start your new conversation
+dhti-cli copilot --prompt "New topic here"
+```
+
+### Issue: Unable to read/write conversation history
+
+**Cause**: File permission issues or disk space
+
+**Solutions**:
+- Check permissions on `~/.dhti/` directory
+- Ensure sufficient disk space
+- Manually delete `~/.dhti/copilot-history.json` if corrupted
+- The command will continue to work even if history can't be saved
+
 ## Future Improvements
 
 ### Planned Enhancements
@@ -338,10 +438,11 @@ ln -s /path/to/dhti/.agents .agents
    - Enable Copilot to directly execute DHTI CLI commands
    - Implement tool approval workflow for safety
 
-2. **Session Persistence**
-   - Save conversation history for multi-turn interactions
-   - Resume previous sessions
-   - Export conversations for documentation
+2. **Enhanced Session Management** ✅ *Implemented*
+   - ✅ Save conversation history for multi-turn interactions
+   - ✅ Clear history with `--clear-history` flag
+   - Future: Export conversations to markdown for documentation
+   - Future: Import/restore conversation sessions
 
 3. **Advanced Parameters**
    - Add `--temperature` flag for response randomness control
