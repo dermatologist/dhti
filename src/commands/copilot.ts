@@ -23,6 +23,7 @@ export default class Copilot extends Command {
 
   static override flags = {
     'clear-history': Flags.boolean({
+      char: 'c',
       default: false,
       description: 'Clear conversation history and start a new session',
     }),
