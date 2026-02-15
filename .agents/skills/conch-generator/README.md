@@ -2,9 +2,7 @@
 
 This directory contains agent skills for AI-powered coding assistants.
 
-## Available Skills
-
-### OpenMRS Conch Agent Skill (`SKILL.md`)
+### conch-generator skill (`SKILL.md`)
 
 This skill helps AI assistants generate new OpenMRS ESM microfrontends (conch) from this template. It provides comprehensive guidance on:
 
