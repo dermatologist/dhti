@@ -1,10 +1,6 @@
 # Agent Skills
 
-This directory contains agent skills for AI-powered coding assistants like GitHub Copilot, Claude, and other AI development tools.
-
-## What are Agent Skills?
-
-Agent skills are specialized instructions that help AI coding assistants understand how to work with this repository. They provide context, workflows, and best practices specific to this project.
+This directory contains agent skills for AI-powered coding assistants.
 
 ## Available Skills
 
@@ -16,15 +12,15 @@ This skill helps AI assistants generate new OpenMRS ESM microfrontends (conch) f
 - Scaffolding new microfrontend projects
 - Implementing GenAI-powered features
 - Integrating with the OpenMRS 3.x ecosystem
-- Working with DHTI (Digital Health Technology & Innovation) services
+- Working with DHTI services
 
-**Use this skill when:** You need to create a new DHTI-enabled healthcare application or OpenMRS microfrontend.
+**Use this skill when:** You need to create a OpenMRS microfrontend for DHTI.
 
 ## Examples
 
 The `examples/` directory contains sample feature requests and use cases that demonstrate how to invoke and use these skills effectively.
 
-- `conch-sample-request.md` - Example of creating a glycemic control widget with GenAI integration
+- `conch-sample-request.md` - Example of creating a glycemic control widget with DHTI integration
 
 ## How to Use These Skills
 
@@ -36,7 +32,7 @@ When working with AI coding assistants that support custom skills:
 
 Example invocation:
 ```
-I need to create a new OpenMRS microfrontend using the DHTI template.
+I need to create a new OpenMRS microfrontend for DHTI.
 Please use the OpenMRS Conch Agent Skill with the following requirements:
 [Your feature request here]
 ```
