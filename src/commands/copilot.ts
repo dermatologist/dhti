@@ -17,6 +17,7 @@ export default class Copilot extends Command {
     '<%= config.bin %> <%= command.id %> --prompt "Start the DHTI stack with langserve"',
     '<%= config.bin %> <%= command.id %> --file ./my-prompt.txt --model gpt-5.2',
     '<%= config.bin %> <%= command.id %> --prompt "Generate a new elixir for patient risk assessment" --skill elixir-generator',
+    '<%= config.bin %> <%= command.id %> --prompt "Complex task" --timeout 300  # Increase timeout for long-running requests',
     '<%= config.bin %> <%= command.id %> --clear-history --prompt "Start fresh conversation"',
     '<%= config.bin %> <%= command.id %> --clear-history  # Clear history without starting new conversation',
   ]
@@ -53,160 +54,15 @@ export default class Copilot extends Command {
       default: 'auto',
       description: 'Skill to use for copilot-sdk interactions (auto, start-dhti, elixir-generator, conch-generator)',
     }),
+    timeout: Flags.integer({
+      char: 't',
+      default: 180,
+      description:
+        'Timeout in seconds for model response (default: 180). Increase for complex prompts or slower models.',
+      min: 30,
+    }),
   }
 
-  /**
-   * Detects the appropriate skill based on the prompt content
-   * @param prompt - The user's prompt text
-   * @returns The detected skill name
-   */
-  private detectSkill(prompt: string): string {
-    const lowerPrompt = prompt.toLowerCase()
-
-    // Check for elixir-related keywords
-    if (
-      lowerPrompt.includes('elixir') ||
-      lowerPrompt.includes('backend') ||
-      lowerPrompt.includes('langserve') ||
-      lowerPrompt.includes('genai app')
-    ) {
-      return 'elixir-generator'
-    }
-
-    // Check for conch-related keywords
-    if (
-      lowerPrompt.includes('conch') ||
-      lowerPrompt.includes('frontend') ||
-      lowerPrompt.includes('ui') ||
-      lowerPrompt.includes('openmrs')
-    ) {
-      return 'conch-generator'
-    }
-
-    // Use start-dhti if prompt includes 'start', 'show', or 'run'
-    if (lowerPrompt.includes('start') || lowerPrompt.includes('show') || lowerPrompt.includes('run')) {
-      return 'start-dhti'
-    }
-
-    // If none of the skills match, exit asking for a skill name and show available skills
-    const availableSkills = ['start-dhti', 'elixir-generator', 'conch-generator']
-    this.error(
-      `Could not detect the appropriate skill from the prompt.\n` +
-        `Please specify a skill name using --skill.\n` +
-        `Available skills: ${availableSkills.join(', ')}`,
-    )
-    return ''
-  }
-
-  /**
-   * Gets the path to the conversation history file
-   * @returns The path to the history file
-   */
-  private getHistoryFilePath(): string {
-    const dhtiDir = path.join(os.homedir(), '.dhti')
-    if (!fs.existsSync(dhtiDir)) {
-      fs.mkdirSync(dhtiDir, {recursive: true})
-    }
-
-    return path.join(dhtiDir, 'copilot-history.json')
-  }
-
-  /**
-   * Loads conversation history from file
-   * @returns Array of conversation turns or empty array if no history
-   */
-  private loadConversationHistory(): Array<{role: 'assistant' | 'user'; content: string}> {
-    try {
-      const historyPath = this.getHistoryFilePath()
-      if (fs.existsSync(historyPath)) {
-        const historyData = fs.readFileSync(historyPath, 'utf8')
-        return JSON.parse(historyData)
-      }
-    } catch (error) {
-      this.warn(chalk.yellow(`Failed to load conversation history: ${error}`))
-    }
-
-    return []
-  }
-
-  /**
-   * Saves conversation history to file
-   * @param history - Array of conversation turns to save
-   */
-  private saveConversationHistory(history: Array<{role: 'assistant' | 'user'; content: string}>): void {
-    try {
-      const historyPath = this.getHistoryFilePath()
-      fs.writeFileSync(historyPath, JSON.stringify(history, null, 2), 'utf8')
-    } catch (error) {
-      this.warn(chalk.yellow(`Failed to save conversation history: ${error}`))
-    }
-  }
-
-  /**
-   * Clears the conversation history
-   */
-  private clearConversationHistory(): void {
-    try {
-      const historyPath = this.getHistoryFilePath()
-      if (fs.existsSync(historyPath)) {
-        fs.unlinkSync(historyPath)
-        this.log(chalk.green('✓ Conversation history cleared'))
-      } else {
-        this.log(chalk.yellow('No conversation history to clear'))
-      }
-    } catch (error) {
-      this.warn(chalk.yellow(`Failed to clear conversation history: ${error}`))
-    }
-  }
-
-  /**
-   * Fetches skill content from GitHub if not available locally
-   * @param skillName - The name of the skill to fetch
-   * @returns The skill content or null if not found
-   */
-  private async fetchSkillFromGitHub(skillName: string): Promise<null | string> {
-    try {
-      const url = `https://raw.githubusercontent.com/dermatologist/dhti/develop/.agents/skills/${skillName}/SKILL.md`
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        return null
-      }
-
-      return response.text()
-    } catch (error) {
-      this.warn(`Failed to fetch skill ${skillName} from GitHub: ${error}`)
-      return null
-    }
-  }
-
-  /**
-   * Loads skill instructions from local or remote source
-   * @param skillName - The name of the skill to load
-   * @returns The skill content or null if not found
-   */
-  private async loadSkill(skillName: string): Promise<null | string> {
-    // Resolve skills directory
-    const __filename = fileURLToPath(import.meta.url)
-    const __dirname = path.dirname(__filename)
-    const skillsDir = path.resolve(__dirname, '../../.agents/skills')
-    const skillPath = path.join(skillsDir, skillName, 'SKILL.md')
-
-    // Try to load from local directory first
-    if (fs.existsSync(skillPath)) {
-      try {
-        return fs.readFileSync(skillPath, 'utf8')
-      } catch (error) {
-        this.warn(`Failed to read local skill file: ${error}`)
-      }
-    }
-
-    // If not found locally, try to fetch from GitHub
-    this.log(chalk.yellow(`Skill ${skillName} not found locally, fetching from GitHub...`))
-    return this.fetchSkillFromGitHub(skillName)
-  }
-
-  // eslint-disable-next-line perfectionist/sort-classes
   public async run(): Promise<void> {
     const {flags} = await this.parse(Copilot)
 
@@ -321,15 +177,37 @@ export default class Copilot extends Command {
         assistantResponse += content
       })
 
-      // Handle session idle (response complete)
-      session.on('session.idle', () => {
-        if (responseStarted) {
-          console.log('\n') // Add newline after response
-        }
+      // Handle session errors
+      session.on('session.error', (error) => {
+        this.warn(chalk.yellow(`Session error: ${error}`))
       })
 
-      // Send the prompt and wait for completion
-      await session.sendAndWait({prompt: promptContent})
+      // Send the prompt with a configurable timeout
+      const timeoutMs = flags.timeout * 1000
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error(`Request timeout after ${timeoutMs}ms - increase with --timeout flag if needed`))
+        }, timeoutMs)
+      })
+
+      this.log(chalk.dim(`⏱  Timeout set to ${flags.timeout} seconds (use --timeout to adjust)`))
+
+      try {
+        await Promise.race([session.sendAndWait({prompt: promptContent}), timeoutPromise])
+      } catch (timeoutError) {
+        if (assistantResponse.trim()) {
+          this.log(chalk.yellow(`\n⚠ Response incomplete due to timeout, but partial response was captured.`))
+          this.log(
+            chalk.yellow(`💡 Tip: Try increasing timeout with --timeout ${flags.timeout * 2} for longer responses`),
+          )
+        } else {
+          throw timeoutError
+        }
+      }
+
+      if (responseStarted) {
+        console.log('\n') // Add newline after response
+      }
 
       this.log(chalk.blue('\n--- End of Response ---\n'))
 
@@ -359,6 +237,157 @@ export default class Copilot extends Command {
       if (client) {
         await client.stop()
       }
+    }
+  }
+
+  /**
+   * Clears the conversation history
+   */
+  private clearConversationHistory(): void {
+    try {
+      const historyPath = this.getHistoryFilePath()
+      if (fs.existsSync(historyPath)) {
+        fs.unlinkSync(historyPath)
+        this.log(chalk.green('✓ Conversation history cleared'))
+      } else {
+        this.log(chalk.yellow('No conversation history to clear'))
+      }
+    } catch (error) {
+      this.warn(chalk.yellow(`Failed to clear conversation history: ${error}`))
+    }
+  }
+
+  /**
+   * Detects the appropriate skill based on the prompt content
+   * @param prompt - The user's prompt text
+   * @returns The detected skill name
+   */
+  private detectSkill(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase()
+
+    // Check for elixir-related keywords
+    if (
+      lowerPrompt.includes('elixir') ||
+      lowerPrompt.includes('backend') ||
+      lowerPrompt.includes('langserve') ||
+      lowerPrompt.includes('genai app')
+    ) {
+      return 'elixir-generator'
+    }
+
+    // Check for conch-related keywords
+    if (
+      lowerPrompt.includes('conch') ||
+      lowerPrompt.includes('frontend') ||
+      lowerPrompt.includes('ui') ||
+      lowerPrompt.includes('openmrs')
+    ) {
+      return 'conch-generator'
+    }
+
+    // Use start-dhti if prompt includes 'start', 'show', or 'run'
+    if (lowerPrompt.includes('start') || lowerPrompt.includes('show') || lowerPrompt.includes('run')) {
+      return 'start-dhti'
+    }
+
+    // If none of the skills match, exit asking for a skill name and show available skills
+    const availableSkills = ['start-dhti', 'elixir-generator', 'conch-generator']
+    this.error(
+      `Could not detect the appropriate skill from the prompt.\n` +
+        `Please specify a skill name using --skill.\n` +
+        `Available skills: ${availableSkills.join(', ')}`,
+    )
+    return ''
+  }
+
+  /**
+   * Fetches skill content from GitHub if not available locally
+   * @param skillName - The name of the skill to fetch
+   * @returns The skill content or null if not found
+   */
+  private async fetchSkillFromGitHub(skillName: string): Promise<null | string> {
+    try {
+      const url = `https://raw.githubusercontent.com/dermatologist/dhti/develop/.agents/skills/${skillName}/SKILL.md`
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        return null
+      }
+
+      return response.text()
+    } catch (error) {
+      this.warn(`Failed to fetch skill ${skillName} from GitHub: ${error}`)
+      return null
+    }
+  }
+
+  /**
+   * Gets the path to the conversation history file
+   * @returns The path to the history file
+   */
+  private getHistoryFilePath(): string {
+    const dhtiDir = path.join(os.homedir(), '.dhti')
+    if (!fs.existsSync(dhtiDir)) {
+      fs.mkdirSync(dhtiDir, {recursive: true})
+    }
+
+    return path.join(dhtiDir, 'copilot-history.json')
+  }
+
+  /**
+   * Loads conversation history from file
+   * @returns Array of conversation turns or empty array if no history
+   */
+  private loadConversationHistory(): Array<{content: string; role: 'assistant' | 'user'}> {
+    try {
+      const historyPath = this.getHistoryFilePath()
+      if (fs.existsSync(historyPath)) {
+        const historyData = fs.readFileSync(historyPath, 'utf8')
+        return JSON.parse(historyData)
+      }
+    } catch (error) {
+      this.warn(chalk.yellow(`Failed to load conversation history: ${error}`))
+    }
+
+    return []
+  }
+
+  /**
+   * Loads skill instructions from local or remote source
+   * @param skillName - The name of the skill to load
+   * @returns The skill content or null if not found
+   */
+  private async loadSkill(skillName: string): Promise<null | string> {
+    // Resolve skills directory
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
+    const skillsDir = path.resolve(__dirname, '../../.agents/skills')
+    const skillPath = path.join(skillsDir, skillName, 'SKILL.md')
+
+    // Try to load from local directory first
+    if (fs.existsSync(skillPath)) {
+      try {
+        return fs.readFileSync(skillPath, 'utf8')
+      } catch (error) {
+        this.warn(`Failed to read local skill file: ${error}`)
+      }
+    }
+
+    // If not found locally, try to fetch from GitHub
+    this.log(chalk.yellow(`Skill ${skillName} not found locally, fetching from GitHub...`))
+    return this.fetchSkillFromGitHub(skillName)
+  }
+
+  /**
+   * Saves conversation history to file
+   * @param history - Array of conversation turns to save
+   */
+  private saveConversationHistory(history: Array<{content: string; role: 'assistant' | 'user'}>): void {
+    try {
+      const historyPath = this.getHistoryFilePath()
+      fs.writeFileSync(historyPath, JSON.stringify(history, null, 2), 'utf8')
+    } catch (error) {
+      this.warn(chalk.yellow(`Failed to save conversation history: ${error}`))
     }
   }
 }
