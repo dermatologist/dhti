@@ -15,7 +15,7 @@ export default class Copilot extends Command {
 
   static override examples = [
     '<%= config.bin %> <%= command.id %> --prompt "Start the DHTI stack with langserve"',
-    '<%= config.bin %> <%= command.id %> --file ./my-prompt.txt --model gpt-4.1',
+    '<%= config.bin %> <%= command.id %> --file ./my-prompt.txt --model gpt-5.2',
     '<%= config.bin %> <%= command.id %> --prompt "Generate a new elixir for patient risk assessment" --skill elixir-generator',
     '<%= config.bin %> <%= command.id %> --clear-history --prompt "Start fresh conversation"',
     '<%= config.bin %> <%= command.id %> --clear-history  # Clear history without starting new conversation',
@@ -35,7 +35,13 @@ export default class Copilot extends Command {
     model: Flags.string({
       char: 'm',
       default: 'gpt-4.1',
-      description: 'Model to use for copilot-sdk interactions',
+      description:
+        'Model to use for copilot-sdk interactions. Supported models include: ' +
+        'GPT-4.1 (default), GPT-5.1, GPT-5.2, GPT-5.3, o1-mini, o3-mini, o4-mini, ' +
+        'Claude Haiku 4.5, Claude Opus 4.1/4.5/4.6, Claude Sonnet 3.5/3.7/4.5, ' +
+        'Gemini 2.0 Flash, Gemini 2.5 Pro, Gemini 3 Flash/Pro, Grok Code Fast 1, Raptor mini. ' +
+        'Model availability depends on your GitHub Copilot subscription. ' +
+        'See https://docs.github.com/en/copilot/reference/ai-models/supported-models for details.',
     }),
     prompt: Flags.string({
       char: 'p',
