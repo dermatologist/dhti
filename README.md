@@ -14,7 +14,7 @@
 > 🚀 Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs.
 
 # DHTI
-*DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications inside an EHR, helping experiments move smoothly into practice. DHTI also includes [skills](/.github/skills/) that generate GenAI components from problem‑oriented [prompts](/prompts/e2e-sample.md).*
+*DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications inside an EHR, helping experiments move smoothly into practice. DHTI also includes [skills](/.agents/skills/) that generate GenAI components from problem‑oriented [prompts](/.agents/skills/start-dhti/examples/e2e-sample.md).*
 
 ### Why?
 
