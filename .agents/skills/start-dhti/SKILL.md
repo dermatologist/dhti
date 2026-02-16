@@ -203,8 +203,9 @@ NOTE the `Application link` in the output rather than the final display link.
    - Monitor logs: `docker compose logs -f`
 
 13. **Hand off with the following instructions:**
-   - Use the `Application link`: <<application-link>>
-   - Open this in browser to access the application
+   - Request the user to run `npx dhti-cli elixir start -n <<elixir-name>>` to start the CDS-Hooks container with the elixir.
+   - Display the `Application link`: <<application-link>>
+   - Request to open application link in browser to access it.
 
 ### Phase 9: Clean Up (If Needed)
 
