@@ -2,10 +2,16 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/1.3.0...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.3.1...HEAD)
+
+**Closed issues:**
+
+- Add additional models [\#123](https://github.com/dermatologist/dhti/issues/123)
 
 **Merged pull requests:**
 
+- Add supported models list to copilot command flag description [\#124](https://github.com/dermatologist/dhti/pull/124) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Feature/fix skills 3 [\#122](https://github.com/dermatologist/dhti/pull/122) ([dermatologist](https://github.com/dermatologist))
 - Feature/fix start skill 1 [\#121](https://github.com/dermatologist/dhti/pull/121) ([dermatologist](https://github.com/dermatologist))
 - Add GitHub Copilot SDK integration with skill-based streaming AI assistance and stateful conversations [\#120](https://github.com/dermatologist/dhti/pull/120) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/agent skills 2 [\#118](https://github.com/dermatologist/dhti/pull/118) ([dermatologist](https://github.com/dermatologist))
@@ -32,6 +38,10 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [1.3.1](https://github.com/dermatologist/dhti/tree/1.3.1) (2026-02-14)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.3.0...1.3.1)
 
 ## [1.3.0](https://github.com/dermatologist/dhti/tree/1.3.0) (2026-02-14)
 
