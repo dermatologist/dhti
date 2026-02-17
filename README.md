@@ -14,7 +14,7 @@
 > 🚀 Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs.
 
 # DHTI
-*DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications inside an EHR, helping experiments move smoothly into practice. DHTI also includes [skills](/.github/skills/) that generate GenAI components from problem‑oriented [prompts](/prompts/e2e-sample.md).*
+*DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications inside an EHR, helping experiments move smoothly into practice. DHTI also includes [skills](/.agents/skills/) that generate GenAI components from problem‑oriented [prompts](/.agents/skills/start-dhti/examples/e2e-sample.md).*
 
 ### Why?
 
@@ -32,7 +32,12 @@ DHTI includes ready‑to‑use [skills](/.agents/skills/) that can prompt agenti
 
 Other skills from the open agent skills ecosystem may be useful too! For example, use `npx skills find clinical trial` to find clinical trial related skills. From the results, you can use `npx skills add <skill-name>` to use the skill in your agentic platform. (e.g.`npx skills add anthropics/healthcare@clinical-trial-protocol-skill`)
 
-**🤖 [AI-Powered Workflow with GitHub Copilot SDK:](/notes/COPILOT.md) - WIP**
+## **🤖 [AI-Powered Workflow with GitHub Copilot SDK:](/notes/COPILOT.md) - WIP**
+### Quick example
+```bash
+npx dhti-cli copilot --model gpt-5.3-codex --skill elixir-generator --prompt "Generate an elixir glycemic_advisor that summarizes diabetic patients' latest lab results and medications"
+npx dhti-cli copilot --model gpt-5.3-codex --skill start-dhti --prompt "Start the glycemic_advisor elixir and display in CDS-Hooks sandbox"
+```
 
 ## Try it out
 [[Cheatsheet](/notes/cheatsheet.md) | [Download PDF Cheatsheet](https://nuchange.ca/wp-content/uploads/2026/01/dhti_cheatsheet.pdf)]
