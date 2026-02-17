@@ -187,13 +187,15 @@ You may include multiple conches with multiple -s flags to start them at the sam
 
 #### If using CDS-Hooks container:
 
+* First kill any running processes on port 8080 to free it up for CDS-Hooks container.
+Then start the CDS-Hooks container with the elixir.
 ```
-npx dhti-cli elixir start -n <<elixir-name>>
+npx dhti-cli elixir start -n <<elixir-name>> &
 ```
 
 Example:
 ```
-npx dhti-cli elixir start -n glycemic_advisor
+npx dhti-cli elixir start -n glycemic_advisor &
 ```
 
 NOTE the `Application link` in the output rather than the final display link.
