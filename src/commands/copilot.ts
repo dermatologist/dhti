@@ -221,6 +221,7 @@ export default class Copilot extends Command {
       this.log(
         chalk.dim(`💾 Conversation saved (${conversationHistory.length} messages). Use --clear-history to reset.`),
       )
+      this.log(chalk.yellow('🧹 Cleaning up session, please wait...'))
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       this.error(
