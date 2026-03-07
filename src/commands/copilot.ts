@@ -1,4 +1,3 @@
-import {CopilotClient} from '@github/copilot-sdk'
 import {Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
 import fs from 'node:fs'
@@ -144,10 +143,13 @@ export default class Copilot extends Command {
 
     this.log(chalk.green('Initializing GitHub Copilot SDK...'))
 
-    let client: CopilotClient | null = null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let client: any = null
     let assistantResponse = ''
 
     try {
+      // Dynamically import CopilotClient to avoid module resolution issues during manifest generation
+      const {CopilotClient} = await import('@github/copilot-sdk')
       // Create copilot client
       client = new CopilotClient()
 

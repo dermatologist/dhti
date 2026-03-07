@@ -2,10 +2,11 @@
 
 ## [Unreleased](https://github.com/dermatologist/dhti/tree/HEAD)
 
-[Full Changelog](https://github.com/dermatologist/dhti/compare/1.3.3...HEAD)
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.3.4...HEAD)
 
 **Merged pull requests:**
 
+- fix: dynamically import CopilotClient to resolve module issues [\#129](https://github.com/dermatologist/dhti/pull/129) ([dermatologist](https://github.com/dermatologist))
 - Fix formatting and add upcoming presentation details [\#128](https://github.com/dermatologist/dhti/pull/128) ([dermatologist](https://github.com/dermatologist))
 - Feature/fix hanging 1 [\#126](https://github.com/dermatologist/dhti/pull/126) ([dermatologist](https://github.com/dermatologist))
 - docs: update SKILL.md to include instructions for freeing port 8080 f… [\#125](https://github.com/dermatologist/dhti/pull/125) ([dermatologist](https://github.com/dermatologist))
@@ -37,6 +38,10 @@
 - Add --dry-run flag to preview command changes without execution [\#89](https://github.com/dermatologist/dhti/pull/89) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Feature/bump fix 1 [\#87](https://github.com/dermatologist/dhti/pull/87) ([dermatologist](https://github.com/dermatologist))
 - Feature/copy bootstrap [\#86](https://github.com/dermatologist/dhti/pull/86) ([dermatologist](https://github.com/dermatologist))
+
+## [1.3.4](https://github.com/dermatologist/dhti/tree/1.3.4) (2026-03-07)
+
+[Full Changelog](https://github.com/dermatologist/dhti/compare/1.3.3...1.3.4)
 
 ## [1.3.3](https://github.com/dermatologist/dhti/tree/1.3.3) (2026-02-18)
 
