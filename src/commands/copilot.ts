@@ -154,6 +154,9 @@ export default class Copilot extends Command {
       // Create a session with streaming enabled
       const session = await client.createSession({
         model: flags.model,
+        onPermissionRequest: async () => ({
+          kind: 'approved',
+        }),
         streaming: true,
         systemMessage: {
           content: systemMessageContent,
@@ -167,7 +170,8 @@ export default class Copilot extends Command {
 
       // Handle streaming responses
       let responseStarted = false
-      session.on('assistant.message_delta', (event) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      session.on('assistant.message_delta', (event: any) => {
         if (!responseStarted) {
           responseStarted = true
         }
@@ -178,7 +182,8 @@ export default class Copilot extends Command {
       })
 
       // Handle session errors
-      session.on('session.error', (error) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      session.on('session.error', (error: any) => {
         this.warn(chalk.yellow(`Session error: ${error}`))
       })
 
@@ -243,6 +248,7 @@ export default class Copilot extends Command {
 
   /**
    * Clears the conversation history
+   * @returns void
    */
   private clearConversationHistory(): void {
     try {
@@ -382,6 +388,7 @@ export default class Copilot extends Command {
   /**
    * Saves conversation history to file
    * @param history - Array of conversation turns to save
+   * @returns void
    */
   private saveConversationHistory(history: Array<{content: string; role: 'assistant' | 'user'}>): void {
     try {

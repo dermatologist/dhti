@@ -116,7 +116,8 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 * [CDS Hooks Sandbox for testing](https://github.com/dermatologist/cds-hooks-sandbox)
 
 ## Presentations
-⭐️ **Pitched at [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 2025-09-12.**
+* ⭐️ **Pitched at the [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 2025-09-12.**
+* ⭐️ **Version 1 will be introduced at the [Medical Informatics Europe Conference 2026 (Genoa, Italy)](https://mie2026.efmi.org/), taking place May 26-28, 2026.**
 
 ## 🔧 What problems do DHTI solve?
 
