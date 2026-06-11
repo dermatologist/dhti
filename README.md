@@ -118,7 +118,10 @@ You will see the new **patient context aware chatbot** in the patient summary pa
 
 ## Presentations
 * ⭐️ **Pitched at the [Falling Walls Lab Illinois](https://falling-walls.com/falling-walls-lab-illinois) and released on 2025-09-12.**
-* ⭐️ **Version 1 will be introduced at the [Medical Informatics Europe Conference 2026 (Genoa, Italy)](https://mie2026.efmi.org/), taking place May 26-28, 2026.**
+* ⭐️ **Version 1 was introduced at the [Medical Informatics Europe Conference 2026 (Genoa, Italy)](https://mie2026.efmi.org/), May 26-28, 2026.**
+
+## Publications
+*  ⭐️ [Eapen, B. R. and Singh, N. Navigating the “Valley of Death”: An Open-Source, Modular Framework for Generative AI in Healthcare. In Opening the Personal Gate between Technology and Health Care, pages 1561–1562. IOS Press.](https://ebooks.iospress.nl/volumearticle/78765?_gl=1*1udo1ua*_up*MQ..*_ga*MTUyODU1NjMuMTc4MDU0MTc3NQ..*_ga_6N3Q0141SM*czE3ODA1NDE3NzQkbzEkZzEkdDE3ODA1NDE3ODkkajQ1JGwwJGgw)
 
 ## 🔧 What problems do DHTI solve?
 
