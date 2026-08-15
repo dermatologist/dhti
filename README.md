@@ -10,8 +10,8 @@
 [![Documentation](https://badgen.net/badge/icon/documentation?icon=libraries&label)](https://dermatologist.github.io/dhti/)
 [![Wiki](https://img.shields.io/badge/DHTI-wiki-demo)](https://github.com/dermatologist/dhti/wiki)
 
-<!-- Dhanvantari reference -->
-> 🚀 Dhanvantari rose out of the water with his four hands, holding a pot full of elixirs.
+<!-- Punch line -->
+> 🚀 Built for forward‑deployed engineers (FDE) in healthcare!
 
 # DHTI
 *DHTI enables rapid prototyping, sharing, and testing of GenAI healthcare applications inside an EHR, helping experiments move smoothly into practice. DHTI also includes [skills](/.agents/skills/) that generate GenAI components from problem‑oriented [prompts](/.agents/skills/start-dhti/examples/e2e-sample.md).*
