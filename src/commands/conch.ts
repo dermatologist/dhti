@@ -69,38 +69,37 @@ export default class Conch extends Command {
       const nameOverridden = flags.name !== defaultName
 
       if (!gitOverridden || !nameOverridden) {
-        console.log(
+        this.log(
           chalk.yellow('Note: The "add" operation requires non-default values for both --git and --name flags.'),
         )
         if (!gitOverridden) {
-          console.log(chalk.yellow('  Current --git: (default)'))
+          this.log(chalk.yellow('  Current --git: (default)'))
         }
 
         if (!nameOverridden) {
-          console.log(chalk.yellow('  Current --name: (default)'))
+          this.log(chalk.yellow('  Current --name: (default)'))
         }
 
-        console.log(chalk.yellow('\nNo changes made. Please provide custom --git and --name values.'))
+        this.log(chalk.yellow('\nNo changes made. Please provide custom --git and --name values.'))
         this.exit(0)
       }
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would execute add operation:'))
+        this.log(chalk.yellow('[DRY RUN] Would execute add operation:'))
         const targetPath = path.join(flags.workdir, 'esm-dhti', 'packages', flags.name)
-        console.log(chalk.cyan(`  npx degit ${flags.git}#${flags.branch} ${targetPath}`))
+        this.log(chalk.cyan(`  npx degit ${flags.git}#${flags.branch} ${targetPath}`))
         return
       }
 
       try {
-        console.log(chalk.blue(`Adding package ${flags.name} from ${flags.git}#${flags.branch}...`))
+        this.log(chalk.blue(`Adding package ${flags.name} from ${flags.git}#${flags.branch}...`))
         const targetPath = path.join(flags.workdir, 'esm-dhti', 'packages', flags.name)
         const degitCommand = `npx degit ${flags.git}#${flags.branch} ${targetPath}`
         await execAsync(degitCommand)
-        console.log(chalk.green('✓ Package added successfully'))
-        console.log(chalk.green(`\n✓ Package is ready at ${targetPath}`))
+        this.log(chalk.green('✓ Package added successfully'))
+        this.log(chalk.green(`\n✓ Package is ready at ${targetPath}`))
       } catch (error) {
-        console.error(chalk.red('Error during add operation:'), error)
-        this.exit(1)
+        this.error(`Error during add operation: ${error}`)
       }
 
       return
@@ -109,52 +108,49 @@ export default class Conch extends Command {
     if (args.op === 'init') {
       // Validate required flags
       if (!flags.workdir) {
-        console.error(chalk.red('Error: workdir flag is required for init operation'))
-        this.exit(1)
+        this.error('workdir flag is required for init operation')
       }
 
       if (!flags.name) {
-        console.error(chalk.red('Error: name flag is required for init operation'))
-        this.exit(1)
+        this.error('name flag is required for init operation')
       }
 
       const targetDir = path.join(flags.workdir, 'openmrs-esm-dhti')
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
-        console.log(chalk.cyan(`  npx degit dermatologist/openmrs-esm-dhti ${targetDir}`))
-        console.log(chalk.cyan(`  Copy ${targetDir}/packages/esm-starter-app to ${targetDir}/packages/${flags.name}`))
+        this.log(chalk.yellow('[DRY RUN] Would execute init operation:'))
+        this.log(chalk.cyan(`  npx degit dermatologist/openmrs-esm-dhti ${targetDir}`))
+        this.log(chalk.cyan(`  Copy ${targetDir}/packages/esm-starter-app to ${targetDir}/packages/${flags.name}`))
         return
       }
 
       try {
         // Run npx degit to clone the dhti template
-        console.log(chalk.blue(`Initializing DHTI template in ${targetDir}...`))
+        this.log(chalk.blue(`Initializing DHTI template in ${targetDir}...`))
         const degitCommand = `npx degit dermatologist/openmrs-esm-dhti ${targetDir}`
         await execAsync(degitCommand)
-        console.log(chalk.green('✓ DHTI template cloned successfully'))
+        this.log(chalk.green('✓ DHTI template cloned successfully'))
 
         // Copy packages/esm-starter-app subdirectory to packages/<name>
         const starterAppSource = path.join(targetDir, 'packages', 'esm-starter-app')
         const targetPackageDir = path.join(targetDir, 'packages', flags.name)
 
         if (fs.existsSync(starterAppSource)) {
-          console.log(chalk.blue(`Copying esm-starter-app to packages/${flags.name}...`))
+          this.log(chalk.blue(`Copying esm-starter-app to packages/${flags.name}...`))
           fs.cpSync(starterAppSource, targetPackageDir, {recursive: true})
-          console.log(chalk.green(`✓ esm-starter-app copied to packages/${flags.name}`))
+          this.log(chalk.green(`✓ esm-starter-app copied to packages/${flags.name}`))
         } else {
-          console.log(chalk.yellow(`Warning: esm-starter-app not found at ${starterAppSource}`))
+          this.warn(`Warning: esm-starter-app not found at ${starterAppSource}`)
         }
 
-        console.log(chalk.green(`\n✓ Initialization complete! Your workspace is ready at ${targetDir}`))
-        console.log(chalk.blue(`\nTo start development, run:`))
+        this.log(chalk.green(`\n✓ Initialization complete! Your workspace is ready at ${targetDir}`))
+        this.log(chalk.blue(`\nTo start development, run:`))
 
         const startCmd = `dhti-cli conch start -w ${flags.workdir} -n ${flags.name}`
 
-        console.log(chalk.cyan(`  ${startCmd}`))
+        this.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
-        console.error(chalk.red('Error during initialization:'), error)
-        this.exit(1)
+        this.error(`Error during initialization: ${error}`)
       }
 
       return
@@ -165,21 +161,19 @@ export default class Conch extends Command {
       if (!flags.local) {
         // If --local is not provided, require workdir and name
         if (!flags.workdir) {
-          console.error(chalk.red('Error: workdir flag is required for start operation (unless --local is provided)'))
-          this.exit(1)
+          this.error('workdir flag is required for start operation (unless --local is provided)')
         }
 
         if (!flags.name) {
-          console.error(chalk.red('Error: name flag is required for start operation (unless --local is provided)'))
-          this.exit(1)
+          this.error('name flag is required for start operation (unless --local is provided)')
         }
       }
 
       const targetDir = flags.local || path.join(flags.workdir, flags.name!)
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
-        console.log(chalk.cyan(`  cd ${targetDir}`))
+        this.log(chalk.yellow('[DRY RUN] Would execute start operation:'))
+        this.log(chalk.cyan(`  cd ${targetDir}`))
         let dryRunCommand = 'corepack enable && yarn install && yarn start'
         if (flags.sources && flags.sources.length > 0) {
           for (const source of flags.sources) {
@@ -187,23 +181,18 @@ export default class Conch extends Command {
           }
         }
 
-        console.log(chalk.cyan(`  ${dryRunCommand}`))
+        this.log(chalk.cyan(`  ${dryRunCommand}`))
         return
       }
 
       // Check if directory exists (not in dry-run mode)
       if (!fs.existsSync(targetDir)) {
-        console.error(chalk.red(`Error: Directory does not exist: ${targetDir}`))
-        if (!flags.local) {
-          console.log(chalk.yellow(`Run 'dhti-cli conch init -n ${flags.name} -w ${flags.workdir}' first`))
-        }
-
-        this.exit(1)
+        this.error(`Directory does not exist: ${targetDir}`)
       }
 
       try {
-        console.log(chalk.blue(`Starting OpenMRS development server in ${targetDir}...`))
-        console.log(chalk.yellow('Press Ctrl-C to stop\n'))
+        this.log(chalk.blue(`Starting OpenMRS development server in ${targetDir}...`))
+        this.log(chalk.yellow('Press Ctrl-C to stop\n'))
 
         // Build the start command with sources flag if provided
         let startCommand = 'corepack enable && yarn install && yarn start'
@@ -223,16 +212,15 @@ export default class Conch extends Command {
         // Handle process exit
         child.on('exit', (code) => {
           if (code === 0) {
-            console.log(chalk.green('\n✓ Development server stopped'))
+            this.log(chalk.green('\n✓ Development server stopped'))
           } else if (code !== null) {
-            console.log(chalk.yellow(`\nDevelopment server exited with code ${code}`))
+            this.log(chalk.yellow(`\nDevelopment server exited with code ${code}`))
           }
         })
 
         // Handle errors
         child.on('error', (error) => {
-          console.error(chalk.red('Error starting development server:'), error)
-          this.exit(1)
+          this.error(`Error starting development server: ${error}`)
         })
 
         // Wait for the child process to complete
@@ -240,8 +228,7 @@ export default class Conch extends Command {
           child.on('close', () => resolve())
         })
       } catch (error) {
-        console.error(chalk.red('Error during start:'), error)
-        this.exit(1)
+        this.error(`Error during start: ${error}`)
       }
 
       return
@@ -250,39 +237,35 @@ export default class Conch extends Command {
     if (args.op === 'install') {
       // Validate required flags
       if (!flags.workdir) {
-        console.error(chalk.red('Error: workdir flag is required for install operation'))
-        this.exit(1)
+        this.error('workdir flag is required for install operation')
       }
 
       if (!flags.name) {
-        console.error(chalk.red('Error: name flag is required for install operation'))
-        this.exit(1)
+        this.error('name flag is required for install operation')
       }
 
       // Warn if sources flag is used with install (not applicable)
       if (flags.sources && flags.sources.length > 0) {
-        console.warn(
-          chalk.yellow('Warning: --sources flag is not applicable for install operation. It will be ignored.'),
-        )
-        console.warn(chalk.yellow('Use --sources with the start operation instead.'))
+        this.warn('Warning: --sources flag is not applicable for install operation. It will be ignored.')
+        this.warn('Use --sources with the start operation instead.')
       }
 
       const targetDir = path.join(flags.workdir, flags.name)
       const degitSource = `${flags.git}#${flags.branch}`
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow('[DRY RUN] Would execute install operation:'))
-        console.log(chalk.cyan(`  npx degit ${degitSource} ${targetDir}`))
+        this.log(chalk.yellow('[DRY RUN] Would execute install operation:'))
+        this.log(chalk.cyan(`  npx degit ${degitSource} ${targetDir}`))
         return
       }
 
       try {
-        console.log(chalk.blue(`Installing from ${degitSource} to ${targetDir}...`))
+        this.log(chalk.blue(`Installing from ${degitSource} to ${targetDir}...`))
         const degitCommand = `npx degit ${degitSource} ${targetDir}`
         await execAsync(degitCommand)
-        console.log(chalk.green('✓ Repository cloned successfully'))
-        console.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
-        console.log(chalk.blue(`\nTo start development, run:`))
+        this.log(chalk.green('✓ Repository cloned successfully'))
+        this.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
+        this.log(chalk.blue(`\nTo start development, run:`))
         let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
         if (flags.sources && flags.sources.length > 0) {
           for (const source of flags.sources) {
@@ -290,17 +273,15 @@ export default class Conch extends Command {
           }
         }
 
-        console.log(chalk.cyan(`  ${startCmd}`))
+        this.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
-        console.error(chalk.red('Error during installation:'), error)
-        this.exit(1)
+        this.error(`Error during installation: ${error}`)
       }
 
       return
     }
 
     // If no valid operation is provided
-    console.error(chalk.red('Error: Invalid operation. Use "add", "install", "init", or "start"'))
-    this.exit(1)
+    this.error('Invalid operation. Use "add", "install", "init", or "start"')
   }
 }
