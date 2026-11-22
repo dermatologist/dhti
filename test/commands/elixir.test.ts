@@ -4,7 +4,8 @@ import {expect} from 'chai'
 describe('elixir', () => {
   it('runs elixir cmd', async () => {
     const {stdout} = await runCommand('elixir')
-    expect(stdout).to.contain('Please provide a name for the elixir')
+    expect(stdout).to.contain('Available operations: init, install, uninstall, dev, start')
+    expect(stdout).to.contain('Run "dhti elixir <operation> --help" for more information')
   })
 
   it('runs elixir init cmd with --dry-run flag', async () => {

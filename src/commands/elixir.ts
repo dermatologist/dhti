@@ -91,9 +91,9 @@ export default class Elixir extends Command {
         await this.handleUninstall(flags)
         break
       default:
-        // Maintain backward compatibility with original behavior
-        this.log('Please provide a name for the elixir')
-        this.exit(1)
+        // Show helpful message with available operations
+        this.log('Available operations: init, install, uninstall, dev, start')
+        this.log('Run "dhti elixir <operation> --help" for more information')
     }
   }
 
