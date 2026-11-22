@@ -7,13 +7,13 @@ import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {promisify} from 'node:util'
-import {DockerComposeConfig} from '../types'
+import {DockerComposeConfig} from '../types/index.js'
 
 const execAsync = promisify(exec)
 
 export default class Compose extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (add, delete, read or reset)'}),
+    op: Args.string({description: 'Operation to perform (add, delete, read, reset, or env)'}),
   }
 
   static override description = 'Generates a docker-compose.yml file from a list of modules'
@@ -297,8 +297,10 @@ export default class Compose extends Command {
       // Add all volumes from master data to existing data by default
       if (!flags['dry-run']) {
         existingData.volumes = {}
-        for (const key of Object.keys(masterData.volumes)) {
-          existingData.volumes[key] = masterData.volumes[key]
+        if (masterData.volumes) {
+          for (const key of Object.keys(masterData.volumes)) {
+            existingData.volumes[key] = masterData.volumes[key]
+          }
         }
       }
 

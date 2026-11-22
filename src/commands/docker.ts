@@ -6,7 +6,7 @@ import {promisify} from 'node:util'
 import fs from 'node:fs'
 import os from 'node:os'
 import ora from 'ora'
-import {DockerComposeConfig} from '../types'
+import {DockerComposeConfig} from '../types/index.js'
 
 const exec = promisify(execCallback)
 
@@ -86,7 +86,7 @@ export default class Docker extends Command {
     if (flags.gateway || flags.restart) {
       // Validate that only one restart option is provided
       if (flags.gateway && flags.restart) {
-        this.error('Cannot use both --gateway and --restart flags at the same time')
+        this.error('Cannot use both --gateway and --restart flags at the same time', {exit: 1})
       }
 
       const containerName = flags.gateway ? 'dhti-gateway-1' : flags.restart
@@ -95,6 +95,7 @@ export default class Docker extends Command {
       if (containerName && !/^[\w-]+$/.test(containerName)) {
         this.error(
           'Invalid container name. Container names can only contain letters, numbers, hyphens, and underscores.',
+          {exit: 1},
         )
       }
 
@@ -114,49 +115,51 @@ export default class Docker extends Command {
       } catch (error) {
         this.error(`Failed to restart container ${containerName}: ${error}`)
       }
+      return
+    }
 
-      if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down && !flags.gateway && !flags.restart) {
-        this.error('Please provide a name for the container to build')
+    if (args.path !== 'bootstrap' && !flags.name && !flags.up && !flags.down && !flags.gateway && !flags.restart) {
+      this.error('Please provide a name for the container to build', {exit: 1})
+    }
+
+    if (args.path === 'bootstrap') {
+      // if flags.file does not end with bootstrap.py then exit
+      if (!flags.file.endsWith('bootstrap.py')) {
+        this.error('Please provide a valid path to bootstrap.py file')
       }
 
-      if (args.path === 'bootstrap') {
-        // if flags.file does not end with bootstrap.py then exit
-        if (!flags.file.endsWith('bootstrap.py')) {
-          this.error('Please provide a valid path to bootstrap.py file')
-        }
+      // Determine copy direction based on whether local file exists
+      const fileExists = fs.existsSync(flags.file)
+      const copyCommand = fileExists
+        ? `docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`
+        : `docker cp ${flags.container}:/app/app/bootstrap.py ${flags.file}`
+      const restartCommand = `docker restart ${flags.container}`
 
-        // Determine copy direction based on whether local file exists
-        const fileExists = fs.existsSync(flags.file)
-        const copyCommand = fileExists
-          ? `docker cp ${flags.file} ${flags.container}:/app/app/bootstrap.py`
-          : `docker cp ${flags.container}:/app/app/bootstrap.py ${flags.file}`
-        const restartCommand = `docker restart ${flags.container}`
-
-        if (flags['dry-run']) {
-          this.log(chalk.yellow('[DRY RUN] Would execute:'))
-          const direction = fileExists ? 'to container' : 'from container'
-          this.log(chalk.cyan(`  ${copyCommand} (copy ${direction})`))
-          this.log(chalk.cyan(`  ${restartCommand}`))
-          return
-        }
-
-        try {
-          // copy file and only restart after copy completes
-          const {stdout: copyStdout, stderr: copyStderr} = await exec(copyCommand)
-          if (copyStdout) this.log(`stdout: ${copyStdout}`)
-          if (copyStderr) this.log(`stderr: ${copyStderr}`)
-
-          // restart the container only after copy completes
-          const {stdout: restartStdout, stderr: restartStderr} = await exec(restartCommand)
-          if (restartStdout) this.log(`stdout: ${restartStdout}`)
-          if (restartStderr) this.log(`stderr: ${restartStderr}`)
-
-          this.log('Bootstrap file copied and container restarted successfully')
-        } catch (error) {
-          this.error(`Failed to copy bootstrap file: ${error}`)
-        }
+      if (flags['dry-run']) {
+        this.log(chalk.yellow('[DRY RUN] Would execute:'))
+        const direction = fileExists ? 'to container' : 'from container'
+        this.log(chalk.cyan(`  ${copyCommand} (copy ${direction})`))
+        this.log(chalk.cyan(`  ${restartCommand}`))
         return
       }
+
+      try {
+        // copy file and only restart after copy completes
+        const {stdout: copyStdout, stderr: copyStderr} = await exec(copyCommand)
+        if (copyStdout) this.log(`stdout: ${copyStdout}`)
+        if (copyStderr) this.log(`stderr: ${copyStderr}`)
+
+        // restart the container only after copy completes
+        const {stdout: restartStdout, stderr: restartStderr} = await exec(restartCommand)
+        if (restartStdout) this.log(`stdout: ${restartStdout}`)
+        if (restartStderr) this.log(`stderr: ${restartStderr}`)
+
+        this.log('Bootstrap file copied and container restarted successfully')
+      } catch (error) {
+        this.error(`Failed to copy bootstrap file: ${error}`)
+      }
+      return
+    }
 
     // cd to path, docker build tag with name
     const buildCommand = `cd ${args.path}/${flags.type} && docker build -t ${flags.name} . > /dev/null 2>&1`
