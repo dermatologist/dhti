@@ -20,11 +20,10 @@ test.describe('OpenMRS UI Tests', () => {
     await waitForService(openmrsUrl, 30000)
 
     // Navigate to OpenMRS
-    await page.goto(openmrsUrl)
+    const response = await page.goto(openmrsUrl)
 
-    // Should reach login page or home page
-    const response = await page.response((r) => r.url() === openmrsUrl)
-    expect(response?.status()).toBe(200)
+    // Should reach login page or home page (302 redirect is expected for login)
+    expect(response?.status()).toBeOneOf([200, 302])
   })
 
   test('@browser should login to OpenMRS', async ({page}) => {
