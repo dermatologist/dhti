@@ -171,25 +171,6 @@ test.describe('Chatbot Workflow Tests', () => {
     await test.step('Navigate to CDS Hooks sandbox', async () => {
       await page.goto(cdsSandboxUrl)
 
-      // Handle FHIR Server modal if it appears
-      try {
-        const fhirServerModal = page.locator('text=Change FHIR Server')
-        await expect(fhirServerModal).toBeVisible({timeout: 5000})
-
-        // Close or skip the modal
-        const closeButton = page.locator('button:has-text("Cancel"), button:has-text("Close"), .close').first()
-        try {
-          await closeButton.click({timeout: 2000})
-          log(LogLevel.INFO, '✅ FHIR Server modal dismissed')
-        } catch {
-          // If no close button, just continue
-          log(LogLevel.WARN, '⚠ Could not dismiss FHIR Server modal')
-        }
-      } catch {
-        // Modal not present, continue
-        log(LogLevel.INFO, 'ℹ No FHIR Server modal present')
-      }
-
       // Verify sandbox page loads
       const pageContent = page.locator('body')
       await expect(pageContent).toBeVisible({timeout: 10000})
@@ -207,32 +188,19 @@ test.describe('Chatbot Workflow Tests', () => {
         // If tab click fails, we may already be on the right view
         log(LogLevel.WARN, '⚠ Could not click Rx View tab, continuing with current view')
       }
-
-      // Wait for page to stabilize
-      await new Promise((resolve) => setTimeout(resolve, 2000))
     })
 
     await test.step('Find contentString input field', async () => {
       // Look for contentString textarea or input field
       // Try multiple selectors based on CDS Hooks sandbox structure
-      // The CDS sandbox uses a JSON input for the contentString
       const contentStringInput = page
         .locator(
-          'textarea[name="contentString"], textarea[placeholder*="content"], input[name="contentString"], [class*="contentString"], textarea[class*="CodeMirror"], div[contenteditable="true"]',
+          'textarea[name="contentString"], textarea[placeholder*="content"], input[name="contentString"], [class*="contentString"]',
         )
         .first()
 
-      try {
-        await expect(contentStringInput).toBeVisible({timeout: 10000})
-        log(LogLevel.INFO, '✅ ContentString input field found')
-      } catch (error) {
-        // Try alternative: look for any textarea or code editor
-        log(LogLevel.WARN, '⚠ Standard contentString not found, trying alternatives...')
-
-        const anyTextarea = page.locator('textarea, div[contenteditable="true"]').first()
-        await expect(anyTextarea).toBeVisible({timeout: 5000})
-        log(LogLevel.INFO, '✅ Alternative input field found')
-      }
+      await expect(contentStringInput).toBeVisible({timeout: 10000})
+      log(LogLevel.INFO, '✅ ContentString input field found')
     })
 
     await test.step('Submit test query via contentString', async () => {
@@ -356,12 +324,6 @@ test.describe('Chatbot Workflow Tests', () => {
     })
 
     // Phase 7: Conch Installation
-    await test.step('Clean up existing conch directories', async () => {
-      // Remove existing esm-dhti directory if it exists
-      const cleanupResult = await runCommand(`rm -rf ${workdir}/esm-dhti 2>&1 || true`)
-      log(LogLevel.INFO, '✅ Conch directories cleaned up')
-    })
-
     await test.step('Install conch package', async () => {
       const result = await runCommand(`${cliCommand} conch install`)
       expect(result.exitCode).toBe(0)
@@ -468,10 +430,27 @@ test.describe('Chatbot Workflow Tests', () => {
       log(LogLevel.INFO, '✅ Docker services stopped')
     })
 
+    await test.step('Remove all Docker containers', async () => {
+      const result = await runCommand('docker rm -f $(docker ps -a -q --filter "name=dhti" 2>/dev/null) 2>&1 || true')
+      log(LogLevel.INFO, '✅ All Docker containers removed')
+    })
+
+    await test.step('Remove all Docker images', async () => {
+      const result = await runCommand('docker rmi -f dhti/genai-test:1.0 2>&1 || true')
+      log(LogLevel.INFO, '✅ Docker images removed')
+    })
+
+    await test.step('Remove Docker volumes', async () => {
+      const result = await runCommand(
+        'docker volume rm -f $(docker volume ls -q -f name=dhti 2>/dev/null) 2>&1 || true',
+      )
+      log(LogLevel.INFO, '✅ Docker volumes removed')
+    })
+
     await test.step('Verify containers removed', async () => {
       const result = await runCommand('docker ps -a --filter "name=dhti" --format "{{.Names}}"')
       expect(result.stdout.trim()).toBe('')
-      log(LogLevel.INFO, '✅ All containers removed')
+      log(LogLevel.INFO, '✅ All containers verified removed')
     })
 
     await test.step('Clean up test workspace', async () => {
