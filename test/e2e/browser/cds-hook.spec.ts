@@ -95,19 +95,54 @@ test.describe('CDS-Hook Sandbox Tests', () => {
 
   test('@browser should test content submission to elixir', async ({request}) => {
     // Use API request context for POST requests
-    const elixirEndpoint = 'http://localhost:8001/langserve'
+    // Based on useDhti.ts pattern: POST to elixir CDS services endpoint
+    const elixirEndpoint = 'http://localhost:8001/langserve/dhti_elixir_template/cds-services/dhti-service'
 
     try {
-      // Test POST to elixir
-      const response = await request.post(`${elixirEndpoint}/health`, {
-        data: {test: 'content'},
+      // Create request structure matching useDhti.ts pattern
+      const cdsRequest = {
+        input: {
+          context: {
+            input: 'test message',
+            patientId: undefined,
+          },
+        },
+      }
+
+      // Test POST to elixir with proper structure
+      const response = await request.post(elixirEndpoint, {
+        data: {
+          input: cdsRequest,
+          config: {},
+          kwargs: {},
+        },
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
       })
 
-      // May or may not have /health endpoint, but request should not throw
-      console.log('Health check status:', response?.status())
+      // Elixir may not be installed, so 404 is expected
+      const status = response?.status()
+
+      if (status === 404) {
+        console.log('⚠ Elixir endpoint not available (run "dhti-cli elixir install" to configure)')
+        console.log('  This is expected in minimal test environments')
+      } else if (status === 200) {
+        // Verify response structure
+        const body = await response.json()
+        if (body && body.cards && body.cards.length > 0) {
+          console.log('✅ Elixir returned card response')
+        } else if (body && body.summary) {
+          console.log('✅ Elixir returned direct card response')
+        } else {
+          console.log('✅ Elixir responded successfully')
+        }
+      } else {
+        console.log(`ℹ Elixir response status: ${status}`)
+      }
     } catch (error) {
-      // Health endpoint may not exist, which is acceptable
-      console.log('Health endpoint not available (expected)')
+      // Elixir may not be installed, which is acceptable
+      console.log('⚠ Elixir not available (expected in base mode)')
     }
   })
 })
