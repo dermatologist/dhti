@@ -75,7 +75,7 @@ services:
       - "8001:8001"
     restart: "unless-stopped"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/langserve"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       timeout: 10s
       interval: 30s
       retries: 5
