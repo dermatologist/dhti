@@ -43,12 +43,6 @@ export default defineConfig({
 
   // Configure projects for different test categories
   projects: [
-    // CLI and Docker tests (no browser needed)
-    {
-      name: 'cli-tests',
-      testMatch: '**/*.e2e.test.ts',
-    },
-
     // Browser automation tests
     {
       name: 'browser-tests',
@@ -69,4 +63,7 @@ export default defineConfig({
       },
     },
   ],
+
+  // Ignore non-Playwright test files
+  ignorePatterns: ['**/*.e2e.test.ts', '**/helpers.ts', '**/docker-utils.ts'],
 })

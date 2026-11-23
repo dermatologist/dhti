@@ -25,12 +25,14 @@ export const E2E_CONFIG = {
 /**
  * Log levels for test output
  */
-export enum LogLevel {
-  INFO = '✓ INFO',
-  WARN = '⚠ WARN',
-  ERROR = '✗ ERROR',
-  SUCCESS = '✓ SUCCESS',
-}
+export const LogLevel = {
+  INFO: '✓ INFO',
+  WARN: '⚠ WARN',
+  ERROR: '✗ ERROR',
+  SUCCESS: '✓ SUCCESS',
+} as const
+
+export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel]
 
 /**
  * Colored logging function for test output
