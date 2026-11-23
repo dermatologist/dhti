@@ -86,6 +86,25 @@ This creates:
 
 **Idempotency:** If the target directory already exists or contains uncommitted changes, the command will fail. Remove or rename the existing directory before retrying.
 
+### Understanding Conch Commands
+
+**Three different workflows:**
+
+1. **`init`** (for new development): Creates a monorepo with your new package
+   - Creates: `workspace/openmrs-esm-dhti/packages/esm-dhti-<<name>>/`
+   - Use when: Starting a new conch from the `esm-starter-app` template
+   - Start with: `dhti-cli conch start --local workspace/openmrs-esm-dhti --sources 'packages/esm-dhti-<<name>>'`
+
+2. **`install`** (for existing packages): Clones an entire repository
+   - Creates: `workspace/esm-dhti-<<name>>/` (flat structure, not a monorepo)
+   - Use when: Installing an existing conch from GitHub
+   - Start with: `dhti-cli conch start -w workspace -n esm-dhti-<<name>>`
+
+3. **`start`** (for running development server):
+   - `--local <path>`: Start a monorepo at the given path
+   - `-w <workdir> -n <name>`: Start a flat clone at `workdir/name`
+   - `--sources <package>`: Specify which packages to load (required for monorepos)
+
 ### Step 3: Adapt the Generated Code
 
 Navigate to your package: `workspace/openmrs-esm-dhti/packages/esm-dhti-<<name>>/`
@@ -263,7 +282,13 @@ const MyComponent = () => {
 }
 ```
 
-**Important:** The `useDhti` hook is part of the generated template, not a separate `esm-dhti-utils` package. Always use the hook from your package's local `src/hooks/` directory.
+**Important:** The `useDhti` hook is **copied from the `esm-starter-app` template** into your package's `src/hooks/` directory during scaffolding. It is **not** imported from the shared `esm-dhti-utils` package in the monorepo.
+
+- Your package has its own copy: `src/hooks/useDhti.ts`
+- The monorepo has a shared version: `packages/esm-dhti-utils/hooks/useDhti.ts`
+- You can update your copy independently, or replace it with an import from `esm-dhti-utils` if you prefer
+
+Always use the hook from your package's local `src/hooks/` directory unless you intentionally want to share code across packages.
 
 ### Directory Structure
 
@@ -357,7 +382,15 @@ yarn test
 
 ### Running Locally
 
-**Start the development server:**
+**After `init` (monorepo workflow):**
+
+The `init` command will print the correct start command. Simply copy and run it:
+
+```bash
+dhti-cli conch start --local workspace/openmrs-esm-dhti --sources 'packages/esm-dhti-<<name>>'
+```
+
+**Manual alternative:**
 
 ```bash
 cd workspace/openmrs-esm-dhti
@@ -366,13 +399,17 @@ yarn install
 yarn start --sources 'packages/esm-dhti-<<name>>'
 ```
 
-**Using the CLI:**
+**After `install` (flat clone workflow):**
 
 ```bash
-dhti-cli conch start --local workspace/openmrs-esm-dhti --sources 'packages/esm-dhti-<<name>>'
+dhti-cli conch start -w workspace -n esm-dhti-<<name>>
 ```
 
-The development server will start and provide a URL to access the OpenMRS application with your conch loaded.
+**Troubleshooting:**
+
+- **"Directory does not exist"**: You're using the wrong start command. If you used `init`, use `--local`. If you used `install`, use `-w -n`.
+- **"Package not loading"**: Make sure you're using `--sources` for monorepos.
+- **"esm-starter-app not found"**: The template repository may have changed. Check the GitHub repo.
 
 ### Final Review and Cleanup
 

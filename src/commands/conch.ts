@@ -69,9 +69,7 @@ export default class Conch extends Command {
       const nameOverridden = flags.name !== defaultName
 
       if (!gitOverridden || !nameOverridden) {
-        this.log(
-          chalk.yellow('Note: The "add" operation requires non-default values for both --git and --name flags.'),
-        )
+        this.log(chalk.yellow('Note: The "add" operation requires non-default values for both --git and --name flags.'))
         if (!gitOverridden) {
           this.log(chalk.yellow('  Current --git: (default)'))
         }
@@ -146,7 +144,8 @@ export default class Conch extends Command {
         this.log(chalk.green(`\n✓ Initialization complete! Your workspace is ready at ${targetDir}`))
         this.log(chalk.blue(`\nTo start development, run:`))
 
-        const startCmd = `dhti-cli conch start -w ${flags.workdir} -n ${flags.name}`
+        // Use --local and --sources for monorepo workflow
+        const startCmd = `dhti-cli conch start --local ${targetDir} --sources 'packages/${flags.name}'`
 
         this.log(chalk.cyan(`  ${startCmd}`))
       } catch (error) {
