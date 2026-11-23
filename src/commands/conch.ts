@@ -41,7 +41,7 @@ export default class Conch extends Command {
     }),
     local: Flags.string({
       char: 'l',
-      description: 'Local path to use instead of calculated workdir/name path (for start operation)',
+      description: 'Local path to install from (for install operation) or to start from (for start operation)',
     }),
     name: Flags.string({char: 'n', default: 'esm-dhti', description: 'Name of the conch'}),
     sources: Flags.string({
@@ -235,10 +235,6 @@ export default class Conch extends Command {
 
     if (args.op === 'install') {
       // Validate required flags
-      if (!flags.workdir) {
-        this.error('workdir flag is required for install operation')
-      }
-
       if (!flags.name) {
         this.error('name flag is required for install operation')
       }
@@ -249,20 +245,42 @@ export default class Conch extends Command {
         this.warn('Use --sources with the start operation instead.')
       }
 
-      const targetDir = path.join(flags.workdir, flags.name)
-      const degitSource = `${flags.git}#${flags.branch}`
+      // Determine installation source and target directory
+      let targetDir: string
+      let installCommand: string
+      let sourceDescription: string
+
+      if (flags.local !== undefined && flags.local !== 'none') {
+        // Install from local directory
+        if (!flags.workdir) {
+          this.error('workdir flag is required for install operation (unless --local is provided)')
+        }
+
+        targetDir = path.join(flags.workdir, flags.name)
+        sourceDescription = `local directory ${flags.local}`
+        installCommand = `cp -r ${flags.local} ${targetDir}`
+      } else {
+        // Install from GitHub repository
+        if (!flags.workdir) {
+          this.error('workdir flag is required for install operation (unless --local is provided)')
+        }
+
+        targetDir = path.join(flags.workdir, flags.name)
+        const degitSource = `${flags.git}#${flags.branch}`
+        sourceDescription = `${degitSource}`
+        installCommand = `npx degit ${degitSource} ${targetDir}`
+      }
 
       if (flags['dry-run']) {
         this.log(chalk.yellow('[DRY RUN] Would execute install operation:'))
-        this.log(chalk.cyan(`  npx degit ${degitSource} ${targetDir}`))
+        this.log(chalk.cyan(`  ${installCommand}`))
         return
       }
 
       try {
-        this.log(chalk.blue(`Installing from ${degitSource} to ${targetDir}...`))
-        const degitCommand = `npx degit ${degitSource} ${targetDir}`
-        await execAsync(degitCommand)
-        this.log(chalk.green('✓ Repository cloned successfully'))
+        this.log(chalk.blue(`Installing from ${sourceDescription} to ${targetDir}...`))
+        await execAsync(installCommand)
+        this.log(chalk.green('✓ Installation completed successfully'))
         this.log(chalk.green(`\n✓ Installation complete! Your app is ready at ${targetDir}`))
         this.log(chalk.blue(`\nTo start development, run:`))
         let startCmd = `dhti-cli conch start -n ${flags.name} -w ${flags.workdir}`
