@@ -1,16 +1,115 @@
 # Monorepo Support for Elixirs and Conches
 
-DHTI now supports installing elixirs and conches from subdirectories within GitHub repositories, enabling full support for monorepo architectures.
+DHTI supports multiple workflows for working with monorepos and individual packages. This document clarifies the different approaches and when to use each.
 
-## Overview
+## Workflows Overview
 
-When working with monorepos, multiple packages (elixirs or conches) may be stored in different subdirectories of a single repository. The `-s` or `--subdirectory` flag allows you to specify which subdirectory contains the package you want to install.
+### 1. **Init Workflow** (Create Monorepo from Template)
 
-## Usage
+Use `init` to create a full monorepo structure from the template repository:
 
-### Installing Elixirs from Subdirectories
+```bash
+dhti-cli conch init -n my-app -w ~/projects
+```
 
-To install an elixir from a subdirectory in a GitHub repository:
+**What it does:**
+
+- Clones `dermatologist/openmrs-esm-dhti` to `~/projects/openmrs-esm-dhti/`
+- Copies `packages/esm-starter-app` to `packages/my-app/`
+- Creates full monorepo with yarn workspace setup
+
+**To start development:**
+
+```bash
+dhti-cli conch start --local ~/projects/openmrs-esm-dhti --sources 'packages/my-app'
+```
+
+**Use case:** When you want to create a new conch within a monorepo structure with full workspace support.
+
+---
+
+### 2. **Install Workflow** (Clone Single Package)
+
+Use `install` to clone a single package (flat structure, no monorepo):
+
+```bash
+dhti-cli conch install -n my-app -w ~/projects -g dermatologist/openmrs-esm-dhti-template
+```
+
+**What it does:**
+
+- Clones repository to `~/projects/esm-dhti-my-app/` (flat structure)
+- No monorepo setup, standalone package
+
+**To start development:**
+
+```bash
+dhti-cli conch start -n my-app -w ~/projects
+```
+
+**Use case:** When you want a simple, standalone package without monorepo complexity.
+
+---
+
+### 3. **Subdirectory Install** (Install from Monorepo Subdirectory)
+
+Use `-s/--subdirectory` flag to install a specific package from a monorepo:
+
+```bash
+dhti-cli conch install \
+  -n my-conch \
+  -g https://github.com/org/monorepo.git \
+  -s packages/my-conch \
+  -b main
+```
+
+**What it does:**
+
+- Uses Git sparse checkout to efficiently clone only the specified subdirectory
+- Installs package from `packages/my-conch/` within the monorepo
+- Creates flat structure at `~/projects/esm-dhti-my-conch/`
+
+**To start development:**
+
+```bash
+dhti-cli conch start -n my-conch -w ~/projects
+```
+
+**Use case:** When the package exists in a monorepo but you want to work on it standalone.
+
+---
+
+## Flag Reference
+
+### `--sources` Flag (for `start` command)
+
+Specifies which packages to load when starting a **monorepo**:
+
+```bash
+dhti-cli conch start --local /path/to/monorepo --sources 'packages/my-app'
+```
+
+- **Required for:** Monorepo workflow (after `init`)
+- **Format:** `packages/<package-name>`
+- **Multiple packages:** `--sources 'packages/app1' --sources 'packages/app2'`
+
+### `-s/--subdirectory` Flag (for `install` command)
+
+Specifies which subdirectory to clone from a **monorepo repository**:
+
+```bash
+dhti-cli conch install -n my-app -g org/repo.git -s packages/my-app
+```
+
+- **Used for:** Installing specific package from monorepo
+- **Format:** Relative path from repo root (e.g., `packages/my-app`)
+- **Result:** Flat clone, not monorepo
+
+---
+
+## Elixir Monorepo Support
+
+Elixirs also support subdirectory installation:
 
 ```bash
 dhti-cli elixir install \
@@ -20,89 +119,41 @@ dhti-cli elixir install \
   -b main
 ```
 
-**Parameters:**
-- `-n, --name`: Name of the elixir to install
-- `-g, --git`: GitHub repository URL
-- `-s, --subdirectory`: Path to the subdirectory containing the elixir (relative to repository root)
-- `-b, --branch`: Git branch to install from (default: develop)
-
-### Installing Conches from Subdirectories
-
-To install a conch from a subdirectory in a GitHub repository:
-
-```bash
-dhti-cli conch install \
-  -n openmrs-esm-my-conch \
-  -g https://github.com/org/monorepo.git \
-  -s packages/openmrs-esm-my-conch \
-  -b main
-```
-
-**Parameters:**
-- `-n, --name`: Name of the conch to install
-- `-g, --git`: GitHub repository URL
-- `-s, --subdirectory`: Path to the subdirectory containing the conch (relative to repository root)
-- `-b, --branch`: Git branch to install from (default: develop)
-
-## How It Works
-
-### Elixirs (Python/uv packages)
-
-When installing an elixir from a subdirectory, DHTI uses uv's native subdirectory support in the `pyproject.toml` file. The dependency is added with the `subdirectory` parameter:
+This uses uv's native subdirectory support in `pyproject.toml`:
 
 ```toml
 [tool.uv.sources]
 my-elixir = { git = "https://github.com/org/monorepo.git", branch = "main", subdirectory = "packages/my-elixir" }
 ```
 
-This tells uv to:
-1. Clone the repository
-2. Navigate to the specified subdirectory
-3. Install the Python package from that location
+---
 
-### Conches (JavaScript/React packages)
+## Summary Table
 
-When installing a conch from a subdirectory, DHTI uses Git's sparse checkout feature to efficiently clone only the required subdirectory:
+| Workflow         | Command                          | Creates                              | Start Command                                                 | Use Case                       |
+| ---------------- | -------------------------------- | ------------------------------------ | ------------------------------------------------------------- | ------------------------------ |
+| **Init**         | `conch init -n app -w dir`       | `dir/openmrs-esm-dhti/packages/app/` | `start --local dir/openmrs-esm-dhti --sources 'packages/app'` | New conch in monorepo          |
+| **Install**      | `conch install -n app -w dir`    | `dir/esm-dhti-app/`                  | `start -n app -w dir`                                         | Standalone package             |
+| **Subdirectory** | `install -n app -g repo -s path` | `dir/esm-dhti-app/`                  | `start -n app -w dir`                                         | Package from existing monorepo |
 
-```bash
-# Initialize sparse checkout
-git init
-git remote add origin <repository-url>
-git config core.sparseCheckout true
-echo "packages/my-conch/*" >> .git/info/sparse-checkout
-
-# Fetch and checkout the branch
-git fetch --depth=1 origin <branch>
-git checkout <branch>
-
-# Move contents to root
-mv packages/my-conch/* .
-rm -rf packages/my-conch
-```
-
-This approach:
-- Minimizes download size by only fetching the required subdirectory
-- Maintains the package structure expected by DHTI
-- Works efficiently with large monorepos
+---
 
 ## Dry Run Mode
 
-Test your installation command before executing it:
+Test any command before executing:
 
 ```bash
-# Test elixir installation
-dhti-cli elixir install \
-  -n my-elixir \
-  -g https://github.com/org/monorepo.git \
-  -s packages/my-elixir \
-  --dry-run
+dhti-cli conch init -n my-app -w ~/projects --dry-run
+dhti-cli conch install -n my-app -w ~/projects --dry-run
+dhti-cli conch start --local ~/projects/openmrs-esm-dhti --sources 'packages/my-app' --dry-run
+```
 
-# Test conch installation
 dhti-cli conch install \
-  -n openmrs-esm-my-conch \
-  -g https://github.com/org/monorepo.git \
-  -s packages/openmrs-esm-my-conch \
-  --dry-run
+ -n openmrs-esm-my-conch \
+ -g https://github.com/org/monorepo.git \
+ -s packages/openmrs-esm-my-conch \
+ --dry-run
+
 ```
 
 The `--dry-run` flag shows what changes would be made without actually executing them.
@@ -114,18 +165,20 @@ The `--dry-run` flag shows what changes would be made without actually executing
 Suppose you have a monorepo with the following structure:
 
 ```
+
 my-dhti-monorepo/
 ├── packages/
-│   ├── elixir-chatbot/
-│   │   ├── pyproject.toml
-│   │   └── src/
-│   ├── elixir-summarizer/
-│   │   ├── pyproject.toml
-│   │   └── src/
-│   └── shared-utils/
-│       ├── pyproject.toml
-│       └── src/
-```
+│ ├── elixir-chatbot/
+│ │ ├── pyproject.toml
+│ │ └── src/
+│ ├── elixir-summarizer/
+│ │ ├── pyproject.toml
+│ │ └── src/
+│ └── shared-utils/
+│ ├── pyproject.toml
+│ └── src/
+
+````
 
 Install the chatbot elixir:
 
@@ -135,7 +188,7 @@ dhti-cli elixir install \
   -g https://github.com/myorg/my-dhti-monorepo.git \
   -s packages/elixir-chatbot \
   -b main
-```
+````
 
 ### Example 2: Installing from a React Monorepo
 

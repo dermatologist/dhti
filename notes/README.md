@@ -5,7 +5,7 @@ $ npm install -g dhti-cli
 $ dhti-cli COMMAND
 running command...
 $ dhti-cli (--version)
-dhti-cli/1.0.0 linux-x64 node-v24.12.0
+dhti-cli/1.3.6 linux-x64 node-v20.19.5
 $ dhti-cli --help [COMMAND]
 USAGE
   $ dhti-cli COMMAND
@@ -16,6 +16,7 @@ USAGE
   <!-- commands -->
 * [`dhti-cli compose [OP]`](#dhti-cli-compose-op)
 * [`dhti-cli conch [OP]`](#dhti-cli-conch-op)
+* [`dhti-cli copilot`](#dhti-cli-copilot)
 * [`dhti-cli docker [PATH]`](#dhti-cli-docker-path)
 * [`dhti-cli docktor OP [NAME]`](#dhti-cli-docktor-op-name)
 * [`dhti-cli elixir [OP]`](#dhti-cli-elixir-op)
@@ -44,11 +45,11 @@ USAGE
     <value>]
 
 ARGUMENTS
-  [OP]  Operation to perform (add, delete, read or reset)
+  [OP]  Operation to perform (add, delete, read, reset, or env)
 
 FLAGS
   -e, --env=<value>        Environment variable name (e.g. FHIR_BASE_URL)
-  -f, --file=<value>       [default: /home/beapen/dhti/docker-compose.yml] Full path to the docker compose file to read
+  -f, --file=<value>       [default: /home/bpunn/dhti/docker-compose.yml] Full path to the docker compose file to read
                            from. Creates if it does not exist
   -m, --module=<value>...  Modules to add from ( langserve, openmrs, ollama, langfuse, cqlFhir, redis, neo4j, mcpFhir,
                            mcpx and docktor)
@@ -64,7 +65,7 @@ EXAMPLES
   $ dhti-cli compose
 ```
 
-_See code: [src/commands/compose.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/compose.ts)_
+_See code: [src/commands/compose.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/compose.ts)_
 
 ## `dhti-cli conch [OP]`
 
@@ -72,32 +73,82 @@ Initialize, install, or start OpenMRS frontend development
 
 ```
 USAGE
-  $ dhti-cli conch [OP] [-b <value>] [--dry-run] [-g <value>] [-n <value>] [-s <value>] [-w <value>]
+  $ dhti-cli conch [OP] [-b <value>] [--dry-run] [-g <value>] [-l <value>] [-n <value>] [-s <value>...] [-w
+    <value>]
 
 ARGUMENTS
-  [OP]  Operation to perform (init, install, or start)
+  [OP]  Operation to perform (add, init, install, or start)
 
 FLAGS
-  -b, --branch=<value>   [default: develop] Branch to install from (for install operation)
-  -g, --git=<value>      [default: dermatologist/openmrs-esm-dhti-template] GitHub repository to install (for install
-                         operation)
-  -n, --name=<value>     Name of the conch
-  -s, --sources=<value>  Additional sources to include when starting (e.g., packages/esm-chatbot-agent)
-  -w, --workdir=<value>  [default: /home/beapen/dhti] Working directory for the conch
-      --dry-run          Show what changes would be made without actually making them
+  -b, --branch=<value>      [default: develop] Branch to install from (for install operation)
+  -g, --git=<value>         [default: dermatologist/openmrs-esm-dhti] GitHub repository to install (for install
+                            operation)
+  -l, --local=<value>       Local path to use instead of calculated workdir/name path (for start operation)
+  -n, --name=<value>        [default: esm-dhti] Name of the conch
+  -s, --sources=<value>...  Additional sources to include when starting (e.g., packages/esm-chatbot-agent,
+                            packages/esm-another-app)
+  -w, --workdir=<value>     [default: /home/bpunn/dhti] Working directory for the conch
+      --dry-run             Show what changes would be made without actually making them
 
 DESCRIPTION
   Initialize, install, or start OpenMRS frontend development
 
 EXAMPLES
+  $ dhti-cli conch add -g my-repo/my-package -n my-package -w ~/projects
+
+  $ dhti-cli conch add -g my-repo/my-package -b main -n my-package -w ~/projects
+
   $ dhti-cli conch install -n my-app -w ~/projects
 
   $ dhti-cli conch init -n my-app -w ~/projects
 
   $ dhti-cli conch start -n my-app -w ~/projects
+
+  $ dhti-cli conch start -n my-app -w ~/projects -s packages/chatbot -s packages/utils
 ```
 
-_See code: [src/commands/conch.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/conch.ts)_
+_See code: [src/commands/conch.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/conch.ts)_
+
+## `dhti-cli copilot`
+
+Interact with DHTI using GitHub Copilot SDK with streaming responses
+
+```
+USAGE
+  $ dhti-cli copilot [-c] [-f <value> | -p <value>] [-m <value>] [-s <value>] [-t <value>]
+
+FLAGS
+  -c, --clear-history    Clear conversation history and start a new session
+  -f, --file=<value>     Path to a file containing the prompt to send to copilot-sdk
+  -m, --model=<value>    [default: gpt-4.1] Model to use for copilot-sdk interactions. Supported models include: GPT-4.1
+                         (default), GPT-5.1, GPT-5.2, GPT-5.3, o1-mini, o3-mini, o4-mini, Claude Haiku 4.5, Claude Opus
+                         4.1/4.5/4.6, Claude Sonnet 3.5/3.7/4.5, Gemini 2.0 Flash, Gemini 2.5 Pro, Gemini 3 Flash/Pro,
+                         Grok Code Fast 1, Raptor mini. Model availability depends on your GitHub Copilot subscription.
+                         See https://docs.github.com/en/copilot/reference/ai-models/supported-models for details.
+  -p, --prompt=<value>   Prompt to send to the copilot-sdk
+  -s, --skill=<value>    [default: auto] Skill to use for copilot-sdk interactions (auto, start-dhti, elixir-generator,
+                         conch-generator)
+  -t, --timeout=<value>  [default: 180] Timeout in seconds for model response (default: 180). Increase for complex
+                         prompts or slower models.
+
+DESCRIPTION
+  Interact with DHTI using GitHub Copilot SDK with streaming responses
+
+EXAMPLES
+  $ dhti-cli copilot --prompt "Start the DHTI stack with langserve"
+
+  $ dhti-cli copilot --file ./my-prompt.txt --model gpt-5.2
+
+  $ dhti-cli copilot --prompt "Generate a new elixir for patient risk assessment" --skill elixir-generator
+
+  $ dhti-cli copilot --prompt "Complex task" --timeout 300  # Increase timeout for long-running requests
+
+  $ dhti-cli copilot --clear-history --prompt "Start fresh conversation"
+
+  $ dhti-cli copilot --clear-history  # Clear history without starting new conversation
+```
+
+_See code: [src/commands/copilot.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/copilot.ts)_
 
 ## `dhti-cli docker [PATH]`
 
@@ -109,13 +160,13 @@ USAGE
     <value>] [-u]
 
 ARGUMENTS
-  [PATH]  [default: /home/beapen/dhti] Docker project path to build. Ex: dhti
+  [PATH]  [default: /home/bpunn/dhti] Docker project path to build. Ex: dhti
 
 FLAGS
   -c, --container=<value>  [default: dhti-langserve-1] Name of the container to copy the bootstrap file to while in dev
                            mode
   -d, --down               Run docker-compose down after building
-  -f, --file=<value>       [default: /home/beapen/dhti/docker-compose.yml] Full path to the docker compose file to edit
+  -f, --file=<value>       [default: /home/bpunn/dhti/docker-compose.yml] Full path to the docker compose file to edit
                            or run.
   -g, --gateway            Restart the gateway container
   -n, --name=<value>       Name of the container to build
@@ -131,7 +182,7 @@ EXAMPLES
   $ dhti-cli docker
 ```
 
-_See code: [src/commands/docker.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/docker.ts)_
+_See code: [src/commands/docker.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/docker.ts)_
 
 ## `dhti-cli docktor OP [NAME]`
 
@@ -152,7 +203,7 @@ FLAGS
   -i, --image=<value>           Docker image for the inference pipeline (required for install)
   -m, --model-path=<value>      [default: /lunar/packages/mcpx-server/config] Local path to the model directory
                                 (optional for install)
-  -w, --workdir=<value>         [default: /home/beapen/dhti] Working directory for MCPX config
+  -w, --workdir=<value>         [default: /home/bpunn/dhti] Working directory for MCPX config
 
 DESCRIPTION
   Manage inference pipelines for MCPX
@@ -165,7 +216,7 @@ EXAMPLES
   $ dhti-cli docktor list
 ```
 
-_See code: [src/commands/docktor.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/docktor.ts)_
+_See code: [src/commands/docktor.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/docktor.ts)_
 
 ## `dhti-cli elixir [OP]`
 
@@ -192,7 +243,7 @@ FLAGS
   -p, --pypi=<value>          [default: none] PyPi package to install. Ex: dhti-elixir-base = ">=0.1.0"
   -s, --subdirectory=<value>  [default: none] Subdirectory in the repository to install from (for monorepos)
   -v, --repoVersion=<value>   [default: 0.1.0] Version of the elixir
-  -w, --workdir=<value>       [default: /home/beapen/dhti] Working directory to install the elixir
+  -w, --workdir=<value>       [default: /home/bpunn/dhti] Working directory to install the elixir
       --dry-run               Show what changes would be made without actually making them
 
 DESCRIPTION
@@ -202,7 +253,7 @@ EXAMPLES
   $ dhti-cli elixir
 ```
 
-_See code: [src/commands/elixir.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/elixir.ts)_
+_See code: [src/commands/elixir.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/elixir.ts)_
 
 ## `dhti-cli help [COMMAND]`
 
@@ -222,7 +273,7 @@ DESCRIPTION
   Display help for dhti-cli.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.32/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/6.3.0/src/commands/help.ts)_
 
 ## `dhti-cli mimic [SERVER]`
 
@@ -246,7 +297,7 @@ EXAMPLES
   $ dhti-cli mimic
 ```
 
-_See code: [src/commands/mimic.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/mimic.ts)_
+_See code: [src/commands/mimic.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/mimic.ts)_
 
 ## `dhti-cli plugins`
 
@@ -269,7 +320,7 @@ EXAMPLES
   $ dhti-cli plugins
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/index.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/index.ts)_
 
 ## `dhti-cli plugins add PLUGIN`
 
@@ -343,7 +394,7 @@ EXAMPLES
   $ dhti-cli plugins inspect myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/inspect.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/inspect.ts)_
 
 ## `dhti-cli plugins install PLUGIN`
 
@@ -392,7 +443,7 @@ EXAMPLES
     $ dhti-cli plugins install someuser/someplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/install.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/install.ts)_
 
 ## `dhti-cli plugins link PATH`
 
@@ -423,7 +474,7 @@ EXAMPLES
   $ dhti-cli plugins link myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/link.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/link.ts)_
 
 ## `dhti-cli plugins remove [PLUGIN]`
 
@@ -464,7 +515,7 @@ FLAGS
   --reinstall  Reinstall all plugins after uninstalling.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/reset.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/reset.ts)_
 
 ## `dhti-cli plugins uninstall [PLUGIN]`
 
@@ -492,7 +543,7 @@ EXAMPLES
   $ dhti-cli plugins uninstall myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/uninstall.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/uninstall.ts)_
 
 ## `dhti-cli plugins unlink [PLUGIN]`
 
@@ -536,7 +587,7 @@ DESCRIPTION
   Update installed plugins.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.54/src/commands/plugins/update.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/5.5.2/src/commands/plugins/update.ts)_
 
 ## `dhti-cli synthea SUBCOMMAND`
 
@@ -562,7 +613,7 @@ FLAGS
   -p, --population=<value>                    [default: 1] Number of patients to generate
   -s, --seed=<value>                          Random seed for reproducible generation
   -t, --token=<value>                         Bearer token for FHIR server authentication
-  -w, --workdir=<value>                       [default: /home/beapen/dhti] Working directory for Synthea files
+  -w, --workdir=<value>                       [default: /home/bpunn/dhti] Working directory for Synthea files
       --covid19                               Download COVID-19 dataset (1k patients)
       --covid19_10k                           Download COVID-19 dataset (10k patients)
       --covid19_csv                           Download COVID-19 CSV dataset (1k patients)
@@ -588,7 +639,7 @@ EXAMPLES
   $ dhti-cli synthea download --covid19
 ```
 
-_See code: [src/commands/synthea.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/synthea.ts)_
+_See code: [src/commands/synthea.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/synthea.ts)_
 
 ## `dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT]`
 
@@ -620,7 +671,7 @@ EXAMPLES
   $ dhti-cli synthetic
 ```
 
-_See code: [src/commands/synthetic.ts](https://github.com/dermatologist/dhti/blob/v1.0.0/src/commands/synthetic.ts)_
+_See code: [src/commands/synthetic.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/synthetic.ts)_
 <!-- commandsstop -->
   # Table of contents
   <!-- toc -->
