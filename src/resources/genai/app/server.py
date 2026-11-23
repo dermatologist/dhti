@@ -35,6 +35,10 @@ app.add_middleware(
 async def read_root():
     return {"message": "Hello from DHTI!"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
 try:
     from langfuse import Langfuse
     from langfuse.callback import CallbackHandler
