@@ -117,6 +117,81 @@ npx dhti-cli conch start --local /path/to/workspace/openmrs-esm-dhti --sources '
 
 ---
 
+## 🧪 E2E Testing
+
+### Quick Start
+
+```bash
+# Run all E2E tests (20-30 minutes)
+./e2e.sh
+
+# Run fast tests only (< 5 minutes)
+./e2e.sh --fast
+
+# Skip browser tests
+./e2e.sh --no-browser
+
+# Skip Docker tests
+./e2e.sh --no-docker
+
+# Verbose output
+./e2e.sh --verbose
+```
+
+### Test Categories
+
+| Category              | Duration  | Command                 |
+| --------------------- | --------- | ----------------------- |
+| CLI Commands          | 2-3 min   | `./e2e.sh --fast`       |
+| Docker Integration    | 5-10 min  | `./e2e.sh --no-browser` |
+| Browser Automation    | 3-5 min   | `./e2e.sh --no-docker`  |
+| Integration Workflows | 15-20 min | `./e2e.sh`              |
+
+### Prerequisites
+
+```bash
+# Install dependencies
+npm install
+
+# Build CLI
+npm run build
+
+# Link CLI globally
+npm link
+
+# Install Playwright browsers (for browser tests)
+npx playwright install chromium
+```
+
+### Test Output
+
+- **✓ INFO** - Informational messages (green)
+- **⚠ WARN** - Warnings (yellow)
+- **✗ ERROR** - Errors (red)
+- **✓ SUCCESS** - Success messages (cyan)
+
+### Cleanup
+
+All Docker containers and test directories are automatically cleaned up after tests.
+
+To disable cleanup (for debugging):
+
+```bash
+./e2e.sh --no-cleanup
+```
+
+### Troubleshooting
+
+See full documentation: `gendocs/E2E-TESTING.md`
+
+Common issues:
+
+- Docker not running: `sudo systemctl start docker`
+- Port in use: `dhti-cli docker -d`
+- Playwright not installed: `npx playwright install chromium`
+
+---
+
 ## ⚙️ Updated: Bootstrap Configuration
 
 ```bash

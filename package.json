@@ -25,6 +25,7 @@
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
+    "@playwright/test": "^1.40.0",
     "@types/axios": "^0.9.36",
     "@types/chai": "^4",
     "@types/js-yaml": "^4.0.9",
@@ -42,6 +43,7 @@
     "eslint-config-prettier": "^9",
     "mocha": "^10",
     "oclif": "^4",
+    "playwright": "^1.40.0",
     "shx": "^0.3.3",
     "sinon": "^21.0.0",
     "ts-node": "^10",
