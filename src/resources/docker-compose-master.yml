@@ -75,6 +75,11 @@ services:
     ports:
       - "8001:8001"
     restart: "unless-stopped"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/langserve"]
+      timeout: 5s
+      interval: 10s
+      retries: 3
     environment:
       - OLLAMA_SERVER_URL=http://ollama:11434
       - OLLAMA_WEBUI=http://ollama-webui:8080
@@ -375,7 +380,6 @@ services:
     ports:
       - "8010:8080"
     restart: "unless-stopped"
-
 
 volumes:
   openmrs-data: ~
