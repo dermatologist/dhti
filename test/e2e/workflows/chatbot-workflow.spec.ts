@@ -154,8 +154,8 @@ test.describe('Chatbot Workflow Tests', () => {
     })
 
     await test.step('Wait for LangServe to be healthy', async () => {
-      // FIX: Increased timeout
-      await waitForService('http://localhost:8001/langserve', 120000)
+      // LangServe exposes /docs endpoint when healthy
+      await waitForService('http://localhost:8001/docs', 120000)
       log(LogLevel.INFO, '✅ LangServe is healthy')
     })
 
