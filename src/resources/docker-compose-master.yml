@@ -70,7 +70,6 @@ services:
 
   langserve:
     image: beapen/genai:latest
-    network_mode: host
     pull_policy: always
     ports:
       - "8001:8001"
