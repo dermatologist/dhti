@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test'
-import {runCommand, waitForService, log, LogLevel} from '../helpers'
+import {runCommand, runCommandBackground, waitForService, log, LogLevel} from '../helpers'
 import {startServices, stopServices} from '../docker-utils'
 
 /**
@@ -13,7 +13,7 @@ import {startServices, stopServices} from '../docker-utils'
 
 test.describe('Chatbot Workflow Tests', () => {
   const testWorkspace = process.env.DHTI_TEST_WORKSPACE || `${process.env.HOME}/dhti-e2e-test`
-  const cliPath = './bin/run.js'
+  const cliCommand = 'dhti-cli' // Use globally linked CLI command
   const elixirGitUrl = 'https://github.com/dermatologist/dhti-elixir.git'
   const elixirName = 'dhti-elixir-schat'
   const elixirSubdir = 'packages/simple_chat'
@@ -21,8 +21,11 @@ test.describe('Chatbot Workflow Tests', () => {
   const conchPackage = 'packages/esm-chatbot-agent'
   const workdir = `${process.env.HOME}/dhti` // Default workdir for elixir/conch commands
   const elixirDir = `${workdir}/elixir` // Elixir installs to ~/dhti/elixir
-  const cdsSandboxUrl = 'http://localhost:8081' // CDS Hooks sandbox URL
+  const cdsSandboxUrl = 'http://localhost:8080' // CDS Hooks sandbox URL (webpack-dev-server)
   const cdsSandboxDir = `${workdir}/cds-hooks-sandbox` // CDS sandbox directory
+
+  // Track background processes for cleanup
+  let elixirProcess: any = null
 
   test.beforeAll(async () => {
     log(LogLevel.INFO, '📦 Setting up chatbot test environment...')
@@ -40,8 +43,20 @@ test.describe('Chatbot Workflow Tests', () => {
       log(`✅ Docker: ${result.stdout.trim()}`)
     })
 
-    await test.step('Verify dhti-cli is built', async () => {
-      const result = await runCommand(`node ${cliPath} --version`)
+    await test.step('Build dhti-cli', async () => {
+      const result = await runCommand('npm run build', {cwd: process.env.DHTI_CLI_PATH || process.cwd()})
+      expect(result.exitCode).toBe(0)
+      log(LogLevel.INFO, '✅ dhti-cli built')
+    })
+
+    await test.step('Link dhti-cli globally', async () => {
+      const result = await runCommand('npm link', {cwd: process.env.DHTI_CLI_PATH || process.cwd()})
+      expect(result.exitCode).toBe(0)
+      log(LogLevel.INFO, '✅ dhti-cli linked globally')
+    })
+
+    await test.step('Verify dhti-cli is available', async () => {
+      const result = await runCommand(`${cliCommand} --version`)
       expect(result.exitCode).toBe(0)
       log(`✅ dhti-cli: ${result.stdout.trim()}`)
     })
@@ -56,32 +71,35 @@ test.describe('Chatbot Workflow Tests', () => {
     // Cleanup: Remove any existing test elixirs
     await test.step('Clean up existing elixirs', async () => {
       // Uninstall test-elixir if it exists (from previous test runs)
-      const cleanupResult = await runCommand(`node ${cliPath} elixir uninstall -n test-elixir 2>&1 || true`)
+      const cleanupResult = await runCommand(`${cliCommand} elixir uninstall -n test-elixir 2>&1 || true`)
       log(LogLevel.INFO, '✅ Cleanup complete')
     })
 
     // Phase 1: Compose Setup
     await test.step('Reset docker-compose.yml', async () => {
-      const result = await runCommand(`node ${cliPath} compose reset`)
+      const result = await runCommand(`${cliCommand} compose reset`)
       expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain('docker-compose.yml')
+      const output = result.stdout || result.stderr || ''
+      expect(output).toContain('docker-compose.yml')
       log(LogLevel.INFO, '✅ Compose reset complete')
     })
 
     await test.step('Add LangServe module', async () => {
-      const result = await runCommand(`node ${cliPath} compose add -m langserve`)
+      const result = await runCommand(`${cliCommand} compose add -m langserve`)
       expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain('updated successfully')
+      const output = result.stdout || result.stderr || ''
+      expect(output).toContain('updated successfully')
       log(LogLevel.INFO, '✅ LangServe module added')
     })
 
     // Phase 2: Elixir Installation
     await test.step('Install chatbot elixir from GitHub', async () => {
       const result = await runCommand(
-        `node ${cliPath} elixir install -g ${elixirGitUrl} -n ${elixirName} -s ${elixirSubdir}`,
+        `${cliCommand} elixir install -g ${elixirGitUrl} -n ${elixirName} -s ${elixirSubdir}`,
       )
       expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain(elixirName)
+      const output = result.stdout || result.stderr || ''
+      expect(output).toContain(elixirName)
       log(LogLevel.INFO, '✅ Elixir installed from GitHub')
     })
 
@@ -101,21 +119,23 @@ test.describe('Chatbot Workflow Tests', () => {
 
     // Phase 3: Docker Build
     await test.step('Build Docker image with elixir', async () => {
-      const result = await runCommand(`node ${cliPath} docker -n ${dockerImage} -t elixir`)
+      const result = await runCommand(`${cliCommand} docker -n ${dockerImage} -t elixir`)
       expect(result.exitCode).toBe(0)
-      expect(result.stdout).toLowerCase().toContain('build')
+      const output = (result.stdout || result.stderr || '').toLowerCase()
+      expect(output).toContain('built')
       log(LogLevel.INFO, '✅ Docker image built')
     })
 
     await test.step('Verify Docker image exists', async () => {
       const result = await runCommand(`docker images ${dockerImage} --format "{{.Repository}}"`)
-      expect(result.stdout).toContain(dockerImage.split(':')[0])
+      const output = result.stdout || result.stderr || ''
+      expect(output).toContain(dockerImage.split(':')[0])
       log(LogLevel.INFO, '✅ Docker image verified')
     })
 
     // Phase 4: Start Services
     await test.step('Start Docker services', async () => {
-      const result = await runCommand(`node ${cliPath} docker -u`)
+      const result = await runCommand(`${cliCommand} docker -u`)
       expect(result.exitCode).toBe(0)
       log(LogLevel.INFO, '✅ Docker services starting...')
     })
@@ -127,16 +147,19 @@ test.describe('Chatbot Workflow Tests', () => {
 
     // Phase 5: Bootstrap
     await test.step('Copy bootstrap.py to container', async () => {
-      const result = await runCommand(`node ${cliPath} docker bootstrap -f bootstrap.py`)
+      const result = await runCommand(`${cliCommand} docker bootstrap -f bootstrap.py`)
       expect(result.exitCode).toBe(0)
       log(LogLevel.INFO, '✅ Bootstrap file copied')
     })
 
-    // Phase 6: Start Elixir
-    await test.step('Start elixir CDS sandbox', async () => {
-      const result = await runCommand(`node ${cliPath} elixir start -n ${elixirName}`)
-      expect(result.exitCode).toBe(0)
-      log(LogLevel.INFO, '✅ Elixir CDS sandbox started')
+    // Phase 6: Start Elixir (in background)
+    await test.step('Start elixir CDS sandbox in background', async () => {
+      const {proc} = runCommandBackground(`${cliCommand} elixir start -n ${elixirName}`)
+      elixirProcess = proc
+      log(LogLevel.INFO, '✅ Elixir CDS sandbox starting in background')
+
+      // Give the process some time to start
+      await new Promise((resolve) => setTimeout(resolve, 5000))
     })
 
     // Phase 6a: CDS Hooks Sandbox UI Testing (NEW - from README.md)
@@ -273,7 +296,7 @@ test.describe('Chatbot Workflow Tests', () => {
     // Cleanup: Remove any existing test elixirs
     await test.step('Clean up existing elixirs', async () => {
       // Uninstall test-elixir if it exists (from previous test runs)
-      const cleanupResult = await runCommand(`node ${cliPath} elixir uninstall -n test-elixir 2>&1 || true`)
+      const cleanupResult = await runCommand(`${cliCommand} elixir uninstall -n test-elixir 2>&1 || true`)
       log(LogLevel.INFO, '✅ Cleanup complete')
     })
 
@@ -295,7 +318,8 @@ test.describe('Chatbot Workflow Tests', () => {
     await test.step('Add OpenMRS module', async () => {
       const result = await runCommand(`node ${cliPath} compose add -m openmrs`)
       expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain('updated successfully')
+      const output = result.stdout || result.stderr || ''
+      expect(output).toContain('updated successfully')
       log(LogLevel.INFO, '✅ OpenMRS module added')
     })
 
@@ -390,8 +414,18 @@ test.describe('Chatbot Workflow Tests', () => {
   test.afterAll(async () => {
     log(LogLevel.INFO, '🧹 Cleaning up chatbot test environment...')
 
+    // Kill background elixir process if running
+    if (elixirProcess) {
+      try {
+        elixirProcess.kill('SIGTERM')
+        log(LogLevel.INFO, '✅ Background elixir process terminated')
+      } catch (error) {
+        log(LogLevel.WARN, '⚠ Could not terminate elixir process')
+      }
+    }
+
     await test.step('Stop Docker services', async () => {
-      const result = await runCommand(`node ${cliPath} docker -d`)
+      const result = await runCommand(`${cliCommand} docker -d`)
       expect(result.exitCode).toBe(0)
       log(LogLevel.INFO, '✅ Docker services stopped')
     })

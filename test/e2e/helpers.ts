@@ -123,6 +123,40 @@ export function runCommand(
 }
 
 /**
+ * Run a command in the background (non-blocking)
+ * @param command - Command to execute
+ * @param options - Execution options
+ * @returns Spawned process object
+ */
+export function runCommandBackground(
+  command: string,
+  options: {
+    cwd?: string
+    env?: NodeJS.ProcessEnv
+  } = {},
+): {proc: any; stdout: string; stderr: string} {
+  const {cwd = process.cwd(), env = process.env} = options
+
+  log(LogLevel.INFO, `Starting background process: ${command}`)
+
+  const [cmd, ...args] = command.split(' ')
+  const proc = spawn(cmd, args, {cwd, env, stdio: ['ignore', 'pipe', 'pipe']})
+
+  let stdout = ''
+  let stderr = ''
+
+  proc.stdout.on('data', (data: Buffer) => {
+    stdout += data.toString()
+  })
+
+  proc.stderr.on('data', (data: Buffer) => {
+    stderr += data.toString()
+  })
+
+  return {proc, stdout, stderr}
+}
+
+/**
  * Validate CLI output contains expected strings
  * @param output - CLI output to validate
  * @param expected - Array of expected strings
