@@ -1,5 +1,7 @@
-  # Usage
+# Usage
+
   <!-- usage -->
+
 ```sh-session
 $ npm install -g dhti-cli
 $ dhti-cli COMMAND
@@ -11,29 +13,33 @@ USAGE
   $ dhti-cli COMMAND
 ...
 ```
+
 <!-- usagestop -->
-  # Commands
+
+# Commands
+
   <!-- commands -->
-* [`dhti-cli compose [OP]`](#dhti-cli-compose-op)
-* [`dhti-cli conch [OP]`](#dhti-cli-conch-op)
-* [`dhti-cli copilot`](#dhti-cli-copilot)
-* [`dhti-cli docker [PATH]`](#dhti-cli-docker-path)
-* [`dhti-cli docktor OP [NAME]`](#dhti-cli-docktor-op-name)
-* [`dhti-cli elixir [OP]`](#dhti-cli-elixir-op)
-* [`dhti-cli help [COMMAND]`](#dhti-cli-help-command)
-* [`dhti-cli mimic [SERVER]`](#dhti-cli-mimic-server)
-* [`dhti-cli plugins`](#dhti-cli-plugins)
-* [`dhti-cli plugins add PLUGIN`](#dhti-cli-plugins-add-plugin)
-* [`dhti-cli plugins:inspect PLUGIN...`](#dhti-cli-pluginsinspect-plugin)
-* [`dhti-cli plugins install PLUGIN`](#dhti-cli-plugins-install-plugin)
-* [`dhti-cli plugins link PATH`](#dhti-cli-plugins-link-path)
-* [`dhti-cli plugins remove [PLUGIN]`](#dhti-cli-plugins-remove-plugin)
-* [`dhti-cli plugins reset`](#dhti-cli-plugins-reset)
-* [`dhti-cli plugins uninstall [PLUGIN]`](#dhti-cli-plugins-uninstall-plugin)
-* [`dhti-cli plugins unlink [PLUGIN]`](#dhti-cli-plugins-unlink-plugin)
-* [`dhti-cli plugins update`](#dhti-cli-plugins-update)
-* [`dhti-cli synthea SUBCOMMAND`](#dhti-cli-synthea-subcommand)
-* [`dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT]`](#dhti-cli-synthetic-input-output-prompt)
+
+- [`dhti-cli compose [OP]`](#dhti-cli-compose-op)
+- [`dhti-cli conch [OP]`](#dhti-cli-conch-op)
+- [`dhti-cli copilot`](#dhti-cli-copilot)
+- [`dhti-cli docker [PATH]`](#dhti-cli-docker-path)
+- [`dhti-cli docktor OP [NAME]`](#dhti-cli-docktor-op-name)
+- [`dhti-cli elixir [OP]`](#dhti-cli-elixir-op)
+- [`dhti-cli help [COMMAND]`](#dhti-cli-help-command)
+- [`dhti-cli mimic [SERVER]`](#dhti-cli-mimic-server)
+- [`dhti-cli plugins`](#dhti-cli-plugins)
+- [`dhti-cli plugins add PLUGIN`](#dhti-cli-plugins-add-plugin)
+- [`dhti-cli plugins:inspect PLUGIN...`](#dhti-cli-pluginsinspect-plugin)
+- [`dhti-cli plugins install PLUGIN`](#dhti-cli-plugins-install-plugin)
+- [`dhti-cli plugins link PATH`](#dhti-cli-plugins-link-path)
+- [`dhti-cli plugins remove [PLUGIN]`](#dhti-cli-plugins-remove-plugin)
+- [`dhti-cli plugins reset`](#dhti-cli-plugins-reset)
+- [`dhti-cli plugins uninstall [PLUGIN]`](#dhti-cli-plugins-uninstall-plugin)
+- [`dhti-cli plugins unlink [PLUGIN]`](#dhti-cli-plugins-unlink-plugin)
+- [`dhti-cli plugins update`](#dhti-cli-plugins-update)
+- [`dhti-cli synthea SUBCOMMAND`](#dhti-cli-synthea-subcommand)
+- [`dhti-cli synthetic [INPUT] [OUTPUT] [PROMPT]`](#dhti-cli-synthetic-input-output-prompt)
 
 ## `dhti-cli compose [OP]`
 
@@ -236,7 +242,7 @@ FLAGS
   -d, --dev=<value>           [default: none] Dev folder to install
   -e, --elixir=<value>        Elixir endpoint URL
   -e, --whl=<value>           [default: none] Whl file to install
-  -f, --fhir=<value>          [default: http://hapi.fhir.org/baseR4] FHIR endpoint URL
+  -f, --fhir=<value>          [default: https://hapi.fhir.org/baseR4] FHIR endpoint URL
   -g, --git=<value>           [default: none] Github repository to install
   -l, --local=<value>         [default: none] Local directory to install from
   -n, --name=<value>          Name of the elixir
@@ -672,8 +678,11 @@ EXAMPLES
 ```
 
 _See code: [src/commands/synthetic.ts](https://github.com/dermatologist/dhti/blob/v1.3.6/src/commands/synthetic.ts)_
+
 <!-- commandsstop -->
-  # Table of contents
+
+# Table of contents
+
   <!-- toc -->
 
 <!-- tocstop -->

@@ -144,7 +144,7 @@ describe('elixir', () => {
     ])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('http://localhost:8001/langserve/test_name_with_dash/cds-services')
-    expect(stdout).to.contain('http://hapi.fhir.org/baseR4')
+    expect(stdout).to.contain('https://hapi.fhir.org/baseR4')
   })
 
   it('rejects elixir start without --elixir and without --name', async () => {
@@ -160,7 +160,7 @@ describe('elixir', () => {
     const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '-n', 'my-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('Update docker-compose.yml')
-    expect(stdout).to.contain('FHIR_BASE_URL=http://hapi.fhir.org/baseR4')
+    expect(stdout).to.contain('FHIR_BASE_URL=https://hapi.fhir.org/baseR4')
     expect(stdout).to.contain('docker restart dhti-langserve-1')
   })
 

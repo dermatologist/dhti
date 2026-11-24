@@ -45,7 +45,7 @@ export default class Elixir extends Command {
     }),
     fhir: Flags.string({
       char: 'f',
-      default: 'http://hapi.fhir.org/baseR4',
+      default: 'https://hapi.fhir.org/baseR4',
       description: 'FHIR endpoint URL',
     }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
