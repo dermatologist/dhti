@@ -11,7 +11,7 @@ import {waitForService} from '../helpers'
  */
 
 test.describe('CDS-Hook Sandbox Tests', () => {
-  const sandboxUrl = 'http://localhost:8081' // CDS-Hook sandbox URL
+  const sandboxUrl = 'http://localhost:8080' // CDS-Hook sandbox URL
   const elixirEndpoint = 'http://localhost:8001/langserve'
 
   test('@browser should verify CDS-Hook sandbox is accessible', async ({page}) => {
