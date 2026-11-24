@@ -245,21 +245,49 @@ test.describe('Chatbot Workflow Tests', () => {
       }
     })
 
-    await test.step('Switch to Patient View', async () => {
-      // Look for Patient View tab or link
-      const patientViewTab = page
-        .locator('text=Patient View, text=Patient, [class*="patient"], [id*="patient"]')
+    await test.step('List all tabs on the page', async () => {
+      // Find all potential tabs/links on the page
+      const allTabs = await page.locator('a, button, [role="tab"]').all()
+      log(LogLevel.INFO, `📋 Found ${allTabs.length} potential tabs/links on the page`)
+
+      // Extract text content from each tab
+      const tabTexts: string[] = []
+      for (let i = 0; i < allTabs.length; i++) {
+        const text = await allTabs[i].innerText()
+        if (text.trim()) {
+          tabTexts.push(text.trim())
+          log(LogLevel.INFO, `  Tab ${i + 1}: "${text.trim()}"`)
+        }
+      }
+
+      // Also look for specific tab patterns
+      const navTabs = await page.locator('nav a, .nav a, [class*="nav"] a, [role="navigation"] a').all()
+      log(LogLevel.INFO, `🧭 Found ${navTabs.length} navigation tabs`)
+      for (let i = 0; i < navTabs.length; i++) {
+        const text = await navTabs[i].innerText()
+        if (text.trim()) {
+          log(LogLevel.INFO, `  Nav Tab ${i + 1}: "${text.trim()}"`)
+        }
+      }
+    })
+
+    await test.step('Switch to Rx View tab', async () => {
+      // Look for Rx View tab or link (try multiple selectors)
+      const rxViewTab = page
+        .locator(
+          'text=Rx View, text=Rx, text=Prescriptions, text=Medications, [class*="rx"], [id*="rx"], [class*="prescription"], [class*="medication"]',
+        )
         .first()
 
       try {
-        await patientViewTab.click({timeout: 10000})
-        log(LogLevel.INFO, '✅ Patient View tab clicked')
+        await rxViewTab.click({timeout: 10000})
+        log(LogLevel.INFO, '✅ Rx View tab clicked')
 
         // Wait for view to load
         await new Promise((resolve) => setTimeout(resolve, 2000))
       } catch (error) {
         // If tab click fails, we may already be on the right view
-        log(LogLevel.WARN, '⚠ Could not click Patient View tab, continuing with current view')
+        log(LogLevel.WARN, '⚠ Could not click Rx View tab, continuing with current view')
       }
     })
 
