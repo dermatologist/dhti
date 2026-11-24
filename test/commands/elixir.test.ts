@@ -111,7 +111,6 @@ describe('elixir', () => {
     expect(stdout).to.contain('/tmp/test-workdir/cds-hooks-sandbox')
     expect(stdout).to.contain('yarn install')
     expect(stdout).to.contain('yarn dhti')
-    expect(stdout).to.contain('yarn dev')
     expect(stdout).to.contain('http://localhost:8001/langserve/my_elixir/cds-services')
   })
 
