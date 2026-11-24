@@ -1,28 +1,71 @@
 ---
 name: start-dhti
-description: This skill enables AI agents to orchestrate the DHTI development workflow by installing elixirs and conches, and starting a fully functional DHTI server with all components installed using Docker.
+description: Orchestrate DHTI infrastructure, elixirs, and conches using the DHTI CLI and Docker.
 ---
-
 
 ## When to Use This Skill
 
-Use this skill when you need to:
-- Install elixirs and conches created by other skills
-- Set up a fully functional DHTI development server for testing and prototyping
-- Rapidly prototype GenAI healthcare applications with both backend and frontend components
+Use this skill to install elixirs or conches produced by the other DHTI skills and start a development environment for testing or prototyping.
+
+## Resolve the Target First
+
+Determine these values before running commands:
+
+- `WORKSPACE`: absolute workspace directory containing generated projects.
+- `ELIXIR_NAME`: package name, usually the package directory name.
+- `ELIXIR_PATH`: absolute path to `WORKSPACE/dhti-elixir/packages/<elixir-name>`.
+- `CONCH_NAME`: package name under the OpenMRS monorepo.
+- `CONCH_PATH`: absolute path to `WORKSPACE/openmrs-esm-dhti/packages/<conch-name>`.
+- `COMPOSE_FILE`: default `~/dhti/docker-compose.yml`, unless the user specifies another file.
+- `IMAGE_TAG`: full image name and tag, such as `dhti/genai-test:1.0`.
+
+Choose one target profile:
+
+- **OpenMRS conch:** Compose `langserve` and `openmrs`, then start the OpenMRS development server.
+- **CDS Hooks elixir:** Compose `langserve`, then start the CDS Hooks sandbox.
+- **Infrastructure only:** Compose only the requested modules.
+
+If both elixir and conch components exist, compose `langserve` and `openmrs` and install both.
 
 ## Prerequisites
 
-Before using this skill, ensure you have:
-- Node.js (>= 18.0.0) installed
-- Docker and Docker Compose installed and running
-- Sufficient disk space for Docker images
+Verify before any mutation:
 
-## Instructions
-You are a DHTI orchestration agent working to create a complete GenAI healthcare application. Follow these instructions sequentially.
-The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
+```bash
+node --version
+npm --version
+npx dhti-cli --help
+docker --version
+docker compose version
+docker ps
+```
 
-### Phase 1: Environment Setup
+When developing from this repository rather than using the published CLI:
+
+```bash
+npm install
+npm run build
+npm link
+npx dhti-cli --help
+```
+
+Do not proceed if Docker is unavailable, required paths do not exist, or a required host port is already occupied.
+
+## Preflight
+
+Run mutating commands with `--dry-run` before executing them:
+
+```bash
+npx dhti-cli compose add -m langserve -m openmrs --dry-run
+npx dhti-cli elixir install -l <elixir-path> -n <elixir-name> --dry-run
+npx dhti-cli conch install -l <conch-path> -n <conch-name> --dry-run
+npx dhti-cli docker -n <image-tag> -t elixir --dry-run
+npx dhti-cli docker -u --dry-run
+```
+
+Use absolute paths to avoid ambiguity. Do not use `compose reset` unless the user explicitly wants to discard the existing Compose configuration.
+
+### 1. Environment Setup
 
 1. **Verify Prerequisites:**
    - Check that Node.js and Docker are installed
@@ -53,184 +96,180 @@ workspace/
             └── README.md             # Documentation for your conch
 ```
 
-### Phase 2: Set Up DHTI Infrastructure
+### 2. Configure Docker Compose
 
-5. **Create Docker Compose Configuration:**
-   ```bash
-   npx dhti-cli compose add -m langserve
-   ```
+For an OpenMRS or combined elixir/conch setup:
 
-   This creates a Docker Compose configuration with:
-   - LangServe (GenAI backend)
-   - Other necessary infrastructure
+```bash
+npx dhti-cli compose add -m langserve -m openmrs
+```
 
-   Optionally add additional modules as needed:
-   - `-m ollama` for local LLM hosting
-   - `-m langfuse` for monitoring
-   - `-m redis` for vector store
-   - `-m neo4j` for graph utilities
-   - `-m cqlFhir` for CQL support
-   - `-m mcpFhir` for MCP server
+For an elixir/CDS Hooks-only setup:
 
-6. **Verify Compose Configuration:**
-   ```bash
-   npx dhti-cli compose read
-   ```
+```bash
+npx dhti-cli compose add -m langserve
+```
 
-### Phase 3: Install Elixir from Local Directory (If Applicable)
+Add supporting modules only when the application requires them:
 
-7. **Install the Generated Elixir:**
-   - Install the elixir from `workspace` directory in the current path.
-   - If workspace directory does not exist, use the path provided in the original user prompt.
-   - Use the `-l` flag to specify the directory.
-   - Use -n flag with the elixir's project name (starting with `dhti-elixir-`)
+- `-m ollama`: local LLM and web UI
+- `-m langfuse`: monitoring
+- `-m redis`: Redis and Redis Commander
+- `-m neo4j`: Neo4j and graph utilities
+- `-m cqlFhir`: CQL/FHIR services
+- `-m mcpFhir`: MCP FHIR service
+- `-m mcpx` or `-m docktor`: MCP/Docktor tooling
 
-   ```bash
-   npx dhti-cli elixir install -l <elixir-path> -n <elixir-name>
-   ```
+Verify the generated configuration:
 
-   Example:
-   ```bash
-   npx dhti-cli elixir install -l workspace/dhti-elixir/packages/glycemic_advisor -n glycemic_advisor
-   ```
+```bash
+npx dhti-cli compose read
+docker compose -f ~/dhti/docker-compose.yml config
+```
 
-8. **Build Elixir Docker Image:**
-   ```bash
-   npx dhti-cli docker -n dhti/genai-test:1.0 -t elixir
-   ```
+### 3. Install Elixir from a Local Directory
 
-   Replace `dhti` with your Docker Hub username or registry name if available from the original user prompt.
+Confirm the elixir package contains `pyproject.toml` and `src/dhti_elixir_<normalized-name>/`. Hyphenated names are normalized to underscores for routes and dev sync.
 
-### Phase 4: Install Conch from Local Directory (If Applicable)
+Install from the absolute local package path:
 
-9. **Install the Generated Conch:**
-   - Install the conch from `workspace` directory in the current path.
-   - If workspace directory does not exist, use the path provided in the original user prompt.
-   - Use the  `-l` flag to install the conch from the directory.
-   - Use -n flag with the conch's project name (starting with `openmrs-esm-dhti-`)
+```bash
+npx dhti-cli elixir install -l <elixir-path> -n <elixir-name>
+```
 
-   ```bash
-   npx dhti-cli conch install -l <conch-path> -n <conch-name>
-   ```
+The operation adds the package to `~/dhti/elixir/pyproject.toml`. It fails if the local path is missing.
 
-   Example:
-   ```bash
-   npx dhti-cli conch install -l workspace/openmrs-esm-dhti/packages/esm-glycemic-advisor -n esm-glycemic-advisor
-   ```
+Build and register the elixir image:
 
-### Hot Reload / Dev Sync (If Applicable)
+```bash
+npx dhti-cli docker -n dhti/genai-test:1.0 -t elixir
+```
+
+The Docker command builds `~/dhti/elixir` and sets `langserve.image` in the Compose file. Replace the image tag with the user's registry or requested tag.
+
+### 4. Install Conch from a Local Directory
+
+For a new monorepo, initialize the template:
+
+```bash
+npx dhti-cli conch init -w <workspace> -n <conch-name>
+```
+
+For an existing local package, verify `package.json` and install with an absolute path:
+
+```bash
+npx dhti-cli conch install -l <conch-path> -n <conch-name> -w <workspace>
+```
+
+The current implementation copies the source package to `<workspace>/<conch-name>`; it does not create `openmrs-esm-dhti/packages/<conch-name>` automatically.
+
+### Development Sync and Runtime Bootstrap
 
 Use these commands to sync work-in-progress code/assets into running containers. This is ideal for UI tweaks and elixir logic changes that don't alter dependencies.
 
 - Elixir dev sync
 
 ```bash
-npx dhti-cli elixir dev -d <<workspace>>/dhti-elixir/packages/<<elixir-name>> -n <<elixir-name>> -c dhti-langserve-1
+npx dhti-cli elixir dev -d <elixir-path> -n <elixir-name> -c dhti-langserve-1
 ```
 
 Note: If dependencies change (e.g., `requirements.txt` or `pyproject.toml`), rebuild the image instead of using dev sync.
 
-- Conch dev sync
+There is currently no `conch dev` command. Rebuild the frontend image after conch source or dependency changes:
 
 ```bash
-npx dhti-cli conch dev -d <<workspace>>/openmrs-esm-dhti/packages/<<conch-name>> -n <<conch-name>> -c dhti-frontend-1
+npx dhti-cli docker -n <image-tag> -t conch
 ```
 
-Tip: Clear your browser cache if assets look stale after syncing.
+Then restart the Compose stack. Clear the browser cache if stale assets remain.
 
 - Update runtime bootstrap
 
 ```bash
-npx dhti-cli docker bootstrap -f <<workspace>>/bootstrap.py -c dhti-langserve-1
+npx dhti-cli docker bootstrap -f <elixir-path>/bootstrap.py -c dhti-langserve-1
 ```
-When run for the first time, this command will copy the bootstrap file into the langserve container to workspace.
-Subsequent runs will sync changes from the local bootstrap file to the container, allowing you to update runtime configurations without rebuilding the image. This is especially useful for tweaking model settings, tool configurations, or other parameters defined in the bootstrap file during development.
 
-### Phase 5: Start DHTI Server
+This command copies the local file to `/app/app/bootstrap.py` in LangServe and restarts the container. Use it to update runtime configuration without rebuilding the image. Rebuild when dependencies or the image layout change.
+
+### 5. Start DHTI Server
 
 11. **Start All Services:**
     ```bash
     npx dhti-cli docker -u
     ```
 
-### Phase 6: Decide whether to use OpenMRS or CDS-Hooks container.
+### 6. Choose an Application Profile
 
 If a conch is installed, then you should use OpenMRS container to see the conch in action. If no conch is installed, you can choose to use CDS-Hooks container to test the elixir functionality.
 
-#### If using OpenMRS container:
-```
-npx dhti-cli conch install # if you have not performed this step before.
-npx dhti-cli conch start -s packages/<<conch-name>>
+#### OpenMRS Profile
+
+Start the monorepo with one or more package sources:
+
+```bash
+npx dhti-cli conch start \
+  -l <workspace>/openmrs-esm-dhti \
+  -s packages/<conch-name>
 ```
 
-Example:
-```
-npx dhti-cli conch install # if you have not performed this step before.
-npx dhti-cli conch start -s packages/esm-chatbot-agent
-```
+Repeat `-s` for multiple conches.
 
-   - Login to OpenMRS with at `http://localhost:8080/openmrs/spa/home`
-     - Username: `admin`
-     - Password: `Admin123`
+This command runs `yarn install` and `yarn start` in the monorepo and is interactive. Open:
+
+- Through the gateway: `http://localhost/openmrs/spa/home`
+- Direct frontend: `http://localhost:8003/openmrs/spa/home`
+
+Credentials:
+
+- Username: `admin`
+- Password: `Admin123`
 
 You may include multiple conches with multiple -s flags to start them at the same time.
 
-12. **Wait for Services to Initialize:**
-    - Wait 2-3 minutes for all services to fully start
-    - Monitor logs: `docker compose logs -f`
+#### CDS Hooks Profile
 
-13. **Hand off with the following instructions:**
-    - Navigate to `http://localhost:8080/openmrs/spa/home`
-    - Login credentials:
-      - Username: `admin`
-      - Password: `Admin123`
+Check whether port `8080` is available, then start the CDS Hooks sandbox:
 
-#### If using CDS-Hooks container:
-
-* First kill any running processes on port 8080 to free it up for CDS-Hooks container.
-Then start the CDS-Hooks container with the elixir.
-```
-npx dhti-cli elixir start -n <<elixir-name>> &
+```bash
+npx dhti-cli elixir start -n <elixir-name>
 ```
 
 Example:
-```
-npx dhti-cli elixir start -n glycemic_advisor &
-```
-
-NOTE the `Application link` in the output rather than the final display link.
-
-12. **Wait for Services to Initialize:**
-   - Wait 2-3 minutes for all services to fully start
-   - Monitor logs: `docker compose logs -f`
-
-13. **Hand off with the following instructions:**
-   - Request the user to run `npx dhti-cli elixir start -n <<elixir-name>>` to start the CDS-Hooks container with the elixir.
-   - Display the `Application link`: <<application-link>>
-   - Request to open application link in browser to access it.
-
-### Phase 9: Clean Up (If Needed)
-
-18. **Cleanup Instructions:**
-    - Provide commands to stop and remove containers:
-      ```bash
-      npx dhti-cli docker -d
-      ```
-    - Document how to restart the server
-    - Explain how to rebuild images after changes
-
-### Development Mode (Optional)
-
-
-## Dry-Run Mode
-
-Before making any changes, use the `--dry-run` flag to preview actions:
 
 ```bash
-npx dhti-cli compose add -m openmrs -m langserve --dry-run
-npx dhti-cli elixir install -l <path> -n <name> --dry-run
-npx dhti-cli conch install -l <path> -n <name> --dry-run
+npx dhti-cli elixir start -n glycemic_advisor
 ```
+
+This command is interactive and starts the CDS Hooks sandbox. Capture the exact `Application link` printed by the command and give that URL to the user.
+
+### Cleanup
+
+Stop and remove the Compose stack:
+
+```bash
+npx dhti-cli docker -d
+```
+
+Restart it with:
+
+```bash
+npx dhti-cli docker -u
+```
+
+Removing workdirs or Docker images is destructive and requires explicit user approval.
+
+## Health and Verification
+
+Use bounded retries rather than fixed waits:
+
+```bash
+curl --fail --retry 30 --retry-delay 2 http://localhost:8001/docs
+curl --fail --retry 30 --retry-delay 2 http://localhost:8003/openmrs/spa/
+
+docker compose -f ~/dhti/docker-compose.yml ps
+```
+
+Report success only after the relevant endpoint responds and the selected containers are running or healthy.
 
 ## Troubleshooting
 
@@ -238,29 +277,28 @@ Common issues and solutions:
 
 1. **Docker containers fail to start:**
    - Check Docker is running: `docker ps`
-   - Verify port availability (80, 8080, 8000)
-   - Check Docker logs: `docker compose logs <service-name>`
+   - Verify port availability for `80`, `8001`, `8002`, `8003`, `9001`, and `8080`
+   - Check Docker logs: `docker compose -f ~/dhti/docker-compose.yml logs <service-name>`
 
 2. **Elixir installation fails:**
-   - Verify the path exists and is accessible
-   - Check that the elixir project structure is correct
-   - Ensure pyproject.toml exists in the elixir directory
+   - Verify the absolute path exists and is accessible.
+   - Ensure `pyproject.toml` exists.
+   - Ensure `src/dhti_elixir_<normalized-name>` exists.
 
 3. **Conch installation fails:**
-   - Verify the path exists and is accessible
-   - Check that routes.json exists in the conch directory
-   - Ensure the conch follows OpenMRS ESM structure
+   - Verify the absolute source path exists and is accessible.
+   - Verify `package.json` and the ESM package structure.
+   - Check whether `conch init` is more appropriate than `conch install` for a new monorepo.
 
 4. **OpenMRS not accessible:**
-   - Wait longer for initialization (3-5 minutes)
-   - Check nginx gateway logs
-   - Verify all containers are running: `docker ps`
+   - Check frontend, backend, database, and gateway health.
+   - Verify `http://localhost/openmrs/spa/home` or `http://localhost:8003/openmrs/spa/home`.
+   - Check `docker compose -f ~/dhti/docker-compose.yml logs -f frontend backend openmrs-db gateway`.
 
 ## Notes
 
 - Always use dry-run mode first to verify commands
 - Generated projects can be version controlled and shared
 - Docker images can be pushed to registries for deployment
-- The skill creates a complete, production-ready DHTI application
+- The skill creates a development-oriented DHTI environment; provider credentials and external services may still require configuration
 - The user conversation may provide context on the work you have done in the past. Always internalize that and reuse it where possible.
-

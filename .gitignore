@@ -18,3 +18,5 @@ pnpm-lock.yaml
 docker-compose.yml
 tsconfig.tsbuildinfo
 package-lock.json
+playwright-report
+test-results

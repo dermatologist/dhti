@@ -3,8 +3,8 @@ import {expect} from 'chai'
 
 describe('docker', () => {
   it('runs docker cmd', async () => {
-    const {stdout} = await runCommand('docker')
-    expect(stdout).to.contain('Please provide a name for the container')
+    const {error} = await runCommand('docker')
+    expect(error?.message).to.contain('Please provide a name for the container')
   })
 
   it('runs docker cmd with --dry-run flag', async () => {
@@ -56,5 +56,4 @@ describe('docker', () => {
     const {error} = await runCommand(['docker', '--restart', 'test$container', '--dry-run'])
     expect(error?.oclif?.exit).to.equal(1)
   })
-
 })

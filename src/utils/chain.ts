@@ -1,25 +1,19 @@
-import { StringOutputParser } from "@langchain/core/output_parsers";
-import { RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
+import {StringOutputParser} from '@langchain/core/output_parsers'
 
 export class ChainService {
+  container: any
 
-    container: any;
+  constructor(container: any) {
+    this.container = container
+  }
 
-    constructor(container: any) {
-        this.container = container;
-    }
+  async Chain(input: any) {
+    const prompt = this.container.resolve('prompt')
+    const llm = this.container.resolve('main-llm')
+    const outputParser = new StringOutputParser()
 
-    async Chain(input: any) {
-
-        const output = RunnableSequence.from([
-        new RunnablePassthrough(),
-        this.container.resolve("prompt"),
-        this.container.resolve("main-llm"),
-        new StringOutputParser(),
-        ]);
-        return  output.invoke(input);
-    }
-
+    // Create chain using pipe() method
+    const chain = prompt.pipe(llm).pipe(outputParser)
+    return chain.invoke(input)
+  }
 }
-
-
