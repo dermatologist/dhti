@@ -1,7 +1,7 @@
-import {expect} from 'chai'
 import {ChatPromptTemplate} from '@langchain/core/prompts'
-import {FakeListChatModel} from '@langchain/core/utils/testing'
 import {RunnableLambda} from '@langchain/core/runnables'
+import {FakeListChatModel} from '@langchain/core/utils/testing'
+import {expect} from 'chai'
 
 import {ChainService} from '../../src/utils/chain'
 

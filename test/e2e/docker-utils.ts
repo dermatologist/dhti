@@ -8,10 +8,11 @@
  * - Cleanup containers and images
  */
 
-import {execSync} from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
-import {log, LogLevel, waitForService, sleep} from './helpers.js'
+import {execSync} from 'node:child_process'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+
+import {LogLevel, log, sleep, waitForService} from './helpers.js'
 
 /**
  * Docker test configuration
@@ -19,7 +20,7 @@ import {log, LogLevel, waitForService, sleep} from './helpers.js'
 export const DOCKER_CONFIG = {
   composeFile: 'docker-compose.yml',
   testLabel: 'dhti-e2e-test',
-  timeout: 120000, // 2 minutes for Docker operations
+  timeout: 120_000, // 2 minutes for Docker operations
 }
 
 /**
@@ -33,7 +34,7 @@ export function buildImage(
   imageName: string,
   context: string,
   dockerfile?: string,
-): {success: boolean; output: string; error: string} {
+): {error: string; output: string; success: boolean} {
   log(LogLevel.INFO, `Building Docker image: ${imageName}`)
   log(LogLevel.INFO, `Context: ${context}`)
 
@@ -50,7 +51,7 @@ export function buildImage(
     })
 
     log(LogLevel.SUCCESS, `Docker image built successfully: ${imageName}`)
-    return {success: true, output, error: ''}
+    return {error: '', output, success: true}
   } catch (error: any) {
     const output = error.stdout?.toString() || ''
     const errorStr = error.stderr?.toString() || error.message
@@ -58,7 +59,7 @@ export function buildImage(
     log(LogLevel.ERROR, `Failed to build Docker image: ${imageName}`)
     log(LogLevel.ERROR, errorStr)
 
-    return {success: false, output, error: errorStr}
+    return {error: errorStr, output, success: false}
   }
 }
 
@@ -71,15 +72,15 @@ export function buildImage(
 export function startServices(
   composeFile: string = DOCKER_CONFIG.composeFile,
   detached: boolean = true,
-): {success: boolean; output: string; error: string} {
+): {error: string; output: string; success: boolean} {
   log(LogLevel.INFO, `Starting Docker Compose services from: ${composeFile}`)
 
   if (!fs.existsSync(composeFile)) {
     log(LogLevel.ERROR, `Compose file not found: ${composeFile}`)
     return {
-      success: false,
-      output: '',
       error: `Compose file not found: ${composeFile}`,
+      output: '',
+      success: false,
     }
   }
 
@@ -92,7 +93,7 @@ export function startServices(
     })
 
     log(LogLevel.SUCCESS, 'Docker Compose services started')
-    return {success: true, output, error: ''}
+    return {error: '', output, success: true}
   } catch (error: any) {
     const output = error.stdout?.toString() || ''
     const errorStr = error.stderr?.toString() || error.message
@@ -100,7 +101,7 @@ export function startServices(
     log(LogLevel.ERROR, 'Failed to start Docker Compose services')
     log(LogLevel.ERROR, errorStr)
 
-    return {success: false, output, error: errorStr}
+    return {error: errorStr, output, success: false}
   }
 }
 
@@ -113,7 +114,7 @@ export function startServices(
 export function stopServices(
   composeFile: string = DOCKER_CONFIG.composeFile,
   removeVolumes: boolean = true,
-): {success: boolean; output: string; error: string} {
+): {error: string; output: string; success: boolean} {
   log(LogLevel.INFO, `Stopping Docker Compose services`)
 
   const args = removeVolumes ? ['-f', composeFile, 'down', '-v'] : ['-f', composeFile, 'down']
@@ -125,7 +126,7 @@ export function stopServices(
     })
 
     log(LogLevel.SUCCESS, 'Docker Compose services stopped')
-    return {success: true, output, error: ''}
+    return {error: '', output, success: true}
   } catch (error: any) {
     const output = error.stdout?.toString() || ''
     const errorStr = error.stderr?.toString() || error.message
@@ -133,7 +134,7 @@ export function stopServices(
     log(LogLevel.WARN, `Warning stopping services: ${errorStr}`)
 
     // Don't treat stop failures as critical errors
-    return {success: true, output, error: errorStr}
+    return {error: errorStr, output, success: true}
   }
 }
 
@@ -143,9 +144,9 @@ export function stopServices(
  * @returns Restart output
  */
 export function restartServices(composeFile: string = DOCKER_CONFIG.composeFile): {
-  success: boolean
-  output: string
   error: string
+  output: string
+  success: boolean
 } {
   log(LogLevel.INFO, `Restarting Docker Compose services`)
 
@@ -156,7 +157,7 @@ export function restartServices(composeFile: string = DOCKER_CONFIG.composeFile)
     })
 
     log(LogLevel.SUCCESS, 'Docker Compose services restarted')
-    return {success: true, output, error: ''}
+    return {error: '', output, success: true}
   } catch (error: any) {
     const output = error.stdout?.toString() || ''
     const errorStr = error.stderr?.toString() || error.message
@@ -164,7 +165,7 @@ export function restartServices(composeFile: string = DOCKER_CONFIG.composeFile)
     log(LogLevel.ERROR, 'Failed to restart Docker Compose services')
     log(LogLevel.ERROR, errorStr)
 
-    return {success: false, output, error: errorStr}
+    return {error: errorStr, output, success: false}
   }
 }
 
@@ -175,7 +176,7 @@ export function restartServices(composeFile: string = DOCKER_CONFIG.composeFile)
  * @param timeout - Timeout in milliseconds
  * @returns true if service is healthy
  */
-export async function checkServiceHealth(serviceName: string, port: number, timeout: number = 60000): Promise<boolean> {
+export async function checkServiceHealth(serviceName: string, port: number, timeout: number = 60_000): Promise<boolean> {
   const url = `http://localhost:${port}`
   log(LogLevel.INFO, `Checking health of ${serviceName} at ${url}`)
 
@@ -204,7 +205,7 @@ export function getContainerLogs(containerName: string, tail: number = 50): stri
  * Get status of all Docker containers
  * @returns Array of container statuses
  */
-export function getContainerStatus(): Array<{name: string; status: string; ports: string}> {
+export function getContainerStatus(): Array<{name: string; ports: string; status: string}> {
   try {
     const output = execSync('docker ps -a --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"', {
       encoding: 'utf8',
@@ -218,8 +219,8 @@ export function getContainerStatus(): Array<{name: string; status: string; ports
       if (parts.length >= 3) {
         statuses.push({
           name: parts[0].trim(),
-          status: parts[1].trim(),
           ports: parts[2].trim(),
+          status: parts[1].trim(),
         })
       }
     }
@@ -342,12 +343,12 @@ export function cleanupAll(): void {
  */
 export async function waitForAllServices(
   services: Array<{name: string; port: number}>,
-  timeout: number = 120000,
+  timeout: number = 120_000,
 ): Promise<boolean> {
   log(LogLevel.INFO, `Waiting for ${services.length} services to become healthy`)
 
   const startTime = Date.now()
-  const serviceTimeout = Math.min(timeout / services.length, 30000)
+  const serviceTimeout = Math.min(timeout / services.length, 30_000)
 
   for (const service of services) {
     if (Date.now() - startTime >= timeout) {
@@ -409,7 +410,7 @@ export function getComposeServices(composeFile: string = DOCKER_CONFIG.composeFi
  * @param taggedName - Tagged image name (e.g., 'registry/image:tag')
  * @returns Push result
  */
-export function pushImage(imageName: string, taggedName: string): {success: boolean; output: string; error: string} {
+export function pushImage(imageName: string, taggedName: string): {error: string; output: string; success: boolean} {
   log(LogLevel.INFO, `Tagging and pushing image: ${imageName} -> ${taggedName}`)
 
   try {
@@ -424,7 +425,7 @@ export function pushImage(imageName: string, taggedName: string): {success: bool
     })
 
     log(LogLevel.SUCCESS, `Pushed image: ${taggedName}`)
-    return {success: true, output, error: ''}
+    return {error: '', output, success: true}
   } catch (error: any) {
     const output = error.stdout?.toString() || ''
     const errorStr = error.stderr?.toString() || error.message
@@ -432,6 +433,6 @@ export function pushImage(imageName: string, taggedName: string): {success: bool
     log(LogLevel.ERROR, `Failed to push image: ${taggedName}`)
     log(LogLevel.ERROR, errorStr)
 
-    return {success: false, output, error: errorStr}
+    return {error: errorStr, output, success: false}
   }
 }

@@ -13,20 +13,20 @@
  */
 
 export class CDSHookRequest {
-  /** A unique identifier for this hook invocation */
-  hookInstance?: string
-
-  /** Base URL of the FHIR server associated with the hook */
-  fhirServer?: string
+  /** Context object passed by the EHR */
+  context?: Record<string, any> | null
 
   /** Authorization details (opaque to this model) */
   fhirAuthorization?: Record<string, any> | null
 
+  /** Base URL of the FHIR server associated with the hook */
+  fhirServer?: string
+
   /** Name of the hook (e.g., "patient-view", "order-select", etc.) */
   hook?: string
 
-  /** Context object passed by the EHR */
-  context?: Record<string, any> | null
+  /** A unique identifier for this hook invocation */
+  hookInstance?: string
 
   /** Prefetched FHIR resources keyed by name */
   prefetch?: Record<string, any> | null

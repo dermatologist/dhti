@@ -75,25 +75,136 @@ export default class Elixir extends Command {
 
     // Route to appropriate handler based on operation
     switch (args.op) {
-      case 'init':
+      case 'init': {
         await this.handleInit(flags)
         break
-      case 'start':
+      }
+
+      case 'start': {
         await this.handleStart(flags)
         break
-      case 'dev':
+      }
+
+      case 'dev': {
         await this.handleDev(flags)
         break
-      case 'install':
+      }
+
+      case 'install': {
         await this.handleInstall(flags)
         break
-      case 'uninstall':
+      }
+
+      case 'uninstall': {
         await this.handleUninstall(flags)
         break
-      default:
+      }
+
+      default: {
         // Show helpful message with available operations
         this.log('Available operations: init, install, uninstall, dev, start')
         this.log('Run "dhti elixir <operation> --help" for more information')
+      }
+    }
+  }
+
+  private async completeInstall(
+    flags: Awaited<ReturnType<typeof this.parse>>['flags'],
+    elixirDir: string,
+    expoName: string,
+    lineToAdd: string,
+    newPyproject: string,
+    finalRoute: string,
+  ): Promise<void> {
+    if (flags['dry-run']) {
+      this.log(chalk.yellow('[DRY RUN] Would update files:'))
+      this.log(chalk.cyan(`  - ${elixirDir}/pyproject.toml`))
+      this.log(chalk.green(`    Add dependency: "${flags.name}"`))
+      this.log(chalk.green(`    Add source: ${lineToAdd}`))
+      this.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
+      this.log(chalk.green(`    Add import and routes for ${expoName}`))
+    } else {
+      fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
+      fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
+      this.log(chalk.green(`✓ Elixir '${flags.name}' installed successfully`))
+    }
+  }
+
+  private async completeUninstall(
+    flags: Awaited<ReturnType<typeof this.parse>>['flags'],
+    elixirDir: string,
+    expoName: string,
+    newPyproject: string,
+    finalRoute: string,
+  ): Promise<void> {
+    if (flags['dry-run']) {
+      this.log(chalk.yellow('[DRY RUN] Would update files:'))
+      this.log(chalk.cyan(`  - ${elixirDir}/pyproject.toml`))
+      this.log(chalk.green(`    Remove dependency: "${flags.name}"`))
+      this.log(chalk.green(`    Remove source: ${flags.name}`))
+      this.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
+      this.log(chalk.green(`    Remove import and routes for ${expoName}`))
+    } else {
+      fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
+      fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
+      this.log(chalk.green(`✓ Elixir '${flags.name}' uninstalled successfully`))
+    }
+  }
+
+  private async configureDockerContainer(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
+    this.log(chalk.blue('Setting up Docker container environment...'))
+    try {
+      const dockerComposeFile = path.join(flags.workdir, 'docker-compose.yml')
+      if (fs.existsSync(dockerComposeFile)) {
+        const composeContent = fs.readFileSync(dockerComposeFile, 'utf8')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const compose = yaml.load(composeContent) as Record<string, any>
+
+        if (compose.services && compose.services.langserve) {
+          if (!compose.services.langserve.environment) {
+            compose.services.langserve.environment = []
+          }
+
+          const envArray = compose.services.langserve.environment
+          const fhirIndex = envArray.findIndex((env: Record<string, string> | string) => {
+            if (typeof env === 'string') {
+              return env.startsWith('FHIR_BASE_URL=')
+            }
+
+            return typeof env === 'object' && env !== null && 'FHIR_BASE_URL' in env
+          })
+
+          if (fhirIndex >= 0) {
+            const existingEnv = envArray[fhirIndex]
+            if (typeof existingEnv === 'string') {
+              envArray[fhirIndex] = `FHIR_BASE_URL=${flags.fhir}`
+            } else if (typeof existingEnv === 'object' && existingEnv !== null) {
+              existingEnv.FHIR_BASE_URL = flags.fhir
+            }
+          } else {
+            envArray.push(`FHIR_BASE_URL=${flags.fhir}`)
+          }
+
+          const updatedCompose = yaml.dump(compose)
+          fs.writeFileSync(dockerComposeFile, updatedCompose)
+          this.log(chalk.green(`✓ docker-compose.yml updated with FHIR_BASE_URL=${flags.fhir}`))
+        } else {
+          this.warn('⚠ Warning: langserve service not found in docker-compose.yml')
+        }
+      } else {
+        this.warn(`⚠ Warning: docker-compose.yml not found at ${dockerComposeFile}`)
+      }
+
+      const upCommand = `docker compose up -d`
+      await execAsync(upCommand, {cwd: flags.workdir})
+      this.log(chalk.green(`✓ Docker container ${flags.container} restarted (compose up -d) successfully`))
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      if (err.message?.includes('No such container')) {
+        this.warn(chalk.yellow(`⚠ Warning: Docker container ${flags.container} not found. Skipping container restart.`))
+      } else {
+        this.error(`Failed to configure Docker container: ${err.message}`)
+      }
     }
   }
 
@@ -101,6 +212,31 @@ export default class Elixir extends Command {
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = path.dirname(__filename)
     return path.resolve(__dirname, '../resources')
+  }
+
+  private async handleDev(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
+    if (!flags.name) {
+      this.error('name flag is required for dev operation')
+    }
+
+    const expoName = flags.name.replaceAll('-', '_')
+    const devCommand = `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`
+    const restartCommand = `docker restart ${flags.container}`
+
+    if (flags['dry-run']) {
+      this.log(chalk.yellow('[DRY RUN] Would execute commands:'))
+      this.log(chalk.cyan(`  ${devCommand}`))
+      this.log(chalk.cyan(`  ${restartCommand}`))
+      return
+    }
+
+    this.log(devCommand)
+    try {
+      await execAsync(devCommand)
+      await execAsync(restartCommand)
+    } catch (error) {
+      this.error(`Failed to copy elixir to container: ${error}`)
+    }
   }
 
   private async handleInit(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
@@ -145,6 +281,15 @@ export default class Elixir extends Command {
     } catch (error) {
       this.error(`Initialization failed: ${error}`)
     }
+  }
+
+  private async handleInstall(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
+    if (!flags.name) {
+      this.error('name flag is required for install operation')
+    }
+
+    const RESOURCES_DIR = this.getResourcesDir()
+    await this.installElixir(flags, RESOURCES_DIR)
   }
 
   private async handleStart(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
@@ -220,121 +365,35 @@ export default class Elixir extends Command {
     }
   }
 
-  private async configureDockerContainer(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
-    this.log(chalk.blue('Setting up Docker container environment...'))
-    try {
-      const dockerComposeFile = path.join(flags.workdir, 'docker-compose.yml')
-      if (fs.existsSync(dockerComposeFile)) {
-        const composeContent = fs.readFileSync(dockerComposeFile, 'utf8')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const compose = yaml.load(composeContent) as Record<string, any>
-
-        if (compose.services && compose.services.langserve) {
-          if (!compose.services.langserve.environment) {
-            compose.services.langserve.environment = []
-          }
-
-          const envArray = compose.services.langserve.environment
-          const fhirIndex = envArray.findIndex((env: string | Record<string, string>) => {
-            if (typeof env === 'string') {
-              return env.startsWith('FHIR_BASE_URL=')
-            }
-
-            return typeof env === 'object' && env !== null && 'FHIR_BASE_URL' in env
-          })
-
-          if (fhirIndex >= 0) {
-            const existingEnv = envArray[fhirIndex]
-            if (typeof existingEnv === 'string') {
-              envArray[fhirIndex] = `FHIR_BASE_URL=${flags.fhir}`
-            } else if (typeof existingEnv === 'object' && existingEnv !== null) {
-              existingEnv.FHIR_BASE_URL = flags.fhir
-            }
-          } else {
-            envArray.push(`FHIR_BASE_URL=${flags.fhir}`)
-          }
-
-          const updatedCompose = yaml.dump(compose)
-          fs.writeFileSync(dockerComposeFile, updatedCompose)
-          this.log(chalk.green(`✓ docker-compose.yml updated with FHIR_BASE_URL=${flags.fhir}`))
-        } else {
-          this.warn('⚠ Warning: langserve service not found in docker-compose.yml')
-        }
-      } else {
-        this.warn(`⚠ Warning: docker-compose.yml not found at ${dockerComposeFile}`)
-      }
-
-      const upCommand = `docker compose up -d`
-      await execAsync(upCommand, {cwd: flags.workdir})
-      this.log(chalk.green(`✓ Docker container ${flags.container} restarted (compose up -d) successfully`))
-    } catch (error: unknown) {
-      const err = error as {message?: string}
-      if (err.message?.includes('No such container')) {
-        this.warn(chalk.yellow(`⚠ Warning: Docker container ${flags.container} not found. Skipping container restart.`))
-      } else {
-        this.error(`Failed to configure Docker container: ${err.message}`)
-      }
-    }
-  }
-
-  private async startDevServer(sandboxDir: string, elixirUrl: string, fhirUrl: string): Promise<void> {
-    this.log(chalk.blue('Starting development server...'))
-    const devCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${fhirUrl}`
-    try {
-      const child = spawn(devCommand, {cwd: sandboxDir, shell: true, stdio: 'inherit'})
-      await new Promise((resolve, reject) => {
-        child.on('exit', (code) => {
-          if (code === 0) resolve(undefined)
-          else reject(new Error(`Dev server exited with code ${code}`))
-        })
-        child.on('error', reject)
-      })
-    } catch (error: unknown) {
-      const err = error as {message?: string}
-      this.error(`Failed to start development server: ${err.message}`)
-    }
-  }
-
-  private async handleDev(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
-    if (!flags.name) {
-      this.error('name flag is required for dev operation')
-    }
-
-    const expoName = flags.name.replaceAll('-', '_')
-    const devCommand = `cd ${flags.dev} && docker cp src/${expoName}/. ${flags.container}:/app/.venv/lib/python3.12/site-packages/${expoName}`
-    const restartCommand = `docker restart ${flags.container}`
-
-    if (flags['dry-run']) {
-      this.log(chalk.yellow('[DRY RUN] Would execute commands:'))
-      this.log(chalk.cyan(`  ${devCommand}`))
-      this.log(chalk.cyan(`  ${restartCommand}`))
-      return
-    }
-
-    this.log(devCommand)
-    try {
-      await execAsync(devCommand)
-      await execAsync(restartCommand)
-    } catch (error) {
-      this.error(`Failed to copy elixir to container: ${error}`)
-    }
-  }
-
-  private async handleInstall(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
-    if (!flags.name) {
-      this.error('name flag is required for install operation')
-    }
-
-    const RESOURCES_DIR = this.getResourcesDir()
-    await this.installElixir(flags, RESOURCES_DIR)
-  }
-
   private async handleUninstall(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
     if (!flags.name) {
       this.error('name flag is required for uninstall operation')
     }
 
     await this.uninstallElixir(flags)
+  }
+
+  private async handleWhlInstallation(
+    flags: Awaited<ReturnType<typeof this.parse>>['flags'],
+    elixirDir: string,
+  ): Promise<void> {
+    const whlDir = `${elixirDir}/whl/`
+
+    if (!fs.existsSync(whlDir)) {
+      if (flags['dry-run']) {
+        this.log(chalk.yellow(`[DRY RUN] Would create directory: ${whlDir}`))
+      } else {
+        fs.mkdirSync(whlDir)
+      }
+    }
+
+    if (flags['dry-run']) {
+      this.log(chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${whlDir}${path.basename(flags.whl)}`))
+      this.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify bootstrap.py file if needed'))
+    } else {
+      fs.cpSync(flags.whl, `${whlDir}${path.basename(flags.whl)}`)
+      this.log('Installing elixir from whl file. Please modify bootstrap.py file if needed')
+    }
   }
 
   private async installElixir(
@@ -369,43 +428,6 @@ export default class Elixir extends Command {
     await this.completeInstall(flags, elixirDir, expoName, lineToAdd, newPyproject, finalRoute)
   }
 
-  private async uninstallElixir(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
-    const elixirDir = `${flags.workdir}/elixir`
-    const expoName = flags.name.replaceAll('-', '_')
-
-    if (!fs.existsSync(elixirDir)) {
-      this.error(`Elixir directory not found at ${elixirDir}`)
-    }
-
-    const pyproject = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/pyproject.toml`, 'utf8')
-    const newPyproject = this.updatePyprojectForUninstall(pyproject, flags.name, flags['dry-run'])
-    const finalRoute = await this.updateServerForUninstall(expoName, elixirDir, flags['dry-run'])
-    await this.completeUninstall(flags, elixirDir, expoName, newPyproject, finalRoute)
-  }
-
-  private async handleWhlInstallation(
-    flags: Awaited<ReturnType<typeof this.parse>>['flags'],
-    elixirDir: string,
-  ): Promise<void> {
-    const whlDir = `${elixirDir}/whl/`
-
-    if (!fs.existsSync(whlDir)) {
-      if (flags['dry-run']) {
-        this.log(chalk.yellow(`[DRY RUN] Would create directory: ${whlDir}`))
-      } else {
-        fs.mkdirSync(whlDir)
-      }
-    }
-
-    if (flags['dry-run']) {
-      this.log(chalk.yellow(`[DRY RUN] Would copy ${flags.whl} to ${whlDir}${path.basename(flags.whl)}`))
-      this.log(chalk.cyan('[DRY RUN] Installing elixir from whl file. Please modify bootstrap.py file if needed'))
-    } else {
-      fs.cpSync(flags.whl, `${whlDir}${path.basename(flags.whl)}`)
-      this.log('Installing elixir from whl file. Please modify bootstrap.py file if needed')
-    }
-  }
-
   private async preparePyprojectSource(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<string> {
     let lineToAdd = ''
 
@@ -425,6 +447,7 @@ export default class Elixir extends Command {
         if (!fs.existsSync(absolutePath)) {
           this.error(`Local directory does not exist: ${absolutePath}`)
         }
+
         const stats = fs.statSync(absolutePath)
         if (!stats.isDirectory()) {
           this.error(`Path is not a directory: ${absolutePath}`)
@@ -435,6 +458,38 @@ export default class Elixir extends Command {
     }
 
     return lineToAdd
+  }
+
+  private async startDevServer(sandboxDir: string, elixirUrl: string, fhirUrl: string): Promise<void> {
+    this.log(chalk.blue('Starting development server...'))
+    const devCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${fhirUrl}`
+    try {
+      const child = spawn(devCommand, {cwd: sandboxDir, shell: true, stdio: 'inherit'})
+      await new Promise((resolve, reject) => {
+        child.on('exit', (code) => {
+          if (code === 0) resolve()
+          else reject(new Error(`Dev server exited with code ${code}`))
+        })
+        child.on('error', reject)
+      })
+    } catch (error: unknown) {
+      const err = error as {message?: string}
+      this.error(`Failed to start development server: ${err.message}`)
+    }
+  }
+
+  private async uninstallElixir(flags: Awaited<ReturnType<typeof this.parse>>['flags']): Promise<void> {
+    const elixirDir = `${flags.workdir}/elixir`
+    const expoName = flags.name.replaceAll('-', '_')
+
+    if (!fs.existsSync(elixirDir)) {
+      this.error(`Elixir directory not found at ${elixirDir}`)
+    }
+
+    const pyproject = flags['dry-run'] ? '' : fs.readFileSync(`${elixirDir}/pyproject.toml`, 'utf8')
+    const newPyproject = this.updatePyprojectForUninstall(pyproject, flags.name, flags['dry-run'])
+    const finalRoute = await this.updateServerForUninstall(expoName, elixirDir, flags['dry-run'])
+    await this.completeUninstall(flags, elixirDir, expoName, newPyproject, finalRoute)
   }
 
   private updatePyprojectForInstall(content: string, depName: string, source: string, dryRun: boolean): string {
@@ -486,8 +541,8 @@ export default class Elixir extends Command {
     const commonRoutesMarker = '# DHTI_COMMON_ROUTE'
     if (result.includes(commonRoutesMarker)) {
       const markerIndex = result.indexOf(commonRoutesMarker)
-      const afterMarker = result.substring(markerIndex + commonRoutesMarker.length)
-      const newlineAndIndent = afterMarker.match(/\n[ \t]*/)?.[0] || '\n'
+      const afterMarker = result.slice(Math.max(0, markerIndex + commonRoutesMarker.length))
+      const newlineAndIndent = afterMarker.match(/\n[\t ]*/)?.[0] || '\n'
       result = result.replace(commonRoutesMarker, `${commonRoutesMarker}${newlineAndIndent}${commonRoutes}`)
     }
 
@@ -511,48 +566,5 @@ export default class Elixir extends Command {
     result = result.replace(commonRoutes, '')
 
     return result
-  }
-
-  private async completeInstall(
-    flags: Awaited<ReturnType<typeof this.parse>>['flags'],
-    elixirDir: string,
-    expoName: string,
-    lineToAdd: string,
-    newPyproject: string,
-    finalRoute: string,
-  ): Promise<void> {
-    if (flags['dry-run']) {
-      this.log(chalk.yellow('[DRY RUN] Would update files:'))
-      this.log(chalk.cyan(`  - ${elixirDir}/pyproject.toml`))
-      this.log(chalk.green(`    Add dependency: "${flags.name}"`))
-      this.log(chalk.green(`    Add source: ${lineToAdd}`))
-      this.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
-      this.log(chalk.green(`    Add import and routes for ${expoName}`))
-    } else {
-      fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
-      fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
-      this.log(chalk.green(`✓ Elixir '${flags.name}' installed successfully`))
-    }
-  }
-
-  private async completeUninstall(
-    flags: Awaited<ReturnType<typeof this.parse>>['flags'],
-    elixirDir: string,
-    expoName: string,
-    newPyproject: string,
-    finalRoute: string,
-  ): Promise<void> {
-    if (flags['dry-run']) {
-      this.log(chalk.yellow('[DRY RUN] Would update files:'))
-      this.log(chalk.cyan(`  - ${elixirDir}/pyproject.toml`))
-      this.log(chalk.green(`    Remove dependency: "${flags.name}"`))
-      this.log(chalk.green(`    Remove source: ${flags.name}`))
-      this.log(chalk.cyan(`  - ${elixirDir}/app/server.py`))
-      this.log(chalk.green(`    Remove import and routes for ${expoName}`))
-    } else {
-      fs.writeFileSync(`${elixirDir}/pyproject.toml`, newPyproject)
-      fs.writeFileSync(`${elixirDir}/app/server.py`, finalRoute)
-      this.log(chalk.green(`✓ Elixir '${flags.name}' uninstalled successfully`))
-    }
   }
 }

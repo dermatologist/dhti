@@ -1,5 +1,6 @@
-import {test, expect} from '@playwright/test'
-import {runCommand, waitForService, log} from '../helpers'
+import {expect, test} from '@playwright/test'
+
+import {log, runCommand, waitForService} from '../helpers'
 
 /**
  * Conch Workflow Tests
@@ -59,7 +60,7 @@ test.describe('Conch Workflow', () => {
 
     try {
       // Wait for SPA to be ready
-      await waitForService(spaUrl, 10000)
+      await waitForService(spaUrl, 10_000)
 
       // Navigate to SPA
       await page.goto(spaUrl)
@@ -69,7 +70,7 @@ test.describe('Conch Workflow', () => {
       await expect(spaContainer.first()).toBeVisible()
 
       log('✓ Conch UI rendering verified')
-    } catch (error) {
+    } catch {
       // Conch may not be running, which is acceptable
       log('⚠ Conch not running (expected in some scenarios)')
     }
@@ -79,9 +80,9 @@ test.describe('Conch Workflow', () => {
     log('Testing complete conch lifecycle')
 
     const steps = [
-      {name: 'install', cmd: `dhti-cli conch install -g dermatologist/openmrs-esm-dhti -n ${conchName} --dry-run`},
-      {name: 'build', cmd: `dhti-cli docker -n test-conch:1.0 -t conch --dry-run`},
-      {name: 'start', cmd: `dhti-cli conch start -n ${conchName} --dry-run`},
+      {cmd: `dhti-cli conch install -g dermatologist/openmrs-esm-dhti -n ${conchName} --dry-run`, name: 'install'},
+      {cmd: `dhti-cli docker -n test-conch:1.0 -t conch --dry-run`, name: 'build'},
+      {cmd: `dhti-cli conch start -n ${conchName} --dry-run`, name: 'start'},
     ]
 
     for (const step of steps) {

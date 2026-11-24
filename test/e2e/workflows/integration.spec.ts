@@ -1,5 +1,6 @@
-import {test, expect} from '@playwright/test'
-import {runCommand, waitForService, log} from '../helpers'
+import {expect, test} from '@playwright/test'
+
+import {log, runCommand, waitForService} from '../helpers'
 
 /**
  * Full Stack Integration Tests
@@ -39,9 +40,9 @@ test.describe('Full Stack Integration', () => {
     log('Testing all services health')
 
     const services = [
-      {name: 'Gateway', url: 'http://localhost:80', timeout: 10000},
-      {name: 'OpenMRS', url: 'http://localhost:80/openmrs', timeout: 30000},
-      {name: 'LangServe', url: 'http://localhost:8001/langserve', timeout: 30000},
+      {name: 'Gateway', timeout: 10_000, url: 'http://localhost:80'},
+      {name: 'OpenMRS', timeout: 30_000, url: 'http://localhost:80/openmrs'},
+      {name: 'LangServe', timeout: 30_000, url: 'http://localhost:8001/langserve'},
     ]
 
     for (const service of services) {
@@ -52,7 +53,7 @@ test.describe('Full Stack Integration', () => {
         expect(response?.status()).toBeLessThan(500)
 
         log(`✓ ${service.name} health check passed`)
-      } catch (error) {
+      } catch {
         log(`⚠ ${service.name} not available (expected in some scenarios)`)
       }
     }
@@ -64,23 +65,23 @@ test.describe('Full Stack Integration', () => {
     // Test elixir endpoint
     const elixirEndpoint = 'http://localhost:8001/langserve'
     try {
-      await waitForService(elixirEndpoint, 10000)
+      await waitForService(elixirEndpoint, 10_000)
       const elixirResponse = await page.goto(elixirEndpoint)
       expect(elixirResponse?.status()).toBeLessThan(500)
       log('✓ Elixir endpoint accessible')
-    } catch (error) {
+    } catch {
       log('⚠ Elixir not available')
     }
 
     // Test conch SPA
     const spaUrl = 'http://localhost:80/openmrs/spa/home'
     try {
-      await waitForService(spaUrl, 10000)
+      await waitForService(spaUrl, 10_000)
       await page.goto(spaUrl)
       const spaContainer = page.locator('[class*="spa"], div')
       await expect(spaContainer.first()).toBeVisible()
       log('✓ Conch SPA accessible')
-    } catch (error) {
+    } catch {
       log('⚠ Conch not available')
     }
   })
@@ -93,17 +94,17 @@ test.describe('Full Stack Integration', () => {
 
     try {
       // Test OpenMRS
-      await waitForService(openmrsUrl, 10000)
+      await waitForService(openmrsUrl, 10_000)
       await page.goto(openmrsUrl)
       log('✓ OpenMRS accessible')
 
       // Test FHIR endpoint
-      await waitForService(fhirEndpoint, 10000)
+      await waitForService(fhirEndpoint, 10_000)
       const pingUrl = `${fhirEndpoint}/_ping`
       const pingResponse = await page.goto(pingUrl)
       expect(pingResponse?.status()).toBe(200)
       log('✓ FHIR endpoint accessible')
-    } catch (error) {
+    } catch {
       log('⚠ OpenMRS/FHIR not available (expected in some scenarios)')
     }
   })
@@ -112,10 +113,10 @@ test.describe('Full Stack Integration', () => {
     log('Testing complete integration workflow')
 
     const steps = [
-      {name: 'compose', cmd: `dhti-cli compose add -m langserve -m openmrs`, cwd: testDir},
-      {name: 'elixir-build', cmd: 'dhti-cli docker -n test-elixir:1.0 -t elixir --dry-run'},
-      {name: 'conch-build', cmd: 'dhti-cli docker -n test-conch:1.0 -t conch --dry-run'},
-      {name: 'docker-start', cmd: 'dhti-cli docker -u --dry-run', cwd: testDir},
+      {cmd: `dhti-cli compose add -m langserve -m openmrs`, cwd: testDir, name: 'compose'},
+      {cmd: 'dhti-cli docker -n test-elixir:1.0 -t elixir --dry-run', name: 'elixir-build'},
+      {cmd: 'dhti-cli docker -n test-conch:1.0 -t conch --dry-run', name: 'conch-build'},
+      {cmd: 'dhti-cli docker -u --dry-run', cwd: testDir, name: 'docker-start'},
     ]
 
     for (const step of steps) {

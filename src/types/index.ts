@@ -4,56 +4,56 @@
 
 /** Docker Compose service configuration */
 export interface DockerComposeService {
-  image?: string
-  environment?: (string | Record<string, string>)[]
-  pull_policy?: string
-  ports?: (string | number)[]
-  volumes?: string[]
-  depends_on?: string[]
   [key: string]: unknown
+  depends_on?: string[]
+  environment?: (Record<string, string> | string)[]
+  image?: string
+  ports?: (number | string)[]
+  pull_policy?: string
+  volumes?: string[]
 }
 
 /** Docker Compose configuration */
 export interface DockerComposeConfig {
-  version: string
-  services: Record<string, DockerComposeService>
-  volumes?: Record<string, unknown>
   networks?: Record<string, unknown>
+  services: Record<string, DockerComposeService>
+  version: string
+  volumes?: Record<string, unknown>
 }
 
 /** MCP (Model Context Protocol) server configuration */
 export interface MCPServerConfig {
-  command: string
-  args: string[]
-  env?: Record<string, string>
   [key: string]: unknown
+  args: string[]
+  command: string
+  env?: Record<string, string>
 }
 
 /** MCP configuration */
 export interface MCPConfig {
-  mcpServers: Record<string, MCPServerConfig>
   [key: string]: unknown
+  mcpServers: Record<string, MCPServerConfig>
 }
 
 /** PyProject TOML configuration for Python projects */
 export interface PyProjectConfig {
+  [key: string]: unknown
+  build_system?: {
+    build_backend: string
+    requires: string[]
+  }
   project: {
+    [key: string]: unknown
+    dependencies?: string[]
+    description?: string
     name: string
     version: string
-    description?: string
-    dependencies?: string[]
-    [key: string]: unknown
   }
-  build_system?: {
-    requires: string[]
-    build_backend: string
-  }
-  [key: string]: unknown
 }
 
 /** Server.py template variables */
 export interface ServerTemplateVars {
-  projectName: string
-  dependencies: string[]
   [key: string]: unknown
+  dependencies: string[]
+  projectName: string
 }

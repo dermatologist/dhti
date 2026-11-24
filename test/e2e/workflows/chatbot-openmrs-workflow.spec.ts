@@ -1,7 +1,8 @@
-import {test, expect} from '@playwright/test'
-import {runCommand, runCommandBackground, waitForService, log, LogLevel} from '../helpers'
+import {expect, test} from '@playwright/test'
+import * as fs from 'node:fs'
+
 import {startServices, stopServices} from '../docker-utils'
-import * as fs from 'fs'
+import {LogLevel, log, runCommand, runCommandBackground, waitForService} from '../helpers'
 
 /**
  * Chatbot OpenMRS Workflow E2E Tests
@@ -38,7 +39,7 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
   }
 
   test.beforeAll(async () => {
-    test.setTimeout(120000) // 2 minutes for setup
+    test.setTimeout(120_000) // 2 minutes for setup
     log(LogLevel.INFO, '📦 Setting up chatbot OpenMRS test environment...')
 
     // Verify prerequisites
@@ -78,7 +79,7 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
    * Tests the complete workflow including conch installation and OpenMRS integration
    */
   test('@workflow @chatbot @openmrs should test elixir in OpenMRS EMR', async ({page, request}) => {
-    test.setTimeout(300000) // 5 minutes for this test
+    test.setTimeout(300_000) // 5 minutes for this test
 
     // Cleanup: Remove any existing test elixirs
     await test.step('Clean up existing elixirs', async () => {
@@ -125,7 +126,7 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
       expect(pyprojectCheck.stdout).toContain('found')
 
       const serverCheck = await runCommand(
-        `grep -q "${elixirName.replace(/-/g, '_')}" ${elixirDir}/app/server.py && echo "found"`,
+        `grep -q "${elixirName.replaceAll('-', '_')}" ${elixirDir}/app/server.py && echo "found"`,
       )
       expect(serverCheck.stdout).toContain('found')
 
@@ -156,7 +157,7 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
     })
 
     await test.step('Wait for LangServe to be healthy', async () => {
-      const isHealthy = await waitForService('http://localhost:8001/docs', 180000, 5000)
+      const isHealthy = await waitForService('http://localhost:8001/docs', 180_000, 5000)
       expect(isHealthy).toBe(true)
       log(LogLevel.INFO, '✅ LangServe is healthy')
     })
@@ -168,6 +169,7 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
         log(LogLevel.WARN, '⚠ bootstrap.py not found, skipping bootstrap copy')
         return
       }
+
       const result = await runCommand(`${cliCommand} docker bootstrap -f ${bootstrapPath}`)
       expect(result.exitCode).toBe(0)
       log(LogLevel.INFO, '✅ Bootstrap file copied')
@@ -204,11 +206,12 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
     })
 
     await test.step('Wait for OpenMRS to be healthy', async () => {
-      const isHealthy = await waitForService('http://localhost:80/openmrs', 300000, 5000)
+      const isHealthy = await waitForService('http://localhost:80/openmrs', 300_000, 5000)
       if (!isHealthy) {
         log(LogLevel.WARN, '⚠ OpenMRS failed to become healthy, skipping browser tests')
         return
       }
+
       log(LogLevel.INFO, '✅ OpenMRS is healthy')
     })
 
@@ -217,13 +220,13 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
       await page.goto('http://localhost:80/openmrs')
 
       const usernameInput = page.locator('input[name="username"]')
-      await expect(usernameInput).toBeVisible({timeout: 15000})
+      await expect(usernameInput).toBeVisible({timeout: 15_000})
 
       await usernameInput.fill('admin')
       await page.locator('input[name="password"]').fill('Admin123!')
       await page.click('button[type="submit"]')
 
-      await page.waitForURL(/.*\/home\?.*/, {timeout: 30000})
+      await page.waitForURL(/.*\/home\?.*/, {timeout: 30_000})
       log(LogLevel.INFO, '✅ Logged into OpenMRS')
     })
 
@@ -231,21 +234,21 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
       try {
         const searchButton = page.locator('button:has-text("Search"), [class*="search"]').first()
         await searchButton.click({timeout: 5000})
-      } catch (error) {
+      } catch {
         log(LogLevel.WARN, '⚠ Could not click search button, trying alternative')
       }
 
       const patientLink = page.locator('a[href*="patient"], [class*="patient"]').first()
-      await expect(patientLink).toBeVisible({timeout: 15000})
+      await expect(patientLink).toBeVisible({timeout: 15_000})
       await patientLink.click()
 
-      await page.waitForURL(/.*\/patient\/.*/, {timeout: 30000})
+      await page.waitForURL(/.*\/patient\/.*/, {timeout: 30_000})
       log(LogLevel.INFO, '✅ Patient record loaded')
     })
 
     await test.step('Verify chatbot widget is present', async () => {
       const chatbotWidget = page.locator('[class*="chatbot"], [id*="chatbot"], div:has-text("Chatbot")').first()
-      await expect(chatbotWidget).toBeVisible({timeout: 15000})
+      await expect(chatbotWidget).toBeVisible({timeout: 15_000})
       log(LogLevel.INFO, '✅ Chatbot widget found')
     })
 
@@ -255,12 +258,12 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
 
       const response = await request.post(elixirEndpoint, {
         data: {
+          config: {},
           input: {
             context: {
               input: 'What medications is this patient on?',
             },
           },
-          config: {},
           kwargs: {},
         },
         headers: {
@@ -290,11 +293,11 @@ test.describe('Chatbot OpenMRS Workflow Tests', () => {
         conchProcess.kill('SIGTERM')
         await new Promise((resolve) => setTimeout(resolve, 2000))
         log(LogLevel.INFO, '✅ Background conch process terminated')
-      } catch (error) {
+      } catch {
         log(LogLevel.WARN, '⚠ Could not terminate conch process gracefully, forcing kill')
         try {
           conchProcess.kill('SIGKILL')
-        } catch (e) {
+        } catch {
           // Ignore
         }
       }

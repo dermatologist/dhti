@@ -1,4 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {expect, test} from '@playwright/test'
+
 import {waitForService} from '../helpers'
 
 /**
@@ -15,7 +16,7 @@ test.describe('LangServe API Tests', () => {
 
   test('@browser should verify LangServe is accessible', async ({page, request}) => {
     // Wait for LangServe to be ready
-    await waitForService(langserveBase, 30000)
+    await waitForService(langserveBase, 30_000)
 
     // Use API request context for JSON parsing
     const response = await request.get(langserveBase)
@@ -69,7 +70,7 @@ test.describe('LangServe API Tests', () => {
     const gatewayUrl = 'http://localhost:80/langserve/' // Fixed: use /langserve/ path
 
     try {
-      await waitForService(gatewayUrl, 10000)
+      await waitForService(gatewayUrl, 10_000)
       const response = await page.goto(gatewayUrl)
 
       // Gateway should route to LangServe (200 or redirect)
@@ -135,9 +136,9 @@ test.describe('LangServe API Tests', () => {
 
       // All requests should complete (status may vary)
       expect(responses).toHaveLength(2)
-      responses.forEach((r, i) => {
+      for (const [i, r] of responses.entries()) {
         console.log(`Request ${i + 1} status:`, r.status())
-      })
+      }
     } catch (error) {
       console.log('Concurrent requests failed:', error.message)
     }

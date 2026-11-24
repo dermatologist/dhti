@@ -7,6 +7,7 @@ import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {promisify} from 'node:util'
+
 import {DockerComposeConfig} from '../types/index.js'
 
 const execAsync = promisify(exec)
@@ -108,9 +109,9 @@ export default class Compose extends Command {
       neo4j,
       ollama,
       openmrs,
+      orthanc,
       redis,
       webui,
-      orthanc,
     }
 
     try {
@@ -150,7 +151,7 @@ export default class Compose extends Command {
 
         // Apply host pattern if --host flag is present
         if (flags.host) {
-          // eslint-disable-next-line no-template-curly-in-string
+           
           envVarValue = `\${${envVarName}:-${flags.value}}`
         }
 

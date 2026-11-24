@@ -1,13 +1,14 @@
-import {useState} from 'react'
+import {fhirBaseUrl, openmrsFetch, useConfig} from '@openmrs/esm-framework'
 import axios from 'axios'
-import {CDSHookRequest} from '../models/request'
+import {useState} from 'react'
+
 import {CDSHookCard} from '../models/card'
-import {useConfig, openmrsFetch, fhirBaseUrl} from '@openmrs/esm-framework'
+import {CDSHookRequest} from '../models/request'
 
 interface UseDhtiReturn {
-  submitMessage: (newMessage: string, patientId?: string) => Promise<CDSHookCard | null>
+  error: null | string
   loading: boolean
-  error: string | null
+  submitMessage: (newMessage: string, patientId?: string) => Promise<CDSHookCard | null>
 }
 
 /**
@@ -16,7 +17,7 @@ interface UseDhtiReturn {
  */
 export const useDhti = (): UseDhtiReturn => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<null | string>(null)
   const config = useConfig()
 
   const submitMessage = async (newMessage: string, patientId?: string): Promise<CDSHookCard | null> => {
@@ -36,8 +37,8 @@ export const useDhti = (): UseDhtiReturn => {
       const response = await axios.post(
         config?.dhtiRoute || 'http://localhost:8001/langserve/dhti_elixir_template/cds-services/dhti-service',
         {
-          input: _request,
           config: {},
+          input: _request,
           kwargs: {},
         },
         {
@@ -50,14 +51,16 @@ export const useDhti = (): UseDhtiReturn => {
       // Assuming the response contains a card or cards
       if (response.data && response.data.cards && response.data.cards.length > 0) {
         return CDSHookCard.from(response.data.cards[0])
-      } else if (response.data && response.data.summary) {
+      }
+
+ if (response.data && response.data.summary) {
         // Handle case where response is directly a card (must have summary property)
         return CDSHookCard.from(response.data)
       }
 
       return null
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to submit message'
+    } catch (error_: any) {
+      const errorMessage = error_.response?.data?.message || error_.message || 'Failed to submit message'
       setError(errorMessage)
       return null
     } finally {
@@ -65,5 +68,5 @@ export const useDhti = (): UseDhtiReturn => {
     }
   }
 
-  return {submitMessage, loading, error}
+  return {error, loading, submitMessage}
 }

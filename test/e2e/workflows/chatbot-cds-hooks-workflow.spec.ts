@@ -1,7 +1,8 @@
-import {test, expect} from '@playwright/test'
-import {runCommand, runCommandBackground, waitForService, log, LogLevel} from '../helpers'
+import {expect, test} from '@playwright/test'
+import * as fs from 'node:fs'
+
 import {startServices, stopServices} from '../docker-utils'
-import * as fs from 'fs'
+import {LogLevel, log, runCommand, runCommandBackground, waitForService} from '../helpers'
 
 /**
  * Chatbot CDS Hooks Sandbox Workflow E2E Tests
@@ -41,7 +42,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
   }
 
   test.beforeAll(async () => {
-    test.setTimeout(120000) // 2 minutes for setup
+    test.setTimeout(120_000) // 2 minutes for setup
     log(LogLevel.INFO, '📦 Setting up chatbot CDS sandbox test environment...')
 
     // // Verify prerequisites
@@ -82,7 +83,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
    * Follows workflow from README.md lines 79-97
    */
   test('@workflow @chatbot @cds-sandbox should test elixir with CDS Hooks sandbox', async ({page, request}) => {
-    test.setTimeout(300000) // 5 minutes for this test
+    test.setTimeout(300_000) // 5 minutes for this test
 
     // Cleanup: Remove any existing test elixirs
     await test.step('Clean up existing elixirs', async () => {
@@ -125,7 +126,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
 
       // Check server.py
       const serverCheck = await runCommand(
-        `grep -q "${elixirName.replace(/-/g, '_')}" ${elixirDir}/app/server.py && echo "found"`,
+        `grep -q "${elixirName.replaceAll('-', '_')}" ${elixirDir}/app/server.py && echo "found"`,
       )
       expect(serverCheck.stdout).toContain('found')
 
@@ -157,7 +158,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
 
     await test.step('Wait for LangServe to be healthy', async () => {
       // LangServe exposes /docs endpoint when healthy
-      const isHealthy = await waitForService('http://localhost:8001/docs', 180000, 5000)
+      const isHealthy = await waitForService('http://localhost:8001/docs', 180_000, 5000)
       expect(isHealthy).toBe(true)
       log(LogLevel.INFO, '✅ LangServe is healthy')
     })
@@ -169,6 +170,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
         log(LogLevel.WARN, '⚠ bootstrap.py not found, skipping bootstrap copy')
         return
       }
+
       const result = await runCommand(`${cliCommand} docker bootstrap -f ${bootstrapPath}`)
       expect(result.exitCode).toBe(0)
       log(LogLevel.INFO, '✅ Bootstrap file copied')
@@ -178,14 +180,14 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
     let cdsSandboxUrl: string = '' // Will be extracted from elixir start output
     await test.step('Start elixir CDS sandbox in background', async () => {
       backgroundStartTime = Date.now()
-      const {proc, getStdout, waitForExit} = await runCommandBackground(`${cliCommand} elixir start -n ${elixirName}`)
+      const {getStdout, proc, waitForExit} = await runCommandBackground(`${cliCommand} elixir start -n ${elixirName}`)
       elixirProcess = proc
       log(LogLevel.INFO, '✅ Elixir CDS sandbox starting in background')
 
       // Wait for the process to generate all its initial output (including Application URL)
       try {
-        await waitForExit(30000)
-      } catch (error) {
+        await waitForExit(30_000)
+      } catch {
         // Process didn't exit within timeout, which is expected for a long-running service
         log(LogLevel.INFO, '⏳ Elixir process is still running (expected)')
       }
@@ -201,7 +203,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
       checkBackgroundTimeout('Elixir process')
 
       // Extract Application URL from the output
-      const urlMatch = elixirStdout.match(/Application URL:\s*(http?:\/\/[^\s]+)/i)
+      const urlMatch = elixirStdout.match(/application url:\s*(http?:\/\/\S+)/i)
       if (urlMatch && urlMatch[1]) {
         cdsSandboxUrl = urlMatch[1]
         log(LogLevel.INFO, `✅ Extracted CDS sandbox URL: ${cdsSandboxUrl}`)
@@ -209,7 +211,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
         // Fallback to default if URL not found in output
         log(
           LogLevel.WARN,
-          `⚠ Could not extract Application URL in ${elixirStdout.substring(0, 500)}, using default: http://localhost:8080`,
+          `⚠ Could not extract Application URL in ${elixirStdout.slice(0, 500)}, using default: http://localhost:8080`,
         )
         cdsSandboxUrl = 'http://localhost:8080'
       }
@@ -217,26 +219,27 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
 
     // Phase 6a: CDS Hooks Sandbox UI Testing
     await test.step('Wait for CDS Hooks sandbox to be ready', async () => {
-      const isHealthy = await waitForService(cdsSandboxUrl, 80000, 3000)
+      const isHealthy = await waitForService(cdsSandboxUrl, 80_000, 3000)
       if (!isHealthy) {
         log(LogLevel.WARN, '⚠ CDS Hooks sandbox failed to become healthy, skipping UI tests')
         return
       }
+
       log(LogLevel.INFO, '✅ CDS Hooks sandbox is ready')
     })
 
     await test.step('Navigate to CDS Hooks sandbox', async () => {
       try {
         log(LogLevel.INFO, `🌐 Navigating to CDS Hooks sandbox: ${cdsSandboxUrl}`)
-        await page.goto(cdsSandboxUrl, {timeout: 10000})
+        await page.goto(cdsSandboxUrl, {timeout: 10_000})
 
         // Verify sandbox page loads
         const pageContent = page.locator('body')
-        await expect(pageContent).toBeVisible({timeout: 10000})
+        await expect(pageContent).toBeVisible({timeout: 10_000})
         log(LogLevel.INFO, '✅ CDS Hooks sandbox page loaded')
-      } catch (error) {
+      } catch {
         log(LogLevel.WARN, '⚠ Could not load CDS Hooks sandbox page, skipping UI tests')
-        return
+        
       }
     })
 
@@ -245,18 +248,18 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
         .locator('a, button, [role="tab"]')
         .evaluateAll((elements) => elements.map((element) => element.textContent?.trim() ?? '').filter(Boolean))
       log(LogLevel.INFO, `📋 Found ${tabTexts.length} potential tabs/links on the page`)
-      tabTexts.forEach((text, index) => log(LogLevel.INFO, `  Tab ${index + 1}: "${text}"`))
+      for (const [index, text] of tabTexts.entries()) log(LogLevel.INFO, `  Tab ${index + 1}: "${text}"`)
 
       const navTabTexts = await page
         .locator('nav a, .nav a, [class*="nav"] a, [role="navigation"] a')
         .evaluateAll((elements) => elements.map((element) => element.textContent?.trim() ?? '').filter(Boolean))
       log(LogLevel.INFO, `🧭 Found ${navTabTexts.length} navigation tabs`)
-      navTabTexts.forEach((text, index) => log(LogLevel.INFO, `  Nav Tab ${index + 1}: "${text}"`))
+      for (const [index, text] of navTabTexts.entries()) log(LogLevel.INFO, `  Nav Tab ${index + 1}: "${text}"`)
 
       if (tabTexts.includes('Rx View')) {
         try {
           await page
-            .getByRole('button', {name: 'Rx View', exact: true})
+            .getByRole('button', {exact: true, name: 'Rx View'})
             .evaluate((button) => (button as HTMLElement).click())
           log(LogLevel.INFO, '✅ Rx View tab clicked')
 
@@ -278,23 +281,23 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
         const textareaInfo = await textarea.evaluate((el) => {
           const style = window.getComputedStyle(el)
           return {
-            tag: el.tagName,
-            name: el.getAttribute('name'),
-            placeholder: el.getAttribute('placeholder'),
             class: el.className,
             display: style.display,
-            visibility: style.visibility,
-            opacity: style.opacity,
+            hasZeroDimensions: el.offsetHeight === 0 || el.offsetWidth === 0,
             height: style.height,
-            width: style.width,
-            position: style.position,
-            zIndex: style.zIndex,
+            isHidden: style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0',
+            name: el.getAttribute('name'),
             offsetHeight: el.offsetHeight,
             offsetWidth: el.offsetWidth,
-            scrollTop: el.scrollTop,
-            isHidden: style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0',
-            hasZeroDimensions: el.offsetHeight === 0 || el.offsetWidth === 0,
+            opacity: style.opacity,
             parentHidden: (el.parentElement ? window.getComputedStyle(el.parentElement).display : 'N/A') === 'none',
+            placeholder: el.getAttribute('placeholder'),
+            position: style.position,
+            scrollTop: el.scrollTop,
+            tag: el.tagName,
+            visibility: style.visibility,
+            width: style.width,
+            zIndex: style.zIndex,
           }
         })
         log(LogLevel.INFO, `Textarea details: ${JSON.stringify(textareaInfo, null, 2)}`)
@@ -313,11 +316,11 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
           // Find what element is at the center point
           const elementAtCenter = document.elementFromPoint(centerPoint.x, centerPoint.y)
           return {
-            textareaRect: {top: rect.top, left: rect.left, width: rect.width, height: rect.height},
             elementAtCenter: elementAtCenter
               ? elementAtCenter.tagName + '.' + (elementAtCenter.className || '')
               : 'null',
             isCovered: elementAtCenter && elementAtCenter !== textarea,
+            textareaRect: {height: rect.height, left: rect.left, top: rect.top, width: rect.width},
           }
         })
 
@@ -329,7 +332,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
         }
 
         // Take screenshot
-        await page.screenshot({path: 'textarea-debug-before-modal.png', fullPage: false})
+        await page.screenshot({fullPage: false, path: 'textarea-debug-before-modal.png'})
         log(LogLevel.INFO, '📸 Screenshot saved to textarea-debug-before-modal.png')
       } else {
         log(LogLevel.WARN, '⚠ Textarea not found in DOM yet')
@@ -348,20 +351,20 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
         const modalInfo = await modalOverlay.first().evaluate((el) => {
           const style = window.getComputedStyle(el)
           return {
-            tag: el.tagName,
             class: el.className,
             display: style.display,
-            visibility: style.visibility,
+            isVisible: (el as HTMLElement).offsetParent !== null,
             opacity: style.opacity,
             position: style.position,
+            tag: el.tagName,
+            visibility: style.visibility,
             zIndex: style.zIndex,
-            isVisible: (el as HTMLElement).offsetParent !== null,
           }
         })
         log(LogLevel.INFO, `Modal details: ${JSON.stringify(modalInfo, null, 2)}`)
 
         // Take screenshot for debugging
-        await page.screenshot({path: 'modal-debug.png', fullPage: false})
+        await page.screenshot({fullPage: false, path: 'modal-debug.png'})
         log(LogLevel.INFO, '📸 Screenshot saved to modal-debug.png')
 
         // Only consider it blocking if it's actually visible
@@ -397,22 +400,22 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
           elements.map((element) => {
             const input = element as HTMLInputElement | HTMLTextAreaElement
             return {
-              tag: element.tagName.toLowerCase(),
-              type: element.getAttribute('type') || (element.tagName === 'TEXTAREA' ? 'textarea' : 'unknown'),
+              className: element.getAttribute('class') || '',
+              id: element.getAttribute('id') || '',
               name: element.getAttribute('name') || '',
               placeholder: element.getAttribute('placeholder') || '',
-              id: element.getAttribute('id') || '',
-              className: element.getAttribute('class') || '',
+              tag: element.tagName.toLowerCase(),
+              type: element.getAttribute('type') || (element.tagName === 'TEXTAREA' ? 'textarea' : 'unknown'),
             }
           }),
         )
       log(LogLevel.INFO, `📝 Found ${textInputs.length} text input elements on the page`)
-      textInputs.forEach((input, index) => {
+      for (const [index, input] of textInputs.entries()) {
         log(
           LogLevel.INFO,
           `  Input ${index + 1}: <${input.tag}> type="${input.type}" name="${input.name}" placeholder="${input.placeholder}" id="${input.id}" class="${input.className}"`,
         )
-      })
+      }
     })
 
     // await test.step('Find communication-message input field', async () => {
@@ -477,12 +480,12 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
           try {
             const response = await request.post(elixirEndpoint, {
               data: {
+                config: {},
                 input: {
                   context: {
                     input: 'What medications is this patient on?',
                   },
                 },
-                config: {},
                 kwargs: {},
               },
               headers: {
@@ -500,7 +503,7 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
             } else {
               log(LogLevel.INFO, '⚠ Elixir endpoint returned 404 (expected in some configurations)')
             }
-          } catch (error) {
+          } catch {
             log(LogLevel.WARN, '⚠ API test failed, but this is expected if CDS sandbox is not running')
           }
         })
@@ -515,11 +518,11 @@ test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
             elixirProcess.kill('SIGTERM')
             await new Promise((resolve) => setTimeout(resolve, 2000))
             log(LogLevel.INFO, '✅ Background elixir process terminated')
-          } catch (error) {
+          } catch {
             log(LogLevel.WARN, '⚠ Could not terminate elixir process gracefully, forcing kill')
             try {
               elixirProcess.kill('SIGKILL')
-            } catch (e) {
+            } catch {
               // Ignore
             }
           }

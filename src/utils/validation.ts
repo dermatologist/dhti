@@ -39,7 +39,7 @@ export function validateEnvVarFormat(envVar: string): boolean {
 export function validateDockerImageName(image: string): boolean {
   // Basic Docker image name validation
   // Allows: repository/image:tag or image:tag
-  const pattern = /^[a-z0-9]+([._-][a-z0-9]+)*[/]([a-z0-9]{2,}[._-])?[a-z0-9]{2,}(:[\w.-]+)?$/i
+  const pattern = /^[\da-z]+([._-][\da-z]+)*\/([\da-z]{2,}[._-])?[\da-z]{2,}(:[\w.-]+)?$/i
   return pattern.test(image)
 }
 
@@ -50,7 +50,7 @@ export function validateDockerImageName(image: string): boolean {
  */
 export function validateGitUrl(gitUrl: string): boolean {
   // Supports HTTPS and SSH git URLs
-  const httpsPattern = /^https:\/\/[^\s/$.?#].[^\s]*$/i
+  const httpsPattern = /^https:\/\/[^\s#$./?].\S*$/i
   const sshPattern = /^git@[\w.-]+:[\w.-]+\/[\w.-]+\.git$/i
   return httpsPattern.test(gitUrl) || sshPattern.test(gitUrl)
 }
@@ -74,5 +74,5 @@ export function validatePathSafety(basePath: string, filePath: string): boolean 
  */
 export function sanitizeShellInput(input: string): string {
   // Remove potentially dangerous characters
-  return input.replace(/[;|&$`\\]/g, '')
+  return input.replaceAll(/[$&;\\`|]/g, '')
 }

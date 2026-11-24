@@ -6,8 +6,8 @@ import path from 'node:path'
 
 export default class Docktor extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (install, remove, restart, list)', required: true}),
     name: Args.string({description: 'Name of the inference pipeline (e.g., skin-cancer-classifier)', required: false}),
+    op: Args.string({description: 'Operation to perform (install, remove, restart, list)', required: true}),
   }
 
   static override description = 'Manage inference pipelines for MCPX'

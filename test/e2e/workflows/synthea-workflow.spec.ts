@@ -1,5 +1,6 @@
-import {test, expect} from '@playwright/test'
-import {runCommand, log} from '../helpers'
+import {expect, test} from '@playwright/test'
+
+import {log, runCommand} from '../helpers'
 
 /**
  * Synthea Workflow Tests
@@ -61,9 +62,9 @@ test.describe('Synthea Workflow', () => {
     log('Testing complete Synthea lifecycle')
 
     const steps = [
-      {name: 'generate', cmd: 'dhti-cli synthea generate --dry-run'},
-      {name: 'build', cmd: 'dhti-cli docker -n synthea:latest -t synthea --dry-run'},
-      {name: 'import', cmd: 'dhti-cli mimic import --dry-run'},
+      {cmd: 'dhti-cli synthea generate --dry-run', name: 'generate'},
+      {cmd: 'dhti-cli docker -n synthea:latest -t synthea --dry-run', name: 'build'},
+      {cmd: 'dhti-cli mimic import --dry-run', name: 'import'},
     ]
 
     for (const step of steps) {

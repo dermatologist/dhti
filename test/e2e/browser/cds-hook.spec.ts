@@ -1,4 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {expect, test} from '@playwright/test'
+
 import {waitForService} from '../helpers'
 
 /**
@@ -17,14 +18,14 @@ test.describe('CDS-Hook Sandbox Tests', () => {
   test('@browser should verify CDS-Hook sandbox is accessible', async ({page}) => {
     // Try to access sandbox (may not be running in all test scenarios)
     try {
-      await waitForService(sandboxUrl, 10000)
+      await waitForService(sandboxUrl, 10_000)
 
       await page.goto(sandboxUrl)
 
       // Verify sandbox page loads
       const pageContent = page.locator('body')
       await expect(pageContent).toBeVisible()
-    } catch (error) {
+    } catch {
       // Sandbox may not be running, which is acceptable
       console.log('CDS-Hook sandbox not available (expected in some scenarios)')
     }
@@ -33,7 +34,7 @@ test.describe('CDS-Hook Sandbox Tests', () => {
   test('@browser should verify elixir endpoint health', async ({page}) => {
     try {
       // Wait for elixir endpoint (reduced timeout)
-      await waitForService(elixirEndpoint, 15000)
+      await waitForService(elixirEndpoint, 15_000)
 
       // Navigate to elixir endpoint
       const response = await page.goto(elixirEndpoint)
@@ -53,7 +54,7 @@ test.describe('CDS-Hook Sandbox Tests', () => {
         const pageContent = page.locator('body')
         await expect(pageContent).toBeVisible({timeout: 5000})
       }
-    } catch (error) {
+    } catch {
       // Graceful fallback - elixir may not be installed
       console.log('⚠ Elixir endpoint not available (run "dhti-cli elixir install" to configure)')
       console.log('  This is expected in minimal test environments')
@@ -64,13 +65,13 @@ test.describe('CDS-Hook Sandbox Tests', () => {
     const cdsServicesEndpoint = 'http://localhost:8001/langserve/dhti_elixir_schat/cds-services'
 
     try {
-      await waitForService(cdsServicesEndpoint, 10000)
+      await waitForService(cdsServicesEndpoint, 10_000)
 
       const response = await page.goto(cdsServicesEndpoint)
 
       // Should return JSON or HTML
       expect(response?.status()).toBe(200)
-    } catch (error) {
+    } catch {
       // Elixir may not be running, which is acceptable
       console.log('Elixir CDS services not available (expected in some scenarios)')
     }
@@ -80,7 +81,7 @@ test.describe('CDS-Hook Sandbox Tests', () => {
     const fhirEndpoint = 'http://localhost:80/openmrs/ws/fhir2/R4'
 
     try {
-      await waitForService(fhirEndpoint, 10000)
+      await waitForService(fhirEndpoint, 10_000)
 
       // Test FHIR server ping
       const pingUrl = `${fhirEndpoint}/_ping`
@@ -112,8 +113,8 @@ test.describe('CDS-Hook Sandbox Tests', () => {
       // Test POST to elixir with proper structure
       const response = await request.post(elixirEndpoint, {
         data: {
-          input: cdsRequest,
           config: {},
+          input: cdsRequest,
           kwargs: {},
         },
         headers: {
@@ -140,7 +141,7 @@ test.describe('CDS-Hook Sandbox Tests', () => {
       } else {
         console.log(`ℹ Elixir response status: ${status}`)
       }
-    } catch (error) {
+    } catch {
       // Elixir may not be installed, which is acceptable
       console.log('⚠ Elixir not available (expected in base mode)')
     }

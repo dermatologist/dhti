@@ -1,4 +1,5 @@
-import {test, expect} from '@playwright/test'
+import {expect, test} from '@playwright/test'
+
 import {waitForService} from '../helpers'
 
 /**
@@ -17,7 +18,7 @@ test.describe('OpenMRS UI Tests', () => {
 
   test('@browser should verify OpenMRS service is healthy', async ({page}) => {
     // Wait for OpenMRS to be ready
-    await waitForService(openmrsUrl, 30000)
+    await waitForService(openmrsUrl, 30_000)
 
     // Navigate to OpenMRS
     const response = await page.goto(openmrsUrl)
@@ -84,7 +85,7 @@ test.describe('OpenMRS UI Tests', () => {
       await passwordInput.fill(loginPassword)
 
       // Submit password (button may say "Continue", "Sign in", or "Log in")
-      const submitButton = page.getByRole('button', {name: /Continue|Sign in|Log in/i})
+      const submitButton = page.getByRole('button', {name: /continue|sign in|log in/i})
       if ((await submitButton.count()) > 0) {
         await submitButton.first().click()
         await page.waitForTimeout(3000)
@@ -126,7 +127,7 @@ test.describe('OpenMRS UI Tests', () => {
       const passwordInput = page.locator('input[type="password"]')
       if (await passwordInput.isVisible()) {
         await passwordInput.fill(loginPassword)
-        const submitButton = page.getByRole('button', {name: /Continue|Sign in/i})
+        const submitButton = page.getByRole('button', {name: /continue|sign in/i})
         if ((await submitButton.count()) > 0) {
           await submitButton.first().click()
           await page.waitForTimeout(3000)

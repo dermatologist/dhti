@@ -8,17 +8,17 @@
  * - Output validation
  */
 
-import {execSync, spawn} from 'child_process'
-import * as fs from 'fs'
-import * as path from 'path'
-import * as os from 'os'
+import {execSync, spawn} from 'node:child_process'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 /**
  * Configuration for E2E tests
  */
 export const E2E_CONFIG = {
   testDir: process.env.TEST_DIR || path.join(os.homedir(), 'dhti-e2e-test'),
-  timeout: parseInt(process.env.TEST_TIMEOUT || '300000'), // 5 minutes default
+  timeout: Number.parseInt(process.env.TEST_TIMEOUT || '300000'), // 5 minutes default
   verbose: process.env.VERBOSE === 'true',
 }
 
@@ -26,10 +26,10 @@ export const E2E_CONFIG = {
  * Log levels for test output
  */
 export const LogLevel = {
-  INFO: '✓ INFO',
-  WARN: '⚠ WARN',
   ERROR: '✗ ERROR',
+  INFO: '✓ INFO',
   SUCCESS: '✓ SUCCESS',
+  WARN: '⚠ WARN',
 } as const
 
 export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel]
@@ -41,11 +41,11 @@ export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel]
  */
 export function log(level: LogLevel, message: string): void {
   const colors = {
-    [LogLevel.INFO]: '\x1b[32m', // Green
-    [LogLevel.WARN]: '\x1b[33m', // Yellow
-    [LogLevel.ERROR]: '\x1b[31m', // Red
-    [LogLevel.SUCCESS]: '\x1b[36m', // Cyan
-    reset: '\x1b[0m',
+    [LogLevel.ERROR]: '\u001B[31m', // Red
+    [LogLevel.INFO]: '\u001B[32m', // Green
+    [LogLevel.SUCCESS]: '\u001B[36m', // Cyan
+    [LogLevel.WARN]: '\u001B[33m', // Yellow
+    reset: '\u001B[0m',
   }
 
   const timestamp = new Date().toISOString().split('T')[1].slice(0, -1)
@@ -59,7 +59,7 @@ export function log(level: LogLevel, message: string): void {
  * @param interval - Check interval in milliseconds
  * @returns true if service becomes healthy, false if timeout
  */
-export async function waitForService(url: string, timeout: number = 60000, interval: number = 2000): Promise<boolean> {
+export async function waitForService(url: string, timeout: number = 60_000, interval: number = 2000): Promise<boolean> {
   const startTime = Date.now()
   log(LogLevel.INFO, `Waiting for service: ${url} (timeout: ${timeout}ms)`)
 
@@ -70,7 +70,7 @@ export async function waitForService(url: string, timeout: number = 60000, inter
         log(LogLevel.SUCCESS, `Service healthy: ${url}`)
         return true
       }
-    } catch (error) {
+    } catch {
       // Service not ready yet, continue waiting
     }
 
@@ -91,34 +91,34 @@ export function runCommand(
   command: string,
   options: {
     cwd?: string
-    timeout?: number
     env?: NodeJS.ProcessEnv
+    timeout?: number
   } = {},
-): {stdout: string; stderr: string; exitCode: number} {
-  const {cwd = process.cwd(), timeout = 120000, env = process.env} = options
+): {exitCode: number; stderr: string; stdout: string} {
+  const {cwd = process.cwd(), env = process.env, timeout = 120_000} = options
 
   log(LogLevel.INFO, `Executing: ${command}`)
 
   try {
     const output = execSync(command, {
       cwd,
-      timeout,
-      env,
       encoding: 'utf8',
+      env,
       stdio: 'pipe',
+      timeout,
     })
 
     log(LogLevel.SUCCESS, `Command completed successfully: ${command}`)
-    return {stdout: output, stderr: '', exitCode: 0}
+    return {exitCode: 0, stderr: '', stdout: output}
   } catch (error: any) {
     const stdout = error.stdout?.toString() || ''
     const stderr = error.stderr?.toString() || ''
     const exitCode = error.status || 1
 
     log(LogLevel.ERROR, `Command failed: ${command} (exit code: ${exitCode})`)
-    if (stderr) log(LogLevel.WARN, `stderr: ${stderr.substring(0, 200)}`)
+    if (stderr) log(LogLevel.WARN, `stderr: ${stderr.slice(0, 200)}`)
 
-    return {stdout, stderr, exitCode}
+    return {exitCode, stderr, stdout}
   }
 }
 
@@ -134,7 +134,7 @@ export function runCommandBackground(
     cwd?: string
     env?: NodeJS.ProcessEnv
   } = {},
-): {proc: any; getStdout: () => string; getStderr: () => string; waitForExit: (timeout?: number) => Promise<void>} {
+): {getStderr: () => string; getStdout: () => string; proc: any; waitForExit: (timeout?: number) => Promise<void>} {
   const {cwd = process.cwd(), env = process.env} = options
 
   log(LogLevel.INFO, `Starting background process: ${command}`)
@@ -176,10 +176,10 @@ export function runCommandBackground(
   })
 
   return {
-    proc,
-    getStdout: () => stdoutBuffer,
     getStderr: () => stderrBuffer,
-    waitForExit: async (timeout: number = 30000) => {
+    getStdout: () => stdoutBuffer,
+    proc,
+    async waitForExit(timeout: number = 30_000) {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error(`Process exit timeout after ${timeout}ms`)), timeout),
       )
@@ -221,12 +221,12 @@ export function setupTestEnvironment(testDir: string = E2E_CONFIG.testDir): void
 
   // Create subdirectories
   const subdirs = ['elixirs', 'conches', 'docker', 'temp']
-  subdirs.forEach((subdir) => {
+  for (const subdir of subdirs) {
     const subdirPath = path.join(testDir, subdir)
     if (!fs.existsSync(subdirPath)) {
       fs.mkdirSync(subdirPath, {recursive: true})
     }
-  })
+  }
 
   log(LogLevel.SUCCESS, 'Test environment setup complete')
 }
@@ -239,7 +239,7 @@ export function teardownTestEnvironment(testDir: string = E2E_CONFIG.testDir): v
   log(LogLevel.INFO, `Tearing down test environment: ${testDir}`)
 
   if (fs.existsSync(testDir)) {
-    fs.rmSync(testDir, {recursive: true, force: true})
+    fs.rmSync(testDir, {force: true, recursive: true})
     log(LogLevel.SUCCESS, `Removed test directory: ${testDir}`)
   }
 
@@ -354,8 +354,8 @@ export function parseDockerComposeOutput(output: string): Map<string, string> {
  * @param output - Elixir start output
  * @returns Application URL or null
  */
-export function extractAppUrl(output: string): string | null {
-  const match = output.match(/Application URL:?\s*(http:\/\/[\w:.]+)/)
+export function extractAppUrl(output: string): null | string {
+  const match = output.match(/Application URL:?\s*(http:\/\/[\w.:]+)/)
   return match ? match[1] : null
 }
 
@@ -379,7 +379,7 @@ export function isDockerRunning(): boolean {
  */
 export function isPortInUse(port: number): boolean {
   try {
-    const net = require('net')
+    const net = require('node:net')
     const server = net.createServer()
 
     return new Promise((resolve) => {

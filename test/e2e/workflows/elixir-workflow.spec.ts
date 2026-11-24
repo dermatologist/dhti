@@ -1,5 +1,6 @@
-import {test, expect} from '@playwright/test'
-import {runCommand, waitForService, log} from '../helpers'
+import {expect, test} from '@playwright/test'
+
+import {log, runCommand, waitForService} from '../helpers'
 
 /**
  * Elixir Workflow Tests
@@ -60,14 +61,14 @@ test.describe('Elixir Workflow', () => {
 
     try {
       // Wait for elixir to be ready
-      await waitForService(elixirEndpoint, 10000)
+      await waitForService(elixirEndpoint, 10_000)
 
       // Navigate to elixir endpoint
       const response = await page.goto(elixirEndpoint)
       expect(response?.status()).toBeLessThan(500)
 
       log('✓ Elixir health check passed')
-    } catch (error) {
+    } catch {
       // Elixir may not be running, which is acceptable
       log('⚠ Elixir not running (expected in some scenarios)')
     }
@@ -78,11 +79,11 @@ test.describe('Elixir Workflow', () => {
 
     const steps = [
       {
-        name: 'install',
         cmd: `dhti-cli elixir install -g https://github.com/dermatologist/dhti-elixir-template.git -n ${elixirName} --dry-run`,
+        name: 'install',
       },
-      {name: 'build', cmd: `dhti-cli docker -n test-elixir:1.0 -t elixir --dry-run`},
-      {name: 'start', cmd: `dhti-cli elixir start -n ${elixirName} --dry-run`},
+      {cmd: `dhti-cli docker -n test-elixir:1.0 -t elixir --dry-run`, name: 'build'},
+      {cmd: `dhti-cli elixir start -n ${elixirName} --dry-run`, name: 'start'},
     ]
 
     for (const step of steps) {

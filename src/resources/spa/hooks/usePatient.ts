@@ -1,5 +1,5 @@
-import useSWR from 'swr'
 import {fhirBaseUrl, openmrsFetch} from '@openmrs/esm-framework'
+import useSWR from 'swr'
 
 /**
  * This hook searches for a patient using the provided search term from the
@@ -27,12 +27,9 @@ export function usePatient(query: string) {
   const isId = /\d/.test(query)
   let url = null
   if (query && query.trim()) {
-    if (isId) {
-      url = `${fhirBaseUrl}/Patient?identifier=${encodeURIComponent(query.trim())}&_summary=data`
-    } else {
-      url = `${fhirBaseUrl}/Patient?name=${encodeURIComponent(query.trim())}&_summary=data`
-    }
+    url = isId ? `${fhirBaseUrl}/Patient?identifier=${encodeURIComponent(query.trim())}&_summary=data` : `${fhirBaseUrl}/Patient?name=${encodeURIComponent(query.trim())}&_summary=data`;
   }
+
   const {data, error, isLoading} = useSWR<any, Error>(url, openmrsFetch)
 
   let patient = null
@@ -54,8 +51,8 @@ export function usePatient(query: string) {
   }
 
   return {
-    patient,
-    error: error,
+    error,
     isLoading,
+    patient,
   }
 }

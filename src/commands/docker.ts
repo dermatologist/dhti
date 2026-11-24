@@ -2,10 +2,11 @@ import {Args, Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
 import yaml from 'js-yaml'
 import {exec as execCallback} from 'node:child_process'
-import {promisify} from 'node:util'
 import fs from 'node:fs'
 import os from 'node:os'
+import {promisify} from 'node:util'
 import ora from 'ora'
+
 import {DockerComposeConfig} from '../types/index.js'
 
 const exec = promisify(execCallback)
@@ -54,13 +55,14 @@ export default class Docker extends Command {
       }
 
       try {
-        const {stdout, stderr} = await exec(upCommand)
+        const {stderr, stdout} = await exec(upCommand)
         if (stdout) this.log(`stdout: ${stdout}`)
         if (stderr) this.log(`stderr: ${stderr}`)
         this.log('Docker compose up successful')
       } catch (error) {
         this.error(`Failed to start containers: ${error}`)
       }
+
       return
     }
 
@@ -73,13 +75,14 @@ export default class Docker extends Command {
       }
 
       try {
-        const {stdout, stderr} = await exec(downCommand)
+        const {stderr, stdout} = await exec(downCommand)
         if (stdout) this.log(`stdout: ${stdout}`)
         if (stderr) this.log(`stderr: ${stderr}`)
         this.log('Docker compose down successful')
       } catch (error) {
         this.error(`Failed to stop containers: ${error}`)
       }
+
       return
     }
 
@@ -108,13 +111,14 @@ export default class Docker extends Command {
       }
 
       try {
-        const {stdout, stderr} = await exec(restartCommand)
+        const {stderr, stdout} = await exec(restartCommand)
         this.log(`Successfully restarted container: ${containerName}`)
         if (stdout) this.log(`stdout: ${stdout}`)
         if (stderr) this.log(`stderr: ${stderr}`)
       } catch (error) {
         this.error(`Failed to restart container ${containerName}: ${error}`)
       }
+
       return
     }
 
@@ -145,12 +149,12 @@ export default class Docker extends Command {
 
       try {
         // copy file and only restart after copy completes
-        const {stdout: copyStdout, stderr: copyStderr} = await exec(copyCommand)
+        const {stderr: copyStderr, stdout: copyStdout} = await exec(copyCommand)
         if (copyStdout) this.log(`stdout: ${copyStdout}`)
         if (copyStderr) this.log(`stderr: ${copyStderr}`)
 
         // restart the container only after copy completes
-        const {stdout: restartStdout, stderr: restartStderr} = await exec(restartCommand)
+        const {stderr: restartStderr, stdout: restartStdout} = await exec(restartCommand)
         if (restartStdout) this.log(`stdout: ${restartStdout}`)
         if (restartStderr) this.log(`stderr: ${restartStderr}`)
 
@@ -158,6 +162,7 @@ export default class Docker extends Command {
       } catch (error) {
         this.error(`Failed to copy bootstrap file: ${error}`)
       }
+
       return
     }
 

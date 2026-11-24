@@ -2,9 +2,9 @@
  * Shared file system utilities for DHTI CLI
  */
 
+import chalk from 'chalk'
 import fs from 'node:fs'
 import path from 'node:path'
-import chalk from 'chalk'
 
 /**
  * Ensures a directory exists, creating it if necessary
@@ -16,6 +16,7 @@ export function ensureDirectory(dirPath: string, dryRun: boolean = false): void 
     if (!fs.existsSync(dirPath)) {
       console.log(chalk.yellow(`[DRY RUN] Would create directory: ${dirPath}`))
     }
+
     return
   }
 
@@ -34,6 +35,7 @@ export function readJsonFile<T>(filePath: string): T {
   if (!fs.existsSync(filePath)) {
     throw new Error(`File not found: ${filePath}`)
   }
+
   const content = fs.readFileSync(filePath, 'utf8')
   return JSON.parse(content) as T
 }
@@ -69,6 +71,7 @@ export function readTextFile(filePath: string): string {
   if (!fs.existsSync(filePath)) {
     throw new Error(`File not found: ${filePath}`)
   }
+
   return fs.readFileSync(filePath, 'utf8')
 }
 
