@@ -4,15 +4,15 @@ import {startServices, stopServices} from '../docker-utils'
 import * as fs from 'fs'
 
 /**
- * Chatbot Workflow E2E Tests
+ * Chatbot CDS Hooks Sandbox Workflow E2E Tests
  *
- * Tests the complete chatbot.sh workflow using locally installed dhti-cli.
- * Validates every command from vidhi/chatbot.sh can be executed successfully.
+ * Tests the chatbot.sh workflow using CDS Hooks sandbox without OpenMRS.
+ * Validates elixir installation, Docker build, and CDS Hooks sandbox integration.
  *
- * @workflow @chatbot tags for categorization
+ * @workflow @chatbot @cds-sandbox tags for categorization
  */
 
-test.describe('Chatbot Workflow Tests', () => {
+test.describe('Chatbot CDS Hooks Sandbox Workflow Tests', () => {
   const testWorkspace = process.env.DHTI_TEST_WORKSPACE || `${process.env.HOME}/dhti-e2e-test`
   const cliCommand = 'dhti-cli' // Use globally linked CLI command
   const elixirGitUrl = 'https://github.com/dermatologist/dhti-elixir.git'
@@ -28,7 +28,6 @@ test.describe('Chatbot Workflow Tests', () => {
 
   // Track background processes for cleanup
   let elixirProcess: any = null
-  let conchProcess: any = null
   let backgroundStartTime: number = 0
   let elixirStdout: string = ''
 
@@ -43,7 +42,7 @@ test.describe('Chatbot Workflow Tests', () => {
 
   test.beforeAll(async () => {
     test.setTimeout(120000) // 2 minutes for setup
-    log(LogLevel.INFO, '📦 Setting up chatbot test environment...')
+    log(LogLevel.INFO, '📦 Setting up chatbot CDS sandbox test environment...')
 
     // Verify prerequisites
     await test.step('Verify Node.js is installed', async () => {
@@ -87,7 +86,6 @@ test.describe('Chatbot Workflow Tests', () => {
 
     // Cleanup: Remove any existing test elixirs
     await test.step('Clean up existing elixirs', async () => {
-      // FIX: Use correct elixir name
       const cleanupResult = await runCommand(`${cliCommand} elixir uninstall -n ${elixirName} 2>&1 || true`)
       log(LogLevel.INFO, '✅ Cleanup complete')
     })
@@ -166,7 +164,6 @@ test.describe('Chatbot Workflow Tests', () => {
 
     // Phase 5: Bootstrap
     await test.step('Copy bootstrap.py to container', async () => {
-      // FIX: Check if bootstrap.py exists
       const bootstrapPath = `${process.cwd()}/src/resources/genai/app/bootstrap.py`
       if (!fs.existsSync(bootstrapPath)) {
         log(LogLevel.WARN, '⚠ bootstrap.py not found, skipping bootstrap copy')
@@ -186,9 +183,7 @@ test.describe('Chatbot Workflow Tests', () => {
       log(LogLevel.INFO, '✅ Elixir CDS sandbox starting in background')
 
       // Wait for the process to generate all its initial output (including Application URL)
-      // The elixir start command should output the URL and then continue running
       try {
-        // Wait up to 30 seconds for the process to either exit or generate all initial output
         await waitForExit(30000)
       } catch (error) {
         // Process didn't exit within timeout, which is expected for a long-running service
@@ -202,11 +197,10 @@ test.describe('Chatbot Workflow Tests', () => {
       elixirStdout = getStdout()
       log(LogLevel.INFO, `📝 Captured ${elixirStdout.length} bytes of elixir output`)
 
-      // FIX: Check if process is still running
+      // Check if process is still running
       checkBackgroundTimeout('Elixir process')
 
       // Extract Application URL from the output
-      // Format: "Application URL: http://localhost:8080/?serviceDiscoveryURL=..."
       const urlMatch = elixirStdout.match(/Application URL:\s*(http?:\/\/[^\s]+)/i)
       if (urlMatch && urlMatch[1]) {
         cdsSandboxUrl = urlMatch[1]
@@ -221,12 +215,12 @@ test.describe('Chatbot Workflow Tests', () => {
       }
     })
 
-    // Phase 6a: CDS Hooks Sandbox UI Testing (NEW - from README.md)
+    // Phase 6a: CDS Hooks Sandbox UI Testing
     await test.step('Wait for CDS Hooks sandbox to be ready', async () => {
       const isHealthy = await waitForService(cdsSandboxUrl, 60000, 3000)
       if (!isHealthy) {
         log(LogLevel.WARN, '⚠ CDS Hooks sandbox failed to become healthy, skipping UI tests')
-        return // Skip remaining UI tests if sandbox is not healthy
+        return
       }
       log(LogLevel.INFO, '✅ CDS Hooks sandbox is ready')
     })
@@ -241,16 +235,14 @@ test.describe('Chatbot Workflow Tests', () => {
         log(LogLevel.INFO, '✅ CDS Hooks sandbox page loaded')
       } catch (error) {
         log(LogLevel.WARN, '⚠ Could not load CDS Hooks sandbox page, skipping UI tests')
-        return // Skip remaining UI tests
+        return
       }
     })
 
     await test.step('List all tabs on the page', async () => {
-      // Find all potential tabs/links on the page
       const allTabs = await page.locator('a, button, [role="tab"]').all()
       log(LogLevel.INFO, `📋 Found ${allTabs.length} potential tabs/links on the page`)
 
-      // Extract text content from each tab
       const tabTexts: string[] = []
       for (let i = 0; i < allTabs.length; i++) {
         const text = await allTabs[i].innerText()
@@ -260,7 +252,6 @@ test.describe('Chatbot Workflow Tests', () => {
         }
       }
 
-      // Also look for specific tab patterns
       const navTabs = await page.locator('nav a, .nav a, [class*="nav"] a, [role="navigation"] a').all()
       log(LogLevel.INFO, `🧭 Found ${navTabs.length} navigation tabs`)
       for (let i = 0; i < navTabs.length; i++) {
@@ -272,7 +263,6 @@ test.describe('Chatbot Workflow Tests', () => {
     })
 
     await test.step('Switch to Rx View tab', async () => {
-      // Look for Rx View tab or link (try multiple selectors)
       const rxViewTab = page
         .locator(
           'text=Rx View, text=Rx, text=Prescriptions, text=Medications, [class*="rx"], [id*="rx"], [class*="prescription"], [class*="medication"]',
@@ -283,17 +273,13 @@ test.describe('Chatbot Workflow Tests', () => {
         await rxViewTab.click({timeout: 10000})
         log(LogLevel.INFO, '✅ Rx View tab clicked')
 
-        // Wait for view to load
         await new Promise((resolve) => setTimeout(resolve, 2000))
       } catch (error) {
-        // If tab click fails, we may already be on the right view
         log(LogLevel.WARN, '⚠ Could not click Rx View tab, continuing with current view')
       }
     })
 
     await test.step('Find communication-message input field', async () => {
-      // Look for communication-message textarea or input field
-      // Try multiple selectors based on CDS Hooks sandbox structure
       const communicationMessageInput = page
         .locator(
           'textarea[name="communication-message"], textarea[placeholder*="communication"], input[name="communication-message"], [class*="communication"], textarea',
@@ -304,13 +290,11 @@ test.describe('Chatbot Workflow Tests', () => {
         await expect(communicationMessageInput).toBeVisible({timeout: 10000})
         log(LogLevel.INFO, '✅ Communication-message input field found')
       } catch (error) {
-        // If we can't find the specific field, log a warning but continue
         log(LogLevel.WARN, '⚠ Could not find communication-message input field, skipping UI test')
       }
     })
 
     await test.step('Submit test query via communication-message', async () => {
-      // Find the input again and fill it
       const communicationMessageInput = page
         .locator(
           'textarea[name="communication-message"], textarea[placeholder*="communication"], input[name="communication-message"], [class*="communication"], textarea',
@@ -321,8 +305,6 @@ test.describe('Chatbot Workflow Tests', () => {
         await communicationMessageInput.fill('What medications is this patient on?')
         log(LogLevel.INFO, '✅ Test query entered')
 
-        // Wait for auto-submit (5 seconds as per README.md)
-        // Or look for submit button
         try {
           const submitButton = page
             .locator('button[type="submit"], button:has-text("Submit"), button:has-text("Send")')
@@ -330,7 +312,6 @@ test.describe('Chatbot Workflow Tests', () => {
           await submitButton.click({timeout: 2000})
           log(LogLevel.INFO, '✅ Query submitted via button')
         } catch (error) {
-          // Auto-submit should happen after 5 seconds
           log(LogLevel.INFO, '⏳ Waiting for auto-submit (5 seconds)')
           await new Promise((resolve) => setTimeout(resolve, 6000))
         }
@@ -340,8 +321,6 @@ test.describe('Chatbot Workflow Tests', () => {
     })
 
     await test.step('Verify elixir response appears', async () => {
-      // Wait for response cards or summary to appear
-      // Look for common response patterns in CDS Hooks sandbox
       const responseCard = page
         .locator(
           '[class*="card"], [class*="result"], [class*="response"], div:has-text("medication"), div:has-text("Medication")',
@@ -352,7 +331,6 @@ test.describe('Chatbot Workflow Tests', () => {
         await expect(responseCard).toBeVisible({timeout: 15000})
         log(LogLevel.INFO, '✅ Elixir response cards visible')
       } catch (error) {
-        // If cards not found, check for any response content
         log(LogLevel.WARN, '⚠ Response cards not found via UI, will verify via API')
       }
     })
@@ -366,7 +344,6 @@ test.describe('Chatbot Workflow Tests', () => {
             input: {
               context: {
                 input: 'What medications is this patient on?',
-                // FIX: Remove undefined patientId
               },
             },
             config: {},
@@ -378,12 +355,10 @@ test.describe('Chatbot Workflow Tests', () => {
         })
 
         const status = response.status()
-        // Elixir may return 200 (success) or 404 (not configured)
         expect([200, 404]).toContain(status)
 
         if (status === 200) {
           const body = await response.json()
-          // Verify response has cards or summary (structural validation)
           expect(body.cards || body.summary).toBeDefined()
           log(LogLevel.INFO, '✅ Elixir endpoint responded with valid structure')
         } else {
@@ -391,201 +366,23 @@ test.describe('Chatbot Workflow Tests', () => {
         }
       } catch (error) {
         log(LogLevel.WARN, '⚠ API test failed, but this is expected if CDS sandbox is not running')
-        // Don't fail the test if API is not available
-      }
-    })
-  })
-
-  /**
-   * OpenMRS EMR Testing
-   * Tests the complete workflow including conch installation and OpenMRS integration
-   */
-  test('@workflow @chatbot @openmrs should test elixir in OpenMRS EMR', async ({page, request}) => {
-    test.setTimeout(300000) // 5 minutes for this test
-
-    // Cleanup: Remove any existing test elixirs
-    await test.step('Clean up existing elixirs', async () => {
-      // FIX: Use correct elixir name
-      const cleanupResult = await runCommand(`${cliCommand} elixir uninstall -n ${elixirName} 2>&1 || true`)
-      log(LogLevel.INFO, '✅ Cleanup complete')
-    })
-
-    // Phase 1: Compose Setup
-    await test.step('Reset docker-compose.yml', async () => {
-      const result = await runCommand(`${cliCommand} compose reset`)
-      expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain('docker-compose.yml')
-      log(LogLevel.INFO, '✅ Compose reset complete')
-    })
-
-    await test.step('Add LangServe module', async () => {
-      const result = await runCommand(`${cliCommand} compose add -m langserve`)
-      expect(result.exitCode).toBe(0)
-      expect(result.stdout).toContain('updated successfully')
-      log(LogLevel.INFO, '✅ LangServe module added')
-    })
-
-    await test.step('Add OpenMRS module', async () => {
-      const result = await runCommand(`${cliCommand} compose add -m openmrs`)
-      expect(result.exitCode).toBe(0)
-      const output = result.stdout || result.stderr || ''
-      expect(output).toContain('updated successfully')
-      log(LogLevel.INFO, '✅ OpenMRS module added')
-    })
-
-    // Phase 7: Conch Installation
-    await test.step('Clean up existing conch directory', async () => {
-      const conchDir = `${workdir}/esm-dhti`
-      const cleanupResult = await runCommand(`rm -rf ${conchDir} 2>&1 || true`)
-      log(LogLevel.INFO, '✅ Conch directory cleaned')
-    })
-
-    await test.step('Install conch package', async () => {
-      const result = await runCommand(`${cliCommand} conch install`)
-      expect(result.exitCode).toBe(0)
-      log(LogLevel.INFO, '✅ Conch installed')
-    })
-
-    await test.step('Start chatbot conch', async () => {
-      backgroundStartTime = Date.now()
-      const {proc} = runCommandBackground(`${cliCommand} conch start -s ${conchPackage}`)
-      conchProcess = proc
-      log(LogLevel.INFO, '✅ Chatbot conch started in background')
-
-      // FIX: Wait for conch to start
-      await new Promise((resolve) => setTimeout(resolve, 5000))
-      checkBackgroundTimeout('Conch process')
-    })
-
-    // Phase 8: Start Docker Services with OpenMRS
-    await test.step('Start Docker services with OpenMRS', async () => {
-      const result = await runCommand(`${cliCommand} docker -u`)
-      expect(result.exitCode).toBe(0)
-      log(LogLevel.INFO, '✅ Docker services starting...')
-    })
-
-    await test.step('Wait for OpenMRS to be healthy', async () => {
-      const isHealthy = await waitForService('http://localhost:80/openmrs', 300000, 5000) // FIX: Increased timeout to 5 minutes
-      if (!isHealthy) {
-        log(LogLevel.WARN, '⚠ OpenMRS failed to become healthy, skipping browser tests')
-        // Don't fail the test, just skip browser tests
-        return
-      }
-      log(LogLevel.INFO, '✅ OpenMRS is healthy')
-    })
-
-    // Phase 8: OpenMRS Browser Testing
-    await test.step('Login to OpenMRS', async () => {
-      await page.goto('http://localhost:80/openmrs')
-
-      // Wait for login form
-      const usernameInput = page.locator('input[name="username"]')
-      await expect(usernameInput).toBeVisible({timeout: 15000})
-
-      // Login
-      await usernameInput.fill('admin')
-      await page.locator('input[name="password"]').fill('Admin123!')
-      await page.click('button[type="submit"]')
-
-      // Wait for successful login
-      await page.waitForURL(/.*\/home\?.*/, {timeout: 30000})
-      log(LogLevel.INFO, '✅ Logged into OpenMRS')
-    })
-
-    await test.step('Navigate to patient record', async () => {
-      // FIX: Better selectors for OpenMRS patient search
-      // Try multiple approaches to find patient search
-      try {
-        // Approach 1: Search icon/button
-        const searchButton = page.locator('button:has-text("Search"), [class*="search"]').first()
-        await searchButton.click({timeout: 5000})
-      } catch (error) {
-        log(LogLevel.WARN, '⚠ Could not click search button, trying alternative')
-      }
-
-      // Wait for patient search results and select first patient
-      const patientLink = page.locator('a[href*="patient"], [class*="patient"]').first()
-      await expect(patientLink).toBeVisible({timeout: 15000})
-      await patientLink.click()
-
-      // Wait for patient record to load
-      await page.waitForURL(/.*\/patient\/.*/, {timeout: 30000})
-      log(LogLevel.INFO, '✅ Patient record loaded')
-    })
-
-    await test.step('Verify chatbot widget is present', async () => {
-      // Look for chatbot tab or widget
-      const chatbotWidget = page.locator('[class*="chatbot"], [id*="chatbot"], div:has-text("Chatbot")').first()
-      await expect(chatbotWidget).toBeVisible({timeout: 15000})
-      log(LogLevel.INFO, '✅ Chatbot widget found')
-    })
-
-    // Phase 9: API Testing (OpenMRS context)
-    await test.step('Test elixir endpoint via OpenMRS', async () => {
-      const elixirEndpoint = `http://localhost:8001/langserve/${elixirName}/cds-services/dhti-service`
-
-      const response = await request.post(elixirEndpoint, {
-        data: {
-          input: {
-            context: {
-              input: 'What medications is this patient on?',
-              // FIX: Remove undefined patientId
-            },
-          },
-          config: {},
-          kwargs: {},
-        },
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      })
-
-      const status = response.status()
-      // Elixir may return 200 (success) or 404 (not configured)
-      expect([200, 404]).toContain(status)
-
-      if (status === 200) {
-        const body = await response.json()
-        // Verify response has cards or summary
-        expect(body.cards || body.summary).toBeDefined()
-        log(LogLevel.INFO, '✅ Elixir endpoint responded successfully')
-      } else {
-        log(LogLevel.INFO, '⚠ Elixir endpoint returned 404 (expected in some configurations)')
       }
     })
   })
 
   test.afterAll(async () => {
-    log(LogLevel.INFO, '🧹 Cleaning up chatbot test environment...')
+    log(LogLevel.INFO, '🧹 Cleaning up chatbot CDS sandbox test environment...')
 
-    // FIX: Properly kill background processes
     if (elixirProcess) {
       try {
         log(LogLevel.INFO, 'Terminating elixir background process...')
         elixirProcess.kill('SIGTERM')
-        // Wait for process to terminate
         await new Promise((resolve) => setTimeout(resolve, 2000))
         log(LogLevel.INFO, '✅ Background elixir process terminated')
       } catch (error) {
         log(LogLevel.WARN, '⚠ Could not terminate elixir process gracefully, forcing kill')
         try {
           elixirProcess.kill('SIGKILL')
-        } catch (e) {
-          // Ignore
-        }
-      }
-    }
-
-    if (conchProcess) {
-      try {
-        log(LogLevel.INFO, 'Terminating conch background process...')
-        conchProcess.kill('SIGTERM')
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        log(LogLevel.INFO, '✅ Background conch process terminated')
-      } catch (error) {
-        log(LogLevel.WARN, '⚠ Could not terminate conch process gracefully, forcing kill')
-        try {
-          conchProcess.kill('SIGKILL')
         } catch (e) {
           // Ignore
         }
@@ -628,7 +425,6 @@ test.describe('Chatbot Workflow Tests', () => {
     })
 
     await test.step('Remove all Docker images including gateway', async () => {
-      // FIX: Ensure all test-related images are removed
       const result = await runCommand('docker rmi -f dhti/genai-test:1.0 beapen/dhti-gateway:latest 2>&1 || true')
       log(LogLevel.INFO, '✅ All Docker images removed')
     })
