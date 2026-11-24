@@ -174,7 +174,6 @@ export default class Elixir extends Command {
       this.log(chalk.cyan(`  yarn dhti ${elixirUrl} ${flags.fhir}`))
       this.log(chalk.cyan(`  Update docker-compose.yml FHIR_BASE_URL=${flags.fhir}`))
       this.log(chalk.cyan(`  docker restart ${flags.container}`))
-      this.log(chalk.cyan(`  yarn dev`))
       return
     }
 
@@ -186,7 +185,7 @@ export default class Elixir extends Command {
         this.log(chalk.green('✓ Skipped clone and install (directory already exists)'))
       } else {
         this.log(chalk.blue(`Cloning CDS Hooks Sandbox to ${sandboxDir}...`))
-        const degitCommand = `npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`
+        const degitCommand = `npx degit dermatologist/cds-hooks-sandbox#dhti-4 ${sandboxDir}`
         await execAsync(degitCommand)
         this.log(chalk.green('✓ CDS Hooks Sandbox cloned successfully'))
 
@@ -275,7 +274,7 @@ export default class Elixir extends Command {
 
   private async startDevServer(sandboxDir: string, elixirUrl: string, fhirUrl: string): Promise<void> {
     this.log(chalk.blue('Starting development server...'))
-    const devCommand = `yarn dhti ${elixirUrl} ${fhirUrl} && yarn dev`
+    const devCommand = `yarn dhti ${elixirUrl} ${fhirUrl}`
     try {
       const child = spawn(devCommand, {cwd: sandboxDir, shell: true, stdio: 'inherit'})
       await new Promise((resolve, reject) => {
