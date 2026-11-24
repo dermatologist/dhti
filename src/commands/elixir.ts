@@ -11,6 +11,7 @@ import chalk from 'chalk'
 import yaml from 'js-yaml'
 import {exec, spawn} from 'node:child_process'
 import fs from 'node:fs'
+import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
@@ -200,21 +201,26 @@ export default class Elixir extends Command {
       }
 
       try {
-      this.log(chalk.blue('Configuring DHTI endpoints...'))
-      await this.configureDockerContainer(flags)
-      this.log(chalk.green('✓ DHTI endpoints configured successfully'))
+        this.log(chalk.blue('Configuring DHTI endpoints...'))
+        await this.configureDockerContainer(flags)
+        this.log(chalk.green('✓ DHTI endpoints configured successfully'))
       } catch (error) {
-        this.warn(chalk.yellow(`⚠ Warning: Failed to configure Docker container: ${error}. Continuing with start operation.`))
+        this.warn(
+          chalk.yellow(`⚠ Warning: Failed to configure Docker container: ${error}. Continuing with start operation.`),
+        )
       }
 
       try {
-      this.log(chalk.blue('Starting development server...'))
-      await this.startDevServer(sandboxDir, elixirUrl, flags.fhir)
-      this.log(chalk.green('✓ Development server started successfully'))
+        this.log(chalk.blue('Starting development server...'))
+        await this.startDevServer(sandboxDir, elixirUrl, flags.fhir)
+        this.log(chalk.green('✓ Development server started successfully'))
       } catch (error) {
-        this.warn(chalk.yellow(`⚠ Warning: Failed to start development server: ${error}. Please check the server logs for details.`))
+        this.warn(
+          chalk.yellow(
+            `⚠ Warning: Failed to start development server: ${error}. Please check the server logs for details.`,
+          ),
+        )
       }
-
     } catch (error) {
       this.error(`Start operation failed: ${error}`)
     }
@@ -277,7 +283,29 @@ export default class Elixir extends Command {
     }
   }
 
+  private async checkPort(port: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const server = net.createServer()
+      server.listen(port, 'localhost', () => {
+        server.close(() => {
+          this.log(chalk.green(`✓ Port ${port} is available`))
+          resolve()
+        })
+      })
+      server.on('error', (err: unknown) => {
+        const error = err as {code?: string}
+        if (error.code === 'EADDRINUSE') {
+          this.error(`Port ${port} is already in use. Please free the port or use a different one.`)
+        }
+        reject(err)
+      })
+    })
+  }
+
   private async startDevServer(sandboxDir: string, elixirUrl: string, fhirUrl: string): Promise<void> {
+    // Check if port 8080 is available
+    await this.checkPort(8080)
+
     this.log(chalk.blue('Starting development server...'))
     const devCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${fhirUrl}`
     try {
