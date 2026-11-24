@@ -291,34 +291,34 @@ test.describe('Chatbot Workflow Tests', () => {
       }
     })
 
-    await test.step('Find contentString input field', async () => {
-      // Look for contentString textarea or input field
+    await test.step('Find communication-message input field', async () => {
+      // Look for communication-message textarea or input field
       // Try multiple selectors based on CDS Hooks sandbox structure
-      const contentStringInput = page
+      const communicationMessageInput = page
         .locator(
-          'textarea[name="contentString"], textarea[placeholder*="content"], input[name="contentString"], [class*="contentString"], textarea',
+          'textarea[name="communication-message"], textarea[placeholder*="communication"], input[name="communication-message"], [class*="communication"], textarea',
         )
         .first()
 
       try {
-        await expect(contentStringInput).toBeVisible({timeout: 10000})
-        log(LogLevel.INFO, '✅ ContentString input field found')
+        await expect(communicationMessageInput).toBeVisible({timeout: 10000})
+        log(LogLevel.INFO, '✅ Communication-message input field found')
       } catch (error) {
         // If we can't find the specific field, log a warning but continue
-        log(LogLevel.WARN, '⚠ Could not find contentString input field, skipping UI test')
+        log(LogLevel.WARN, '⚠ Could not find communication-message input field, skipping UI test')
       }
     })
 
-    await test.step('Submit test query via contentString', async () => {
+    await test.step('Submit test query via communication-message', async () => {
       // Find the input again and fill it
-      const contentStringInput = page
+      const communicationMessageInput = page
         .locator(
-          'textarea[name="contentString"], textarea[placeholder*="content"], input[name="contentString"], [class*="contentString"], textarea',
+          'textarea[name="communication-message"], textarea[placeholder*="communication"], input[name="communication-message"], [class*="communication"], textarea',
         )
         .first()
 
       try {
-        await contentStringInput.fill('What medications is this patient on?')
+        await communicationMessageInput.fill('What medications is this patient on?')
         log(LogLevel.INFO, '✅ Test query entered')
 
         // Wait for auto-submit (5 seconds as per README.md)
