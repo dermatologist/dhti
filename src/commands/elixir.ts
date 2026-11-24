@@ -45,7 +45,7 @@ export default class Elixir extends Command {
     }),
     fhir: Flags.string({
       char: 'f',
-      default: 'http://hapi.fhir.org/baseR4',
+      default: 'https://hapi.fhir.org/baseR4',
       description: 'FHIR endpoint URL',
     }),
     git: Flags.string({char: 'g', default: 'none', description: 'Github repository to install'}),
@@ -174,7 +174,6 @@ export default class Elixir extends Command {
       this.log(chalk.cyan(`  yarn dhti ${elixirUrl} ${flags.fhir}`))
       this.log(chalk.cyan(`  Update docker-compose.yml FHIR_BASE_URL=${flags.fhir}`))
       this.log(chalk.cyan(`  docker restart ${flags.container}`))
-      this.log(chalk.cyan(`  yarn dev`))
       return
     }
 
@@ -186,7 +185,7 @@ export default class Elixir extends Command {
         this.log(chalk.green('✓ Skipped clone and install (directory already exists)'))
       } else {
         this.log(chalk.blue(`Cloning CDS Hooks Sandbox to ${sandboxDir}...`))
-        const degitCommand = `npx degit dermatologist/cds-hooks-sandbox ${sandboxDir}`
+        const degitCommand = `npx degit dermatologist/cds-hooks-sandbox#dhti-4 ${sandboxDir}`
         await execAsync(degitCommand)
         this.log(chalk.green('✓ CDS Hooks Sandbox cloned successfully'))
 
@@ -200,17 +199,22 @@ export default class Elixir extends Command {
         this.log(chalk.green('✓ Dependencies installed successfully'))
       }
 
+      try {
       this.log(chalk.blue('Configuring DHTI endpoints...'))
-      const dhtiCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${flags.fhir}`
-      const {stderr: dhtiError} = await execAsync(dhtiCommand)
-      if (dhtiError && !dhtiError.includes('warning')) {
-        this.log(chalk.yellow(`Configuration warnings: ${dhtiError}`))
+      await this.configureDockerContainer(flags)
+      this.log(chalk.green('✓ DHTI endpoints configured successfully'))
+      } catch (error) {
+        this.warn(chalk.yellow(`⚠ Warning: Failed to configure Docker container: ${error}. Continuing with start operation.`))
       }
 
-      this.log(chalk.green('✓ DHTI endpoints configured successfully'))
-
-      await this.configureDockerContainer(flags)
+      try {
+      this.log(chalk.blue('Starting development server...'))
       await this.startDevServer(sandboxDir, elixirUrl, flags.fhir)
+      this.log(chalk.green('✓ Development server started successfully'))
+      } catch (error) {
+        this.warn(chalk.yellow(`⚠ Warning: Failed to start development server: ${error}. Please check the server logs for details.`))
+      }
+
     } catch (error) {
       this.error(`Start operation failed: ${error}`)
     }
@@ -275,7 +279,7 @@ export default class Elixir extends Command {
 
   private async startDevServer(sandboxDir: string, elixirUrl: string, fhirUrl: string): Promise<void> {
     this.log(chalk.blue('Starting development server...'))
-    const devCommand = `yarn dhti ${elixirUrl} ${fhirUrl} && yarn dev`
+    const devCommand = `cd ${sandboxDir} && yarn dhti ${elixirUrl} ${fhirUrl}`
     try {
       const child = spawn(devCommand, {cwd: sandboxDir, shell: true, stdio: 'inherit'})
       await new Promise((resolve, reject) => {
