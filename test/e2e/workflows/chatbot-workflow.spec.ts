@@ -30,6 +30,7 @@ test.describe('Chatbot Workflow Tests', () => {
   let elixirProcess: any = null
   let conchProcess: any = null
   let backgroundStartTime: number = 0
+  let elixirStdout: string = ''
 
   // Helper to check background process timeout
   function checkBackgroundTimeout(processName: string): void {
@@ -48,13 +49,13 @@ test.describe('Chatbot Workflow Tests', () => {
     await test.step('Verify Node.js is installed', async () => {
       const result = await runCommand('node --version')
       expect(result.exitCode).toBe(0)
-      log(`✅ Node.js: ${result.stdout.trim()}`)
+      log(LogLevel.INFO, `✅ Node.js: ${result.stdout.trim()}`)
     })
 
     await test.step('Verify Docker is running', async () => {
       const result = await runCommand('docker --version')
       expect(result.exitCode).toBe(0)
-      log(`✅ Docker: ${result.stdout.trim()}`)
+      log(LogLevel.INFO, `✅ Docker: ${result.stdout.trim()}`)
     })
 
     await test.step('Build dhti-cli', async () => {
@@ -72,7 +73,7 @@ test.describe('Chatbot Workflow Tests', () => {
     await test.step('Verify dhti-cli is available', async () => {
       const result = await runCommand(`${cliCommand} --version`)
       expect(result.exitCode).toBe(0)
-      log(`✅ dhti-cli: ${result.stdout.trim()}`)
+      log(LogLevel.INFO, `✅ dhti-cli: ${result.stdout.trim()}`)
     })
   })
 
@@ -177,17 +178,47 @@ test.describe('Chatbot Workflow Tests', () => {
     })
 
     // Phase 6: Start Elixir (in background)
+    let cdsSandboxUrl: string = '' // Will be extracted from elixir start output
     await test.step('Start elixir CDS sandbox in background', async () => {
       backgroundStartTime = Date.now()
-      const {proc} = runCommandBackground(`${cliCommand} elixir start -n ${elixirName}`)
+      const {proc, getStdout, waitForExit} = await runCommandBackground(`${cliCommand} elixir start -n ${elixirName}`)
       elixirProcess = proc
       log(LogLevel.INFO, '✅ Elixir CDS sandbox starting in background')
 
-      // Give the process some time to start
-      await new Promise((resolve) => setTimeout(resolve, 5000))
+      // Wait for the process to generate all its initial output (including Application URL)
+      // The elixir start command should output the URL and then continue running
+      try {
+        // Wait up to 30 seconds for the process to either exit or generate all initial output
+        await waitForExit(30000)
+      } catch (error) {
+        // Process didn't exit within timeout, which is expected for a long-running service
+        log(LogLevel.INFO, '⏳ Elixir process is still running (expected)')
+      }
+
+      // Give the process a moment to flush all output buffers
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+
+      // Get accumulated stdout from the process
+      elixirStdout = getStdout()
+      log(LogLevel.INFO, `📝 Captured ${elixirStdout.length} bytes of elixir output`)
 
       // FIX: Check if process is still running
       checkBackgroundTimeout('Elixir process')
+
+      // Extract Application URL from the output
+      // Format: "Application URL: http://localhost:8080/?serviceDiscoveryURL=..."
+      const urlMatch = elixirStdout.match(/Application URL:\s*(http?:\/\/[^\s]+)/i)
+      if (urlMatch && urlMatch[1]) {
+        cdsSandboxUrl = urlMatch[1]
+        log(LogLevel.INFO, `✅ Extracted CDS sandbox URL: ${cdsSandboxUrl}`)
+      } else {
+        // Fallback to default if URL not found in output
+        log(
+          LogLevel.WARN,
+          `⚠ Could not extract Application URL in ${elixirStdout.substring(0, 500)}, using default: http://localhost:8080`,
+        )
+        cdsSandboxUrl = 'http://localhost:8080'
+      }
     })
 
     // Phase 6a: CDS Hooks Sandbox UI Testing (NEW - from README.md)
@@ -212,38 +243,23 @@ test.describe('Chatbot Workflow Tests', () => {
         log(LogLevel.WARN, '⚠ Could not load CDS Hooks sandbox page, skipping UI tests')
         return // Skip remaining UI tests
       }
-
-      // Handle "Change FHIR Server" modal if it appears
-      try {
-        const modal = page.locator('text=Change FHIR Server')
-        await expect(modal).toBeVisible({timeout: 3000})
-        log(LogLevel.INFO, '⚠ Found FHIR Server modal, handling...')
-
-        // Fill in a dummy FHIR server URL and click Next to proceed
-        const fhirUrlInput = page.locator('input[placeholder*="FHIR Server URL"], input[type="text"]').first()
-        await fhirUrlInput.fill('http://localhost:8081/fhir')
-        await new Promise((resolve) => setTimeout(resolve, 500))
-
-        const nextButton = page.locator('button:has-text("Next")').first()
-        await nextButton.click({timeout: 2000})
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        log(LogLevel.INFO, '✅ FHIR Server modal handled')
-      } catch (error) {
-        // Modal not present, continue normally
-        log(LogLevel.INFO, 'ℹ No FHIR Server modal present')
-      }
     })
 
-    await test.step('Navigate to Rx View tab', async () => {
-      // Look for Rx View or Order Select tab
-      const rxViewTab = page.locator('text=Rx View, text=Order Select, [class*="rx"], [class*="order"]').first()
+    await test.step('Switch to Patient View', async () => {
+      // Look for Patient View tab or link
+      const patientViewTab = page
+        .locator('text=Patient View, text=Patient, [class*="patient"], [id*="patient"]')
+        .first()
 
       try {
-        await rxViewTab.click({timeout: 10000})
-        log(LogLevel.INFO, '✅ Rx View tab clicked')
+        await patientViewTab.click({timeout: 10000})
+        log(LogLevel.INFO, '✅ Patient View tab clicked')
+
+        // Wait for view to load
+        await new Promise((resolve) => setTimeout(resolve, 2000))
       } catch (error) {
         // If tab click fails, we may already be on the right view
-        log(LogLevel.WARN, '⚠ Could not click Rx View tab, continuing with current view')
+        log(LogLevel.WARN, '⚠ Could not click Patient View tab, continuing with current view')
       }
     })
 

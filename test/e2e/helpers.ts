@@ -126,7 +126,7 @@ export function runCommand(
  * Run a command in the background (non-blocking)
  * @param command - Command to execute
  * @param options - Execution options
- * @returns Spawned process object
+ * @returns Spawned process object with stdout/stderr accumulators
  */
 export function runCommandBackground(
   command: string,
@@ -134,7 +134,7 @@ export function runCommandBackground(
     cwd?: string
     env?: NodeJS.ProcessEnv
   } = {},
-): {proc: any; stdout: string; stderr: string} {
+): {proc: any; getStdout: () => string; getStderr: () => string; waitForExit: (timeout?: number) => Promise<void>} {
   const {cwd = process.cwd(), env = process.env} = options
 
   log(LogLevel.INFO, `Starting background process: ${command}`)
@@ -142,18 +142,50 @@ export function runCommandBackground(
   const [cmd, ...args] = command.split(' ')
   const proc = spawn(cmd, args, {cwd, env, stdio: ['ignore', 'pipe', 'pipe']})
 
-  let stdout = ''
-  let stderr = ''
+  let stdoutBuffer = ''
+  let stderrBuffer = ''
+  let processExited = false
+  let exitPromise: Promise<void> | null = null
 
   proc.stdout.on('data', (data: Buffer) => {
-    stdout += data.toString()
+    const chunk = data.toString()
+    stdoutBuffer += chunk
+    // Log stdout in real-time for debugging
+    process.stdout.write(chunk)
   })
 
   proc.stderr.on('data', (data: Buffer) => {
-    stderr += data.toString()
+    const chunk = data.toString()
+    stderrBuffer += chunk
+    // Log stderr in real-time for debugging
+    process.stderr.write(chunk)
   })
 
-  return {proc, stdout, stderr}
+  proc.on('close', (code) => {
+    log(LogLevel.INFO, `Background process exited with code ${code}`)
+    processExited = true
+  })
+
+  proc.on('error', (err) => {
+    log(LogLevel.ERROR, `Background process error: ${err.message}`)
+    processExited = true
+  })
+
+  exitPromise = new Promise((resolve) => {
+    proc.on('exit', resolve)
+  })
+
+  return {
+    proc,
+    getStdout: () => stdoutBuffer,
+    getStderr: () => stderrBuffer,
+    waitForExit: async (timeout: number = 30000) => {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Process exit timeout after ${timeout}ms`)), timeout),
+      )
+      await Promise.race([exitPromise!, timeoutPromise])
+    },
+  }
 }
 
 /**
