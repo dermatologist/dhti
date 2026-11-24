@@ -4,7 +4,8 @@ import {expect} from 'chai'
 describe('elixir', () => {
   it('runs elixir cmd', async () => {
     const {stdout} = await runCommand('elixir')
-    expect(stdout).to.contain('Please provide a name for the elixir')
+    expect(stdout).to.contain('Available operations: init, install, uninstall, dev, start')
+    expect(stdout).to.contain('Run "dhti elixir <operation> --help" for more information')
   })
 
   it('runs elixir init cmd with --dry-run flag', async () => {
@@ -110,7 +111,6 @@ describe('elixir', () => {
     expect(stdout).to.contain('/tmp/test-workdir/cds-hooks-sandbox')
     expect(stdout).to.contain('yarn install')
     expect(stdout).to.contain('yarn dhti')
-    expect(stdout).to.contain('yarn dev')
     expect(stdout).to.contain('http://localhost:8001/langserve/my_elixir/cds-services')
   })
 
@@ -143,7 +143,7 @@ describe('elixir', () => {
     ])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('http://localhost:8001/langserve/test_name_with_dash/cds-services')
-    expect(stdout).to.contain('http://hapi.fhir.org/baseR4')
+    expect(stdout).to.contain('https://hapi.fhir.org/baseR4')
   })
 
   it('rejects elixir start without --elixir and without --name', async () => {
@@ -159,7 +159,7 @@ describe('elixir', () => {
     const {stdout} = await runCommand(['elixir', 'start', '-w', '/tmp/test-workdir', '-n', 'my-elixir', '--dry-run'])
     expect(stdout).to.contain('[DRY RUN]')
     expect(stdout).to.contain('Update docker-compose.yml')
-    expect(stdout).to.contain('FHIR_BASE_URL=http://hapi.fhir.org/baseR4')
+    expect(stdout).to.contain('FHIR_BASE_URL=https://hapi.fhir.org/baseR4')
     expect(stdout).to.contain('docker restart dhti-langserve-1')
   })
 

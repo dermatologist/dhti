@@ -1,4 +1,7 @@
 import {expect} from 'chai'
+import {ChatPromptTemplate} from '@langchain/core/prompts'
+import {FakeListChatModel} from '@langchain/core/utils/testing'
+import {RunnableLambda} from '@langchain/core/runnables'
 
 import {ChainService} from '../../src/utils/chain'
 
@@ -11,9 +14,11 @@ describe('ChainService', () => {
   })
 
   it('should call Chain and return output', async () => {
-    // Mock container with resolve
-    const mockPrompt = (input: any) => input + ' prompt'
-    const mockMainLLM = (input: any) => input + ' llm'
+    // Create proper LangChain runnables for testing
+    const mockPrompt = ChatPromptTemplate.fromTemplate('{input}')
+    const mockMainLLM = new FakeListChatModel({
+      responses: ['test response'],
+    })
     const container = {
       resolve(name: string) {
         if (name === 'prompt') return mockPrompt
@@ -21,7 +26,7 @@ describe('ChainService', () => {
       },
     }
     const service = new ChainService(container)
-    const result = await service.Chain('test')
-    expect(result).to.equal('test prompt llm')
+    const result = await service.Chain({input: 'test'})
+    expect(result).to.equal('test response')
   })
 })

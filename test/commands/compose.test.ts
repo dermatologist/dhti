@@ -54,17 +54,17 @@ describe('compose', () => {
     })
 
     it('should error when --env flag is missing', async () => {
-      const {stderr} = await runCommand(['compose', 'env', '-f', testComposeFile, '--value', 'test_value', '--dry-run'])
-      expect(stderr).to.include('Error')
+      const {error} = await runCommand(['compose', 'env', '-f', testComposeFile, '--value', 'test_value', '--dry-run'])
+      expect(error?.message).to.include('--env flag is required for env operation')
     })
 
     it('should error when --value flag is missing', async () => {
-      const {stderr} = await runCommand(['compose', 'env', '-f', testComposeFile, '--env', 'TEST_VAR', '--dry-run'])
-      expect(stderr).to.include('Error')
+      const {error} = await runCommand(['compose', 'env', '-f', testComposeFile, '--env', 'TEST_VAR', '--dry-run'])
+      expect(error?.message).to.include('--value flag is required for env operation')
     })
 
     it('should error when service does not exist', async () => {
-      const {stderr} = await runCommand([
+      const {error} = await runCommand([
         'compose',
         'env',
         '-f',
@@ -77,7 +77,7 @@ describe('compose', () => {
         'test_value',
         '--dry-run',
       ])
-      expect(stderr).to.include('Error')
+      expect(error?.message).to.include("Service 'nonexistent' not found in docker-compose.yml")
     })
 
     it('should add new environment variable with --dry-run', async () => {

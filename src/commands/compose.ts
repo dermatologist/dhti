@@ -7,12 +7,13 @@ import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {promisify} from 'node:util'
+import {DockerComposeConfig} from '../types/index.js'
 
 const execAsync = promisify(exec)
 
 export default class Compose extends Command {
   static override args = {
-    op: Args.string({description: 'Operation to perform (add, delete, read or reset)'}),
+    op: Args.string({description: 'Operation to perform (add, delete, read, reset, or env)'}),
   }
 
   static override description = 'Generates a docker-compose.yml file from a list of modules'
@@ -94,7 +95,7 @@ export default class Compose extends Command {
     const medplum = ['medplum-server', 'medplum-app', 'postgres-db', 'redis', 'mpclient']
     const orthanc = ['orthanc', 'cors-proxy']
 
-    const _modules: {[key: string]: string[]} = {
+    const MODULES: {[key: string]: string[]} = {
       cqlFhir,
       docktor,
       fhir,
@@ -113,20 +114,22 @@ export default class Compose extends Command {
     }
 
     try {
-      const masterData: any = yaml.load(fs.readFileSync(path.join(RESOURCES_DIR, 'docker-compose-master.yml'), 'utf8'))
-      let existingData: any = {services: {}, version: '3.8'}
+      const masterData: DockerComposeConfig = yaml.load(
+        fs.readFileSync(path.join(RESOURCES_DIR, 'docker-compose-master.yml'), 'utf8'),
+      ) as DockerComposeConfig
+      let existingData: DockerComposeConfig = {services: {}, version: '3.8'}
       if (fs.existsSync(flags.file)) {
-        existingData = yaml.load(fs.readFileSync(flags.file, 'utf8'))
+        existingData = yaml.load(fs.readFileSync(flags.file, 'utf8')) as DockerComposeConfig
       } else if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would create directory: ${os.homedir()}/dhti`))
-        console.log(chalk.yellow(`[DRY RUN] Would create file: ${flags.file}`))
+        this.log(chalk.yellow(`[DRY RUN] Would create directory: ${os.homedir()}/dhti`))
+        this.log(chalk.yellow(`[DRY RUN] Would create file: ${flags.file}`))
       } else {
         Compose.init() // Create the file if it does not exist
       }
 
       // Echo the existing data to the console
       if (args.op === 'read') {
-        console.log(existingData)
+        this.log(JSON.stringify(existingData, null, 2))
         return
       }
 
@@ -134,13 +137,11 @@ export default class Compose extends Command {
       if (args.op === 'env') {
         // Validate mandatory flags
         if (!flags.env) {
-          console.error(chalk.red('Error: --env flag is required for env operation'))
-          this.exit(1)
+          this.error('--env flag is required for env operation')
         }
 
         if (!flags.value) {
-          console.error(chalk.red('Error: --value flag is required for env operation'))
-          this.exit(1)
+          this.error('--value flag is required for env operation')
         }
 
         const serviceName = flags.service
@@ -155,8 +156,7 @@ export default class Compose extends Command {
 
         // Check if service exists
         if (!existingData.services[serviceName]) {
-          console.error(chalk.red(`Error: Service '${serviceName}' not found in docker-compose.yml`))
-          this.exit(1)
+          this.error(`Service '${serviceName}' not found in docker-compose.yml`)
         }
 
         const service = existingData.services[serviceName]
@@ -224,16 +224,16 @@ export default class Compose extends Command {
         // Write the updated compose file
         const updatedCompose = yaml.dump(existingData).replaceAll('null', '')
         fs.writeFileSync(flags.file, updatedCompose, 'utf8')
-        console.log(chalk.green(`✓ docker-compose.yml updated successfully`))
+        this.log(chalk.green('✓ docker-compose.yml updated successfully'))
 
         // Run docker compose up -d to apply changes
         try {
           const workdir = path.dirname(flags.file)
           await execAsync('docker compose up -d', {cwd: workdir})
-          console.log(chalk.green(`✓ Docker compose reloaded successfully (docker compose up -d)`))
+          this.log(chalk.green('✓ Docker compose reloaded successfully (docker compose up -d)'))
         } catch (error: unknown) {
           const err = error as {message?: string}
-          console.warn(chalk.yellow(`⚠ Warning: Could not run docker compose up -d: ${err.message}`))
+          this.warn(`⚠ Warning: Could not run docker compose up -d: ${err.message}`)
         }
 
         return
@@ -242,8 +242,8 @@ export default class Compose extends Command {
       // Delete flags.file if args.op is reset
       if (args.op === 'reset') {
         if (flags['dry-run']) {
-          console.log(chalk.yellow(`[DRY RUN] Would delete file: ${flags.file}`))
-          console.log(chalk.yellow(`[DRY RUN] Would recreate file: ${flags.file}`))
+          this.log(chalk.yellow(`[DRY RUN] Would delete file: ${flags.file}`))
+          this.log(chalk.yellow(`[DRY RUN] Would recreate file: ${flags.file}`))
         } else {
           fs.unlinkSync(flags.file)
           Compose.init() // Recreate the file
@@ -252,17 +252,17 @@ export default class Compose extends Command {
 
       // if existing data is not null and arg is delete, remove the modules from the existing data
       if (Object.keys(existingData.services).length > 0 && args.op === 'delete') {
-        // Expand the modules to remove using _modules object
+        // Expand the modules to remove using MODULES object
         let modulesToDelete: any[] = []
         for (const module of flags.module ?? []) {
-          modulesToDelete = modulesToDelete.concat(_modules[module])
+          modulesToDelete = modulesToDelete.concat(MODULES[module])
         }
 
         if (flags['dry-run']) {
-          console.log(chalk.yellow('[DRY RUN] Would delete the following modules:'))
+          this.log(chalk.yellow('[DRY RUN] Would delete the following modules:'))
           for (const module of modulesToDelete ?? []) {
             if (existingData.services[module]) {
-              console.log(chalk.cyan(`  - ${module}`))
+              this.log(chalk.cyan(`  - ${module}`))
             }
           }
         } else {
@@ -276,16 +276,16 @@ export default class Compose extends Command {
 
       // if arg is add, add the modules from the master data
       if (args.op === 'add') {
-        // Expand the modules to add using _modules object
+        // Expand the modules to add using MODULES object
         let modulesToAdd: any[] = []
         for (const module of flags.module ?? []) {
-          modulesToAdd = modulesToAdd.concat(_modules[module])
+          modulesToAdd = modulesToAdd.concat(MODULES[module])
         }
 
         if (flags['dry-run']) {
-          console.log(chalk.yellow('[DRY RUN] Would add the following modules:'))
+          this.log(chalk.yellow('[DRY RUN] Would add the following modules:'))
           for (const module of modulesToAdd ?? []) {
-            console.log(chalk.cyan(`  - ${module}`))
+            this.log(chalk.cyan(`  - ${module}`))
           }
         } else {
           for (const module of modulesToAdd ?? []) {
@@ -297,23 +297,26 @@ export default class Compose extends Command {
       // Add all volumes from master data to existing data by default
       if (!flags['dry-run']) {
         existingData.volumes = {}
-        for (const key of Object.keys(masterData.volumes)) {
-          existingData.volumes[key] = masterData.volumes[key]
+        if (masterData.volumes) {
+          for (const key of Object.keys(masterData.volumes)) {
+            existingData.volumes[key] = masterData.volumes[key]
+          }
         }
       }
 
       const toWrite = yaml.dump(existingData).replaceAll('null', '')
 
       if (flags['dry-run']) {
-        console.log(chalk.yellow(`[DRY RUN] Would write to file: ${flags.file}`))
-        console.log(chalk.green('[DRY RUN] File content would be:'))
-        console.log(toWrite)
+        this.log(chalk.yellow(`[DRY RUN] Would write to file: ${flags.file}`))
+        this.log(chalk.green('[DRY RUN] File content would be:'))
+        this.log(toWrite)
       } else {
-        console.log('Writing file:', toWrite)
+        this.log('Writing file:', flags.file)
         fs.writeFileSync(flags.file, toWrite, 'utf8')
+        this.log(chalk.green('✓ docker-compose.yml updated successfully'))
       }
     } catch (error) {
-      console.error(error)
+      this.error(`Failed to process docker-compose: ${error}`)
     }
   }
 }
